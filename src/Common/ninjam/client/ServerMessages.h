@@ -33,21 +33,9 @@ enum class  ChatCommandType : quint8
     USERCOUNT
 };
 
-class ServerMessage
-{
+class ServerMessage : public INetworkMessage {
 public:
-    explicit ServerMessage(MessageType messageType);
-    virtual ~ServerMessage();
-
-    virtual void printDebug(QDebug &dbg) const = 0;
-
-    inline MessageType getMessageType() const
-    {
-        return messageType;
-    }
-
-protected:
-    MessageType messageType;
+    using INetworkMessage::INetworkMessage;
 };
 
 // ++++++++++++++++++++++++++++++++++
@@ -55,11 +43,12 @@ protected:
 class AuthChallengeMessage : public ServerMessage
 {
 public:
+    AuthChallengeMessage();
     AuthChallengeMessage(const QByteArray &challenge, const QString &licence, quint32 serverCapabilities, quint32 protocolVersion);
 
-    static AuthChallengeMessage from(QIODevice *device, quint32 payload);
-    void to(QIODevice *stream) const;
-
+    quint32 getSerializePayload() const override;
+    bool serializeTo(NinjamOutputDataStream& stream) const override;
+    bool unserializeFrom(NinjamInputDataStream& stream) override;
     void printDebug(QDebug &dbg) const override;
 
     QByteArray getChallenge() const;
@@ -100,11 +89,12 @@ inline QString AuthChallengeMessage::getLicenceAgreement() const
 class AuthReplyMessage : public ServerMessage
 {
 public:
+    AuthReplyMessage();
     AuthReplyMessage(quint8 flag, const QString &message, quint8 maxChannels);
-    void to(QIODevice *device) const;
 
-    static AuthReplyMessage from(QIODevice *stream, quint32 payload);
-
+    quint32 getSerializePayload() const override;
+    bool serializeTo(NinjamOutputDataStream& stream) const override;
+    bool unserializeFrom(NinjamInputDataStream& stream) override;
     void printDebug(QDebug &debug) const override;
 
     inline QString getErrorMessage() const
@@ -136,44 +126,32 @@ private:
     quint8 maxChannels;
 };
 
-// +++++++++++++++++++++++++++++++
-
-class ServerKeepAliveMessage : public ServerMessage
-{
-public:
-    void printDebug(QDebug &dbg) const override;
-    static ServerKeepAliveMessage from(QIODevice *stream, quint32 payload);
-private:
-    ServerKeepAliveMessage();
-};
-
 // -----------------------------------------------------------------
 
 class ConfigChangeNotifyMessage : public ServerMessage
 {
 public:
+    ConfigChangeNotifyMessage();
     ConfigChangeNotifyMessage(quint16 bpm, quint16 bpi);
-    static ConfigChangeNotifyMessage from(QIODevice *device, quint32 payload);
-    void to(QIODevice *device) const;
+
+    quint32 getSerializePayload() const override;
+    bool serializeTo(NinjamOutputDataStream& stream) const override;
+    bool unserializeFrom(NinjamInputDataStream& stream) override;
     void printDebug(QDebug &dbg) const override;
 
-    quint16 getBpi() const;
-    quint16 getBpm() const;
+    inline quint16 getBpi() const
+    {
+        return bpi;
+    }
+    inline quint16 getBpm() const
+    {
+        return bpm;
+    }
 
 private:
     quint16 bpm;
     quint16 bpi;
 };
-
-inline quint16 ConfigChangeNotifyMessage::getBpi() const
-{
-    return bpi;
-}
-
-inline quint16 ConfigChangeNotifyMessage::getBpm() const
-{
-    return bpm;
-}
 
 // -----------------------------------------------------------------
 
@@ -183,23 +161,23 @@ public:
     UserInfoChangeNotifyMessage();
     ~UserInfoChangeNotifyMessage();
     void addUserChannel(const QString &userFullName, const UserChannel &channel);
-    void to(QIODevice *device) const;
-    static UserInfoChangeNotifyMessage from(QIODevice *stream, quint32 payload);
+
     static UserInfoChangeNotifyMessage buildDeactivationMessage(const User &user);
 
+    quint32 getSerializePayload() const override;
+    bool serializeTo(NinjamOutputDataStream& stream) const override;
+    bool unserializeFrom(NinjamInputDataStream& stream) override;
     void printDebug(QDebug &dbg) const override;
 
-    QList<User> getUsers() const;
-
+    inline const QMultiMap<QString, UserChannel>& getUsers() const
+    {
+        return userChannels;
+    }
 private:
-    QMap<QString, User> users;
-    quint32 getPayload() const;
+    static quint32 getSerializeUserChannelPayload(const QString &userName, const UserChannel &channel);
+    static bool serializeUserChannelTo(NinjamOutputDataStream& stream, const QString &userName, const UserChannel &channel);
+    QMultiMap<QString, UserChannel> userChannels;
 };
-
-inline QList<User> UserInfoChangeNotifyMessage::getUsers() const
-{
-    return users.values();
-}
 
 // ++++++++++++=
 
@@ -223,7 +201,7 @@ inline QList<User> UserInfoChangeNotifyMessage::getUsers() const
 class ServerToClientChatMessage : public ServerMessage
 {
 public:
-
+    ServerToClientChatMessage();
     ServerToClientChatMessage(const QString &command, const QString &arg1, const QString &arg2, const QString &arg3 = QString(), const QString &arg4 = QString());
 
     static ServerToClientChatMessage buildTopicMessage(const QString &topic);
@@ -233,13 +211,10 @@ public:
     static ServerToClientChatMessage buildUserPartMessage(const QString &userName);
     static ServerToClientChatMessage buildVoteSystemMessage(const QString&message);
 
-    static ServerToClientChatMessage from(QIODevice *stream, quint32 payload);
-
+    quint32 getSerializePayload() const override;
+    bool serializeTo(NinjamOutputDataStream& stream) const override;
+    bool unserializeFrom(NinjamInputDataStream& stream) override;
     void printDebug(QDebug &dbg) const override;
-
-    void to(QIODevice *device) const;
-
-    quint32 getPayload() const;
 
     inline QStringList getArguments() const
     {
@@ -256,8 +231,6 @@ public:
 private:
     QString command;
     QStringList arguments;
-
-
 };
 
 /*
@@ -277,13 +250,14 @@ If the FourCC field contains "OGGv" then this is a valid Ogg Vorbis encoded down
 class DownloadIntervalBegin : public ServerMessage
 {
 public:
-    DownloadIntervalBegin(const QByteArray &GUID, quint32 estimatedSize, const QByteArray &fourCC, quint8 channelIndex, const QString &userName);
-    virtual ~DownloadIntervalBegin() {}
+    DownloadIntervalBegin();
+    DownloadIntervalBegin(const MessageGuid &GUID, quint32 estimatedSize, const MessageFourCC &fourCC, quint8 channelIndex, const QString &userName);
 
-    static DownloadIntervalBegin from(QIODevice *stream, quint32 payload);
     static DownloadIntervalBegin from(const UploadIntervalBegin &msg, const QString &userName);
-    virtual void to(QIODevice *device) const;
 
+    quint32 getSerializePayload() const override;
+    bool serializeTo(NinjamOutputDataStream& stream) const override;
+    bool unserializeFrom(NinjamInputDataStream& stream) override;
     void printDebug(QDebug &dbg) const override;
 
     inline quint8  getChannelIndex() const
@@ -291,9 +265,9 @@ public:
         return channelIndex;
     }
 
-    inline QByteArray getFourCC() const
+    inline const MessageFourCC& getFourCC() const
     {
-        return QByteArray(&fourCC[0], 4);
+        return fourCC;
     }
 
     inline quint32 getEstimatedSize() const
@@ -301,7 +275,7 @@ public:
         return estimatedSize;
     }
 
-    inline QByteArray getGUID() const
+    inline const MessageGuid& getGUID() const
     {
         return GUID;
     }
@@ -326,9 +300,9 @@ public:
     }
 
 private:
-    QByteArray GUID;
+    MessageGuid GUID;
     quint32 estimatedSize;
-    char fourCC[4];
+    MessageFourCC fourCC;
     quint8 channelIndex;
     QString userName;
 };
@@ -343,21 +317,22 @@ private:
 class DownloadIntervalWrite : public ServerMessage
 {
 public:
-    static DownloadIntervalWrite from(QIODevice *stream, quint32 payload);
+    DownloadIntervalWrite();
+    DownloadIntervalWrite(const MessageGuid &GUID, quint8 flags, const QByteArray &encodedData);
+
     static DownloadIntervalWrite from(const UploadIntervalWrite &msg);
 
-    void to(QIODevice *device) const;
-    DownloadIntervalWrite(const QByteArray &GUID, quint8 flags, const QByteArray &encodedData);
-
-
+    quint32 getSerializePayload() const override;
+    bool serializeTo(NinjamOutputDataStream& stream) const override;
+    bool unserializeFrom(NinjamInputDataStream& stream) override;
     void printDebug(QDebug &dbg) const override;
 
-    inline QByteArray getGUID() const
+    inline const MessageGuid& getGUID() const
     {
         return GUID;
     }
 
-    inline QByteArray getEncodedData() const
+    inline const QByteArray& getEncodedData() const
     {
         return encodedData;
     }
@@ -368,7 +343,7 @@ public:
     }
 
 private:
-    QByteArray GUID;
+    MessageGuid GUID;
     quint8 flags;
     QByteArray encodedData;
 };

@@ -9,8 +9,6 @@ namespace ninjam
 
 namespace client
 {
-    static const QString IP_MASK(".x");
-
     QString extractUserName(const QString &userFullName);
     QString extractUserIP(const QString &userFullName);
     QString maskIpInUserFullName(const QString &userFullName);
@@ -30,56 +28,66 @@ namespace client
         }
 
         bool hasActiveChannels() const;
+        bool hasChannel(int channelIndex) const;
 
-        inline bool hasChannel(int channelIndex) const
-        {
-            return this->channels.contains(channelIndex);
+        inline const QList<UserChannel>& getChannels() const {
+            return channels;
         }
 
-        inline QList<UserChannel> getChannels() const
-        {
-            return channels.values();
+        inline QList<UserChannel>& getChannels() {
+            return channels;
         }
 
-        inline bool operator<(const User &other) const
-        {
-            return getFullName() < other.getFullName();
+        inline bool operator<(const User &other) const {
+            return fullName < other.fullName;
         }
 
-        UserChannel getChannel(quint8 index) const;
-
-        inline QString getIp() const
-        {
+        inline const QString& getIp() const {
             return ip;
         }
 
-        inline QString getName() const
-        {
+        inline const QString& getName() const {
             return name;
         }
 
-        inline QString getFullName() const
-        {
+        inline const QString& getFullName() const {
             return fullName;
         }
 
-        void updateChannelName(quint8 channelIndex, const QString &newName);
-        void updateChannelReceiveStatus(quint8 channelIndex, bool receiving);
-        void updateChannelFlags(quint8 channelIndex, quint8 flags);
-
         void addChannel(const UserChannel &channel);
-        void removeChannel(quint8 channelIndex);
+        bool removeChannel(quint8 channelIndex);
 
-        inline int getChannelsCount() const
-        {
+        inline int getChannelsCount() const {
             return channels.size();
+        }
+
+        template<class F>
+        inline bool visitChannel(quint8 channelIndex, F&& functor) const {
+            for (int i = 0; i < channels.size(); i++) {
+                if (channels[i].getIndex() == channelIndex) {
+                    functor(channels[i]);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template<class F>
+        inline bool visitChannel(quint8 channelIndex, F&& functor) {
+            for (int i = 0; i < channels.size(); i++) {
+                if (channels[i].getIndex() == channelIndex) {
+                    functor(channels[i]);
+                    return true;
+                }
+            }
+            return false;
         }
 
     protected:
         QString fullName;
         QString name;
         QString ip;
-        QMap<int, UserChannel> channels;
+        QList<UserChannel> channels;
     };
 
     QDebug &operator<<(QDebug &out, const User &user);

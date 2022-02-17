@@ -63,37 +63,22 @@ MessageHeader MessageHeader::from(QIODevice *device)
     return MessageHeader(type, payload);
 }
 
-void serializeString(const QString &string, QDataStream &stream)
-{
-    QByteArray dataArray = string.toUtf8();
-    stream.writeRawData(dataArray.data(), dataArray.size());
+// ---------------------------------------------------------------
 
-    stream << quint8('\0'); // NUL TERMINATED
+INetworkMessage::INetworkMessage(MessageType msgType)
+    : msgType(msgType)
+{
+    //
 }
 
-void serializeByteArray(const QByteArray &array, QDataStream &stream)
+INetworkMessage::~INetworkMessage()
 {
-    for (int i = 0; i < array.size(); ++i) {
-        stream << quint8(array[i]);
-    }
+    //
 }
 
-QString extractString(QDataStream &stream)
+bool INetworkMessage::serializeTo(NinjamOutputDataStream& stream) const
 {
-    quint8 byte;
-    QByteArray byteArray;
-    while (!stream.atEnd()) {
-        stream >> byte;
-        if (byte == '\0')
-            break;
-        byteArray.append(byte);
-    }
-    return QString::fromUtf8(byteArray.data(), byteArray.size());
-}
-
-QString extractString(QDataStream &stream, quint32 size)
-{
-    return QString::fromUtf8(stream.device()->read(size));
+    return stream.writeHeader(msgType, getSerializePayload());
 }
 
 } // namespace

@@ -114,10 +114,11 @@ win32{
         LIBS_PATH = "static/win64-msvc"
     }
 
-    CONFIG(release, debug|release): LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lportaudio
-    else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../libs/$$LIBS_PATH/ -lportaudiod
-
-    LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lminimp3 -lvorbisfile -lvorbis -logg -lx264 -lavcodec -lavutil -lavformat -lswscale -lswresample -lstackwalker -lminiupnpc
+    CONFIG(release, debug|release) {
+        LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lportaudio -lminimp3 -lvorbisfile -lvorbis -logg -lx264 -lavcodec -lavutil -lavformat -lswscale -lswresample -lstackwalker -lminiupnpc
+    } else:CONFIG(debug, debug|release) {
+        LIBS += -L$$PWD/../../libs/$$LIBS_PATH/ -lportaudiod -lminimp3 -lvorbisfiled -lvorbisd -loggd -lx264 -lavcodecd -lavutild -lavformatd -lswscaled -lswresample -lstackwalker -lminiupnpcd
+    }
 
     CONFIG(release, debug|release) {
         #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
@@ -128,6 +129,7 @@ win32{
     LIBS += -lwinmm -lole32 -lws2_32 -lAdvapi32 -lUser32 -lPsapi
     LIBS += -lIPHlpApi # used by miniupnp lib
     LIBS += -lSecur32   # used by libx264
+    LIBS += -llegacy_stdio_definitions
 
     #performance monitor lib
     QMAKE_CXXFLAGS += -DPSAPI_VERSION=1

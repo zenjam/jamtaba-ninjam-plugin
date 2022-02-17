@@ -8,11 +8,13 @@
 #include <QTcpServer>
 
 #include "ninjam/Ninjam.h"
+#include "ninjam/common/CommonMessages.h"
 #include "ninjam/client/ServerMessages.h"
 #include "ninjam/client/ClientMessages.h"
 #include "ninjam/client/User.h"
 #include "ninjam/client/UserChannel.h"
 
+using ninjam::common::KeepAliveMessage;
 using ninjam::server::Server;
 using ninjam::server::Voting;
 using ninjam::client::AuthChallengeMessage;     // TODO message used both in server and client
@@ -26,9 +28,7 @@ using ninjam::client::DownloadIntervalBegin;    // BOTH
 using ninjam::client::DownloadIntervalWrite;    //BOTH
 using ninjam::client::UploadIntervalBegin;      // BOTH
 using ninjam::client::UploadIntervalWrite;      //BOTH
-using ninjam::client::ServerKeepAliveMessage;
 using ninjam::client::ClientToServerChatMessage;
-using ninjam::client::ClientKeepAlive;
 using ninjam::client::ClientSetUserMask;
 using ninjam::client::UserChannel;              // used in both
 using ninjam::client::User;                     // both
@@ -65,8 +65,8 @@ AdminCommand getAdminCommand(const QString &cmd)
 }
 
 RemoteUser::RemoteUser() :
-    lastKeepAliveReceived(QDateTime::currentMSecsSinceEpoch()),
     currentHeader(MessageHeader()),
+    lastKeepAliveReceived(QDateTime::currentMSecsSinceEpoch()),
     receivedServerInfos(false)
 {
 
@@ -83,16 +83,18 @@ void RemoteUser::updateChannels(const QList<UserChannel> &newChannels, quint8 ma
     }
 
     // deactivate non updated channels
-    for (quint8 index : channels.keys()) {
+    for (auto& channel : channels) {
+        quint8 index = channel.getIndex();
         if (!updatedIndexes.contains(index)) {
-            channels[index].setActive(false);
-            channels[index].setName(QString());
+            channel.setActive(false);
+            channel.setName(QString());
         }
     }
 
     // keep just 'maxChannels'
-    while (channels.size() > maxChannels)
-        channels.remove(channels.keys().last());
+    while (channels.size() > maxChannels) {
+        channels.pop_back();
+    }
 }
 
 void RemoteUser::setFullName(const QString &fullName)
@@ -112,8 +114,8 @@ void RemoteUser::setLastKeepAliveToNow()
 Voting::Voting(QObject *parent) :
     QObject(parent),
     value(0),
-    requiredVotes(0),
-    timer(nullptr)
+    timer(nullptr),
+    requiredVotes(0)
 {
 
 }
@@ -322,13 +324,11 @@ void Server::sendAuthChallenge(QTcpSocket *device)
         serverCapabilities |= 1; // when server has licence the first bit is set.
 
     auto msg = AuthChallengeMessage(challenge, licence, serverCapabilities, protocolVersion);
-    msg.to(device);
+    msg.serializeToDevice(device);
 }
 
-void Server::processClientAuthUserMessage(QTcpSocket *socket, const MessageHeader &header)
+void Server::processClientAuthUserMessage(QTcpSocket *socket, const ClientAuthUserMessage& msg)
 {
-    auto msg = ClientAuthUserMessage::unserializeFrom(socket, header.getPayload());
-
     // ignoring challenge and password for while
 
     quint8 flag = 1; // authentication suceeded
@@ -338,18 +338,13 @@ void Server::processClientAuthUserMessage(QTcpSocket *socket, const MessageHeade
     remoteUsers[socket].setFullName(newUserName);
 
     AuthReplyMessage authReply(flag, newUserName, maxChannels);
-    authReply.to(socket);
+    authReply.serializeToDevice(socket);
 
     if (authReply.userIsAuthenticated()) {
-        auto msg = ServerToClientChatMessage::buildUserJoinMessage(newUserName);
-        for (auto skt : remoteUsers.keys()) {
-            if (skt != socket)
-                msg.to(skt);
-        }
+        broadcastNetworkMessage(ServerToClientChatMessage::buildUserJoinMessage(newUserName), socket);
 
         emit userEntered(newUserName);
-    }
-    else {
+    } else {
         disconnectClient(socket);
     }
 }
@@ -390,16 +385,14 @@ void Server::sendServerInitialInfosTo(QTcpSocket *socket)
 {
     // send server config change
     auto configChange = ConfigChangeNotifyMessage(bpm, bpi);
-    configChange.to(socket);
+    configChange.serializeToDevice(socket);
 
     auto topicMessage = ServerToClientChatMessage::buildTopicMessage(topic);
-    topicMessage.to(socket);
+    topicMessage.serializeToDevice(socket);
 }
 
-void Server::processClientSetChannel(QTcpSocket *socket, const ninjam::MessageHeader &header)
+void Server::processClientSetChannel(QTcpSocket *socket, const ClientSetChannel& msg)
 {
-    auto msg = ClientSetChannel::unserializeFrom(socket, header.getPayload());
-
     /**
       ClientSetChannel is received after server/client handshake, it's the end of the initialization process. But this message is
       received while jamming too, when channels are added, removed or the channel name is changed.
@@ -446,60 +439,62 @@ void Server::sendConnectedUsersTo(QTcpSocket *socket)
         }
     }
 
-    msg.to(socket);
+    msg.serializeToDevice(socket);
+}
+
+void Server::broadcastNetworkData(const QByteArray& messageData, QTcpSocket *excludeSocket) {
+    for (auto iterator = remoteUsers.begin(); iterator != remoteUsers.end(); ++iterator) {
+        QTcpSocket* socket = iterator.key();
+        if (socket != excludeSocket) {
+            socket->write(messageData);
+        }
+    }
+}
+
+void Server::broadcastNetworkMessage(const INetworkMessage& message, QTcpSocket *excludeSocket) {
+    QByteArray broadcastMessageData;
+    message.serializeToBuffer(broadcastMessageData);
+    broadcastNetworkData(broadcastMessageData, excludeSocket);
 }
 
 void Server::broadcastUserChanges(const QString userFullName, const QList<UserChannel> &userChannels)
 {
     UserInfoChangeNotifyMessage msg;
-
-    for (int c = 0; c < userChannels.size(); ++c)
+    for (int c = 0; c < userChannels.size(); ++c) {
         msg.addUserChannel(userFullName, userChannels.at(c));
+    }
+
+    QByteArray userChangesMessageData;
+    msg.serializeToBuffer(userChangesMessageData);
 
     for (auto socket : remoteUsers.keys()) {
         if (remoteUsers[socket].getFullName() != userFullName) {
-            msg.to(socket);
+            socket->write(userChangesMessageData);
         }
     }
 }
 
-void Server::processUploadIntervalBegin(QTcpSocket *senderSocket, const MessageHeader &header)
+void Server::processUploadIntervalBegin(QTcpSocket *senderSocket, const UploadIntervalBegin &msg)
 {
     if (!remoteUsers.contains(senderSocket))
         return;
 
-    auto msg = UploadIntervalBegin::from(senderSocket, header.getPayload());
     auto senderFullName = remoteUsers[senderSocket].getFullName();
-
-    auto downloadMsg = DownloadIntervalBegin::from(msg, senderFullName);
-
-    for (auto socket : remoteUsers.keys()) {
-        if (socket != senderSocket) {
-            downloadMsg.to(socket);
-        }
-    }
+    broadcastNetworkMessage(DownloadIntervalBegin::from(msg, senderFullName), senderSocket);
 }
 
-void Server::processUploadIntervalWrite(QTcpSocket *senderSocket, const MessageHeader &header)
+void Server::processUploadIntervalWrite(QTcpSocket *senderSocket, const DownloadIntervalWrite &msg)
 {
     if (!remoteUsers.contains(senderSocket))
         return;
 
     // parsing the DownloadIntervalWrite directly, because the message is identical to UploadIntervaWrite
-    auto downloadMsg = DownloadIntervalWrite::from(senderSocket, header.getPayload());
-
-    for (auto socket : remoteUsers.keys()) {
-        if (socket != senderSocket) {
-            downloadMsg.to(socket);
-        }
-    }
+    broadcastNetworkMessage(msg, senderSocket);
 }
 
 void Server::broadcastVotingSystemMessage(const QString &message)
 {
-    auto msg = ServerToClientChatMessage::buildVoteSystemMessage(message);
-    for (auto socket : remoteUsers.keys())
-        msg.to(socket);
+    broadcastNetworkMessage(ServerToClientChatMessage::buildVoteSystemMessage(message));
 }
 
 void Server::broadcastPublicChatMessage(const ClientToServerChatMessage &receivedMessage, const QString &userFullName)
@@ -507,10 +502,7 @@ void Server::broadcastPublicChatMessage(const ClientToServerChatMessage &receive
     Q_ASSERT(receivedMessage.isPublicMessage());
 
     QString messageText = receivedMessage.getArguments().at(0);
-    auto msg = ServerToClientChatMessage::buildPublicMessage(userFullName, messageText);
-    for (auto s : remoteUsers.keys()) {
-        msg.to(s);
-    }
+    broadcastNetworkMessage(ServerToClientChatMessage::buildPublicMessage(userFullName, messageText));
 }
 
 void Server::sendPrivateMessage(const QString &sender, const ClientToServerChatMessage &receivedMessage)
@@ -521,11 +513,11 @@ void Server::sendPrivateMessage(const QString &sender, const ClientToServerChatM
 
     QString text = receivedMessage.getArguments().at(1);
 
-    auto msg = ServerToClientChatMessage::buildPrivateMessage(sender, text);
     for (auto s : remoteUsers.keys()) {
         const RemoteUser &user = remoteUsers[s];
         if (user.getFullName() == destinationUserName) {
-            msg.to(s);
+            auto msg = ServerToClientChatMessage::buildPrivateMessage(sender, text);
+            msg.serializeToDevice(s);
             break;
         }
     }
@@ -535,11 +527,7 @@ void Server::setTopic(const QString &newTopic)
 {
     if (newTopic != topic) {
         topic = newTopic;
-
-        auto msg = ServerToClientChatMessage::buildTopicMessage(newTopic);
-        for (auto socket : remoteUsers.keys()) {
-            msg.to(socket);
-        }
+        broadcastNetworkMessage(ServerToClientChatMessage::buildTopicMessage(newTopic));
     }
 }
 
@@ -547,11 +535,7 @@ void Server::setBpi(quint16 newBpi)
 {
     if (newBpi != bpi && newBpi > 0) {
         bpi = newBpi;
-
-        auto msg = ConfigChangeNotifyMessage(bpm, bpi);
-        for (auto socket : remoteUsers.keys()) {
-            msg.to(socket);
-        }
+        broadcastNetworkMessage(ConfigChangeNotifyMessage(bpm, bpi));
     }
 }
 
@@ -559,11 +543,7 @@ void Server::setBpm(quint16 newBpm)
 {
     if (newBpm != bpm && newBpm > 0) {
         bpm = newBpm;
-
-        auto msg = ConfigChangeNotifyMessage(bpm, bpi);
-        for (auto socket : remoteUsers.keys()) {
-            msg.to(socket);
-        }
+        broadcastNetworkMessage(ConfigChangeNotifyMessage(bpm, bpi));
     }
 }
 
@@ -658,44 +638,42 @@ void Server::processBpmVoteMessage(const ninjam::client::ClientToServerChatMessa
     processVoteMessage(userFullName, voteValue, bpm, bpmVotings, std::bind(&Server::createBpmVoting, this));
 }
 
-void Server::processChatMessage(QTcpSocket *socket, const ninjam::MessageHeader &header)
+void Server::processChatMessage(QTcpSocket *socket, const ClientToServerChatMessage &msg)
 {
     if (!remoteUsers.contains(socket))
         return;
 
-    ClientToServerChatMessage receivedMessage = ClientToServerChatMessage::from(socket, header.getPayload());
-
     QString userFullName = remoteUsers[socket].getFullName();
 
-    if (receivedMessage.isPublicMessage()) {
-        broadcastPublicChatMessage(receivedMessage, userFullName);
-
-        if (receivedMessage.isBpiVoteMessage())
-            processBpiVoteMessage(receivedMessage, userFullName);
-        else if (receivedMessage.isBpmVoteMessage())
-            processBpmVoteMessage(receivedMessage, userFullName);
+    if (msg.isPublicMessage()) {
+        broadcastPublicChatMessage(msg, userFullName);
+        if (msg.isBpiVoteMessage()) {
+            processBpiVoteMessage(msg, userFullName);
+        } else if (msg.isBpmVoteMessage()) {
+            processBpmVoteMessage(msg, userFullName);
+        }
+    } else if (msg.isPrivateMessage()) {
+        sendPrivateMessage(userFullName, msg);
+    } else if (msg.isAdminMessage()) {
+        processAdminCommand(msg.getArguments().at(0));
+    } else {
+        qCritical() << "Error handling chat message!" << msg.getCommand() << msg.getArguments();
     }
-    else if (receivedMessage.isPrivateMessage()) {
-        sendPrivateMessage(userFullName, receivedMessage);
-    }
-    else if (receivedMessage.isAdminMessage()) {
-        processAdminCommand(receivedMessage.getArguments().at(0));
-    }
-    else {
-        qCritical() << "Error handling chat message!" << receivedMessage.getCommand() << receivedMessage.getArguments();
-    }
-
 }
 
-void Server::processKeepAlive(QTcpSocket *socket, const ninjam::MessageHeader &)
+void Server::processKeepAlive(QTcpSocket *socket)
 {
-    if (remoteUsers.contains(socket)) {
-        remoteUsers[socket].setLastKeepAliveToNow();
+    auto iterator = remoteUsers.find(socket);
+    if (iterator != remoteUsers.end()) {
+        iterator.value().setLastKeepAliveToNow();
     }
 }
 
 void Server::updateKeepAliveInfos()
 {
+    QByteArray keepAliveMessageData;
+    KeepAliveMessage().serializeToBuffer(keepAliveMessageData); /// TODO: check serializeTo count and handle it
+
     // check if remote users need keep alive request
     for (auto socket : remoteUsers.keys()) {
         const auto &user = remoteUsers[socket];
@@ -704,10 +682,8 @@ void Server::updateKeepAliveInfos()
         if (delta >= keepAlivePeriod) {
             if (delta >= keepAlivePeriod * 3) { // client is not responding
                 disconnectClient(socket);
-            }
-            else {
-                ClientKeepAlive msg;
-                msg.serializeTo(socket);
+            } else {
+                socket->write(keepAliveMessageData); /// TODO: check write count and handle it
             }
         }
     }
@@ -715,7 +691,7 @@ void Server::updateKeepAliveInfos()
 
 void Server::processClientSetUserMask(QTcpSocket *socket, const ninjam::MessageHeader &header)
 {
-    auto msg = ClientSetUserMask::from(socket, header.getPayload());
+    //auto msg = ClientSetUserMask::from(socket, header.getPayload());
 
 }
 
@@ -758,31 +734,43 @@ void Server::processReceivedBytes()
             return;
         }
 
+        NinjamInputDataStream stream(socket, header.getPayload());
+
+
         switch (header.getMessageType()) {
-        case MessageType::ClientAuthUser:
-            processClientAuthUserMessage(socket, header);
+        case MessageType::ClientAuthUser: {
+            ClientAuthUserMessage message;
+            message.unserializeFrom(stream);
+            processClientAuthUserMessage(socket, message);
             break;
-
-        case MessageType::ClientSetChannel:
-            processClientSetChannel(socket, header);
+        }
+        case MessageType::ClientSetChannel: {
+            ClientSetChannel message;
+            message.unserializeFrom(stream);
+            processClientSetChannel(socket, message);
             break;
-
+        }
         case MessageType::KeepAlive:
-            processKeepAlive(socket, header);
+            processKeepAlive(socket);
             break;
-
-        case MessageType::UploadIntervalBegin:
-            processUploadIntervalBegin(socket, header);
+        case MessageType::UploadIntervalBegin: {
+            UploadIntervalBegin message;
+            message.unserializeFrom(stream);
+            processUploadIntervalBegin(socket, message);
             break;
-
-        case MessageType::UploadIntervalWrite:
-            processUploadIntervalWrite(socket, header);
+        }
+        case MessageType::UploadIntervalWrite: {
+            DownloadIntervalWrite message;
+            message.unserializeFrom(stream);
+            processUploadIntervalWrite(socket, message);
             break;
-
-        case MessageType::ChatMessage:
-            processChatMessage(socket, header);
+        }
+        case MessageType::ChatMessage: {
+            ClientToServerChatMessage message;
+            message.unserializeFrom(stream);
+            processChatMessage(socket, message);
             break;
-
+        }
         case MessageType::ClientSetUserMask:
             processClientSetUserMask(socket, header);
             break;
@@ -791,6 +779,7 @@ void Server::processReceivedBytes()
             qFatal("not handled message code: %s",
                    QString::number(static_cast<quint8>(header.getMessageType()), 16).toStdString().c_str());
         }
+        //stream.skipRemainingPayload();
 
         user.setCurrentHeader(MessageHeader()); // invalidate header to force a new parsing in next loop iteration
     }
@@ -828,12 +817,10 @@ void Server::disconnectClient(QTcpSocket *socket)
         // send the PART message and deactivate all user channels
         auto msg = UserInfoChangeNotifyMessage::buildDeactivationMessage(user);
         auto partMsg = ServerToClientChatMessage::buildUserPartMessage(userFullName);
-        for (auto skt : remoteUsers.keys()) {
-            if (skt != socket) {
-                partMsg.to(skt);
-                msg.to(skt);
-            }
-        }
+        QByteArray broadcastMsgData;
+        partMsg.serializeToBuffer(broadcastMsgData);
+        msg.serializeToBuffer(broadcastMsgData);
+        broadcastNetworkData(broadcastMsgData, socket);
 
         remoteUsers.remove(socket);
         socket->deleteLater();

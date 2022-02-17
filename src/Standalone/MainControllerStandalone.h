@@ -107,11 +107,11 @@ namespace controller
             return vstPluginFinder.data();
         }
 
-        void removePlugin(int inputTrackIndex, Plugin *PLUGIN);
+        void removePlugin(int inputTrackIndex, const QSharedPointer<Plugin> &plugin);
         QMap<QString, QList<PluginDescriptor> > getPluginsDescriptors(
             PluginDescriptor::Category category);
-        Plugin *addPlugin(quint32 inputTrackIndex, quint32 pluginSlotIndex,
-                          const PluginDescriptor &descriptor);
+        QSharedPointer<Plugin> addPlugin(quint32 inputTrackIndex, quint32 pluginSlotIndex,
+                                         const PluginDescriptor &descriptor);
 
         std::vector<midi::MidiMessage> pullMidiMessagesFromPlugins() override;
 
@@ -193,7 +193,7 @@ namespace controller
         static bool pluginDescriptorLessThan(const PluginDescriptor &d1,
                                              const PluginDescriptor &d2);
 
-        Plugin *createPluginInstance(const PluginDescriptor &descriptor);
+        QSharedPointer<Plugin> createPluginInstance(const PluginDescriptor &descriptor);
 
         void scanVstPlugins(bool scanOnlyNewVstPlugins);
     };

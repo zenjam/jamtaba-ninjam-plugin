@@ -38,9 +38,15 @@ namespace client
 
             bool allMessageDataIsAvailable = device->bytesAvailable() >= payload;
             if (allMessageDataIsAvailable) {
-                auto msg = MessageClazz::from(device, payload);
-                service->process(msg); // calling overload versions of 'process'
-                return true; // the message was handled
+                MessageClazz msg;
+                NinjamInputDataStream stream(device, payload);
+                if (msg.unserializeFrom(stream)) {
+                    service->process(msg); // calling overload versions of 'process'
+                    return stream.skipRemainingPayload(); // the message was handled
+                }
+                qWarning() << "Failed parse message: " << (int)msg.getMsgType() <<
+                              " payload: " << payload;
+                stream.skipRemainingPayload();
             }
             return false; // the message was not handled
         }

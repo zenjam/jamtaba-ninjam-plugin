@@ -112,43 +112,32 @@ private:
 NinjamTrackNode::IntervalDecoder::IntervalDecoder(const QByteArray &vorbisData)
     :decodedBuffer(2)
 {
-    // this funcion is called from GUI thread
-
-
-
-    QMutexLocker locker(&mutex);
     vorbisDecoder.setInputData(vorbisData);
 }
 
 void NinjamTrackNode::IntervalDecoder::addEncodedData(const QByteArray &vorbisData)
 {
     // this funcion is called from GUI thread
-
     QMutexLocker locker(&mutex);
     vorbisDecoder.addInputData(vorbisData);
 }
 
 void NinjamTrackNode::IntervalDecoder::decode(quint32 maxSamplesToDecode)
 {
-    mutex.lock();
-
+    QMutexLocker locker(&mutex);
     decodedBuffer.append(vorbisDecoder.decode(maxSamplesToDecode));
-
-    mutex.unlock();
 }
 
 void NinjamTrackNode::IntervalDecoder::stopDecoding()
 {
-    mutex.lock(); // this funcion is called from GUI thread
-
+    // this funcion is called from GUI thread
+    QMutexLocker locker(&mutex);
     vorbisDecoder.setInputData(QByteArray()); // empty data
-
-    mutex.unlock();
 }
 
 quint32 NinjamTrackNode::IntervalDecoder::getDecodedSamples(audio::SamplesBuffer &outBuffer, uint samplesToDecode)
 {
-    mutex.lock();
+    QMutexLocker locker(&mutex);
     while (decodedBuffer.getFrameLenght() < samplesToDecode) { //need decode more samples to fill outBuffer?
         quint32 toDecode = samplesToDecode - decodedBuffer.getFrameLenght();
         const auto &decodedSamples = vorbisDecoder.decode(toDecode);
@@ -161,7 +150,6 @@ quint32 NinjamTrackNode::IntervalDecoder::getDecodedSamples(audio::SamplesBuffer
     outBuffer.setFrameLenght(totalSamples);
     outBuffer.set(decodedBuffer);
     decodedBuffer.discardFirstSamples(totalSamples);
-    mutex.unlock();
 
     return totalSamples;
 }
@@ -171,27 +159,30 @@ quint32 NinjamTrackNode::IntervalDecoder::getDecodedSamples(audio::SamplesBuffer
 NinjamTrackNode::NinjamTrackNode(int ID) :
     ID(ID),
     lowCut(new NinjamTrackNode::LowCutFilter(44100)),
-    //processingLastPartOfInterval(false),
+    nodeDestroying(false),
     currentDecoder(nullptr),
-    decodersMutex(QMutex::NonRecursive)
+    decodersMutex(QMutex::NonRecursive),
+    receiveState(true)
 {
 
 }
 
 bool NinjamTrackNode::isStereo() const
 {
-    if (currentDecoder)
-        return currentDecoder->isStereo();
-
+    auto decoder = std::atomic_load(&currentDecoder);
+    if (decoder) {
+        return decoder->isStereo();
+    }
     return true;
 }
 
 void NinjamTrackNode::stopDecoding()
 {
+    auto decoder = std::atomic_load(&currentDecoder);
+    if (decoder) {
+        decoder->stopDecoding();
+    }
     discardDownloadedIntervals();
-
-    if (currentDecoder != nullptr)
-        currentDecoder->stopDecoding();
 }
 
 NinjamTrackNode::LowCutState NinjamTrackNode::setLowCutToNextState()
@@ -228,51 +219,49 @@ void NinjamTrackNode::setLowCutState(LowCutState newState)
 
 int NinjamTrackNode::getSampleRate() const
 {
-    if (currentDecoder)
-        return currentDecoder->getSampleRate();
+    auto decoder = std::atomic_load(&currentDecoder);
+    if (decoder) {
+        return decoder->getSampleRate();
+    }
     return 44100;
 }
 
 NinjamTrackNode::~NinjamTrackNode()
 {
-    //qDebug() << "Deastrutor NinjamTrackNode";
-
-    decodersMutex.lock();
-    for (auto decoder : decoders)
-        delete decoder;
-
-    decoders.clear();
-    if (currentDecoder) {
-        //delete currentDecoder;
-        currentDecoder = nullptr;
-    }
-    decodersMutex.unlock();
+    //qDebug() << "Destrutor NinjamTrackNode";
+    nodeDestroying = true;
+    QMutexLocker locker(&decodersMutex);
+    discardDownloadedIntervalsLocked();
+    consumePendingEvents(false);
 }
 
 void NinjamTrackNode::discardDownloadedIntervals()
 {
     QMutexLocker locker(&decodersMutex);
+    discardDownloadedIntervalsLocked();
+}
 
-    while (!decoders.isEmpty())
-        delete decoders.takeFirst();
+bool NinjamTrackNode::isReceiveState() const {
+    return receiveState;
+}
 
-    currentDecoder = nullptr;
-
-    //qDebug() << "intervals discarded";
+void NinjamTrackNode::setReceiveState(bool state) {
+    receiveState = state;
 }
 
 bool NinjamTrackNode::isPlaying()
 {
     QMutexLocker locker(&decodersMutex);
-
-    return currentDecoder != nullptr || mode == VoiceChat; // voice chat is always playing
+    return isPlayingLocked();
 }
 
-void NinjamTrackNode::consumePendingEvents()
+void NinjamTrackNode::consumePendingEvents(bool process)
 {
     TrackNodeCommand *command = nullptr;
     while (pendingCommands.try_dequeue(command)) {
-        command->execute();
+        if (process) {
+            command->execute();
+        }
         delete command;
     }
 }
@@ -281,21 +270,16 @@ bool NinjamTrackNode::startNewInterval()
 {
     //qDebug() << "--------START INTERVAL------------";
 
-    consumePendingEvents();
-
+    QMutexLocker locker(&decodersMutex);
+    consumePendingEvents(true);
     if (mode == Intervalic) {
-        decodersMutex.lock();
-        if (currentDecoder) {
-            delete currentDecoder; //discard the previous interval decoder
-            currentDecoder = nullptr;
+        std::shared_ptr<IntervalDecoder> decoder; //discard the previous interval decoder
+        if (!decoders.isEmpty()) {
+            decoder = decoders.takeFirst(); //using the next buffered decoder (next interval)
         }
-        if (!decoders.isEmpty())
-            currentDecoder = decoders.takeFirst(); //using the next buffered decoder (next interval)
-
-        decodersMutex.unlock();
+        std::atomic_store(&currentDecoder, decoder);
     }
-
-    return isPlaying();
+    return isPlayingLocked();
 }
 
 // this function is used only for voice chat mode. The parameter is not a full Ogg Vorbis interval, it's just a chunk of data.
@@ -317,7 +301,7 @@ void NinjamTrackNode::addVorbisEncodedChunk(const QByteArray &chunkBytes, bool i
         }
 
        // qDebug() << "First interval part received, creating new interval";
-        decoders.push_back(new IntervalDecoder());
+        decoders.push_back(std::make_shared<IntervalDecoder>());
     }
 
 
@@ -325,7 +309,7 @@ void NinjamTrackNode::addVorbisEncodedChunk(const QByteArray &chunkBytes, bool i
 
     if (isLastPart) {
         //qDebug() << "Last part received, creating new IntervalDecoder";
-        decoders.push_back(new IntervalDecoder());
+        decoders.push_back(std::make_shared<IntervalDecoder>());
     }
 
 }
@@ -338,31 +322,35 @@ void NinjamTrackNode::addVorbisEncodedInterval(const QByteArray &fullIntervalByt
     if (mode != Intervalic)
         return;
 
-    auto newIntervalDecoder = new IntervalDecoder(fullIntervalBytes);
+    auto decoder = std::make_shared<IntervalDecoder>(fullIntervalBytes);
 
-    decodersMutex.lock();
-
-    decoders.append(newIntervalDecoder);
-
-    decodersMutex.unlock();
+    {
+        QMutexLocker locker(&decodersMutex);
+        decoders.append(decoder);
+    }
 
     //decoding the first samples in a separated thread to avoid slow down the audio thread in interval start (first beat)
-    QtConcurrent::run(newIntervalDecoder, &NinjamTrackNode::IntervalDecoder::decode, 256);
+    auto decoderWeakPtr = std::weak_ptr<IntervalDecoder>(decoder);
+    QtConcurrent::run([decoderWeakPtr]() {
+        auto decoder = decoderWeakPtr.lock();
+        if (decoder) {
+            decoder->decode(256);
+        }
+    });
 }
 
 // ++++++++++++++
 
 void NinjamTrackNode::setChannelMode(ChannelMode newMode)
 {
-    if (newMode != this->mode) {
-        this->mode = newMode;
-    }
+    this->mode = newMode;
 }
 
 // ++++++++++++++++++++++++++++++++++++++
 
 void NinjamTrackNode::schefuleSetChannelMode(ChannelMode mode)
 {
+    if (nodeDestroying) return;
     this->mode = NinjamTrackNode::Changing; // nothing is played when is 'changing'
 
     pendingCommands.enqueue(new ChangeChannelModeCommand(this, mode));
@@ -370,65 +358,72 @@ void NinjamTrackNode::schefuleSetChannelMode(ChannelMode mode)
     discardDownloadedIntervals();
 }
 
-int NinjamTrackNode::getFramesToProcess(int targetSampleRate, int outFrameLenght)
-{
-    return needResamplingFor(targetSampleRate) ? getInputResamplingLength(
-        getSampleRate(), targetSampleRate, outFrameLenght) : outFrameLenght;
-}
-
 void NinjamTrackNode::processReplacing(const audio::SamplesBuffer &in, audio::SamplesBuffer &out,
                                        int sampleRate, std::vector<midi::MidiMessage> &midiBuffer)
 {
-    if (!isPlaying())
-        return;
-
-    { // mutex scope
+    bool needResampling = false;
+    if (isPlayingLocked()) {
         QMutexLocker locker(&decodersMutex);
-
-        if (!currentDecoder) {
+        if (!isPlayingLocked()) {
+            return;
+        }
+        auto decoder = std::atomic_load(&currentDecoder);
+        if (!decoder) {
             if (mode == VoiceChat && !decoders.isEmpty()) {
-                currentDecoder = decoders.first();
+                decoder = decoders.first();
+                std::atomic_store(&currentDecoder, decoder);
                 //qDebug() << "USING FIRST DECODER";
-            }
-            else {
+            } else {
                 //qDebug() << "Current decoder is null, not playing!";
                 return;
             }
         }
 
-        if (!currentDecoder || !currentDecoder->isValid()) {
-            if (currentDecoder && !currentDecoder->isValid()){
+        if (!decoder || !decoder->isValid()) {
+            if (decoder && !decoder->isValid()){
                 //qDebug() << "Current decoder is not valid, returning!";
-                currentDecoder = nullptr; // the current decoder is corrupted, setting to nullptr to force a new decoder usage
+                std::atomic_store(&currentDecoder, {}); // the current decoder is corrupted, setting to nullptr to force a new decoder usage
                 decoders.clear();
                 internalInputBuffer.zero();
             }
             return;
         }
 
-        auto framesToProcess = getFramesToProcess(sampleRate, out.getFrameLenght());
+        if (!receiveState) {
+            std::atomic_store(&currentDecoder, {});
+            decoder->stopDecoding();
+            decoders.clear();
+            internalInputBuffer.zero();
+            return;
+        }
+
+        int outFrameLenght = out.getFrameLenght();
+        needResampling = decoder && decoder->getSampleRate() != sampleRate;
+        auto framesToProcess = needResampling ? getInputResamplingLength(
+             decoder ? decoder->getSampleRate() : 44100, sampleRate, outFrameLenght) : outFrameLenght;
         internalInputBuffer.setFrameLenght(framesToProcess);
 
-        auto samplesDecoded = 0;
-
-        if (currentDecoder)
-            currentDecoder->getDecodedSamples(internalInputBuffer, framesToProcess);
-
-        if (mode == VoiceChat) { // in voice chat we will not wait until startInterval to use the next available downloaded decoder
-            if (samplesDecoded <= framesToProcess && currentDecoder->isFullyDecoded()) {
-                //qDebug() << "current decoder consumed, using the next decoder";
-                currentDecoder = nullptr;
-                if (!decoders.isEmpty()) {
-                    auto decoder = decoders.takeFirst();
-                    delete decoder;
+        if (decoder) {
+            decoder->getDecodedSamples(internalInputBuffer, framesToProcess);
+            if (mode == VoiceChat) { // in voice chat we will not wait until startInterval to use the next available downloaded decoder
+                if (framesToProcess >= 0 && decoder->isFullyDecoded()) {
+                    //qDebug() << "current decoder consumed, using the next decoder";
+                    std::atomic_store(&currentDecoder, {});
+                    needResampling = false;
+                    if (!decoders.isEmpty()) {
+                        decoders.takeFirst();
+                    }
                 }
             }
         }
-
     }
 
     if (!internalInputBuffer.isEmpty()) {
-        if (needResamplingFor(sampleRate)) {
+        if (!receiveState) {
+            internalInputBuffer.zero();
+            return;
+        }
+        if (needResampling) {
             const auto &resampledBuffer = resampler.resample(internalInputBuffer, out.getFrameLenght());
             internalInputBuffer.setFrameLenght(resampledBuffer.getFrameLenght());
             internalInputBuffer.set(resampledBuffer);
@@ -440,10 +435,12 @@ void NinjamTrackNode::processReplacing(const audio::SamplesBuffer &in, audio::Sa
     }
 }
 
-bool NinjamTrackNode::needResamplingFor(int targetSampleRate) const
-{
-    if (currentDecoder)
-        return currentDecoder->getSampleRate() != targetSampleRate;
+bool NinjamTrackNode::isPlayingLocked() {
+    return std::atomic_load(&currentDecoder) || mode == VoiceChat;
+}
 
-    return false;
+void NinjamTrackNode::discardDownloadedIntervalsLocked() {
+    decoders.clear();
+    std::atomic_store(&currentDecoder, {});
+    //qDebug() << "intervals discarded";
 }

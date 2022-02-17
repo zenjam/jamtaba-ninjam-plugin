@@ -425,7 +425,7 @@ void NinjamRoomWindow::hideIntervalDownloadingProgressBar(long trackID)
 
 void NinjamRoomWindow::updateIntervalDownloadingProgressBar(long trackID)
 {
-    NinjamTrackNode *node = dynamic_cast<NinjamTrackNode *>(mainController->getTrackNode(trackID));
+    auto node = mainController->getTrackNode(trackID).dynamicCast<NinjamTrackNode>();
     NinjamTrackView *trackView = getTrackViewByID(trackID);
     if (node && trackView) {
         bool waitingToPlayTheFirstInterval = !node->isPlaying();

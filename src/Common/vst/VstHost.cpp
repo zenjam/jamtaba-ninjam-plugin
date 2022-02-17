@@ -8,6 +8,7 @@
 #include <QMap>
 #include <cmath>
 #include "log/Logging.h"
+#include "Utils.h"
 
 using vst::VstHost;
 
@@ -156,10 +157,8 @@ long VSTCALLBACK VstHost::hostCallback(AEffect *effect, long opcode, long index,
         // [index]: new width [value]: new height [return value]: 1 if supported
         int newWidth = index;
         int newHeight = value;
-        char temp[128];// kVstMaxEffectNameLen]; //some dumb plugins don't respect kVstMaxEffectNameLen
-        effect->dispatcher(effect, effGetEffectName, 0, 0, temp, 0);
-        emit VstHost::getInstance()->pluginRequestingWindowResize(QString::fromUtf8(
-                                                                   temp), newWidth, newHeight);
+        QString pluginName = vst::utils::getPluginName(effect);
+        emit VstHost::getInstance()->pluginRequestingWindowResize(pluginName, newWidth, newHeight);
         return 1L;
     }
 
@@ -179,11 +178,11 @@ long VSTCALLBACK VstHost::hostCallback(AEffect *effect, long opcode, long index,
         return 2L;
 
     case audioMasterGetVendorString:  // 32
-        strcpy((char *)ptr, "www.jamtaba.com");
+        strcpy_s((char *)ptr, kVstMaxVendorStrLen, "www.jamtaba.com");
         return 1L;
 
     case audioMasterGetProductString:  // 33
-        strcpy((char *)ptr, "Jamtaba II");
+        strcpy_s((char *)ptr, kVstMaxProductStrLen, "Jamtaba II");
         return 1L;
 
     case audioMasterGetVendorVersion:  // 34

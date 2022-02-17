@@ -15,7 +15,7 @@ void ClipSortLogGenerator::write(const Jam &jam)
     int bpi = 0;
     QList<JamInterval> intervals = jam.getJamIntervals();
 
-    for (JamInterval interval : intervals) {
+    for (const JamInterval& interval : std::as_const(intervals)) {
         if (interval.getIntervalIndex() != intervalIndex) {
             intervalIndex = interval.getIntervalIndex();
             bpm = interval.getBpm();

@@ -107,8 +107,8 @@ QMap<QString, QList<audio::PluginDescriptor> > MainControllerStandalone::getPlug
     return descriptors;
 }
 
-audio::Plugin *MainControllerStandalone::addPlugin(quint32 inputTrackIndex, quint32 pluginSlotIndex,
-                                                   const audio::PluginDescriptor &descriptor)
+QSharedPointer<audio::Plugin> MainControllerStandalone::addPlugin(quint32 inputTrackIndex, quint32 pluginSlotIndex,
+                                                                  const audio::PluginDescriptor &descriptor)
 {
     auto plugin = createPluginInstance(descriptor);
     if (plugin)
@@ -120,7 +120,7 @@ audio::Plugin *MainControllerStandalone::addPlugin(quint32 inputTrackIndex, quin
     return plugin;
 }
 
-void MainControllerStandalone::removePlugin(int inputTrackIndex, audio::Plugin *plugin)
+void MainControllerStandalone::removePlugin(int inputTrackIndex, const QSharedPointer<audio::Plugin> &plugin)
 {
     QMutexLocker locker(&mutex);
     QString pluginName = plugin->getName();
@@ -535,22 +535,18 @@ MainControllerStandalone::~MainControllerStandalone()
     // pluginsDescriptors.clear();
 }
 
-audio::Plugin *MainControllerStandalone::createPluginInstance(
+QSharedPointer<audio::Plugin> MainControllerStandalone::createPluginInstance(
     const audio::PluginDescriptor &descriptor)
 {
     if (descriptor.isNative())
     {
         if (descriptor.getName() == "Delay")
-            return new audio::JamtabaDelay(audioDriver->getSampleRate());
+            return QSharedPointer<audio::JamtabaDelay>::create(audioDriver->getSampleRate());
     }
     else if (descriptor.isVST())
     {
         auto host = vst::VstHost::getInstance();
-        auto vstPlugin = new vst::VstPlugin(host, descriptor.getPath());
-        if (vstPlugin->load(descriptor.getPath()))
-            return vstPlugin;
-        else
-            delete vstPlugin; // avoid a memory leak
+        return vst::VstPlugin::load(host, descriptor);
     }
 
 #ifdef Q_OS_MAC

@@ -11,7 +11,7 @@ class SamplesBuffer;
 class StreamBuffer;
 }
 
-class NinjamTrackNode : public audio::AudioNode
+class NinjamTrackNode final : public audio::AudioNode
 {
 
 public:
@@ -42,6 +42,10 @@ public:
     int getID() const;
 
     int getSampleRate() const;
+
+    bool isReceiveState() const;
+
+    void setReceiveState(bool enabled);
 
     bool isPlaying();
 
@@ -85,23 +89,24 @@ private:
     const static double LOW_CUT_NORMAL_FREQUENCY;
     const static double LOW_CUT_DRASTIC_FREQUENCY;
 
-    bool needResamplingFor(int targetSampleRate) const;
+    bool isPlayingLocked();
+    void discardDownloadedIntervalsLocked();
 
-    int getFramesToProcess(int targetSampleRate, int outFrameLenght);
-
-    //bool processingLastPartOfInterval;
+    bool nodeDestroying;
 
     class IntervalDecoder;
 
-    QList<IntervalDecoder*> decoders;
-    IntervalDecoder* currentDecoder;
+    QList<std::shared_ptr<IntervalDecoder>> decoders;
+    std::shared_ptr<IntervalDecoder> currentDecoder;
     QMutex decodersMutex;
 
     ChannelMode mode = Intervalic;
 
     moodycamel::ReaderWriterQueue<TrackNodeCommand *> pendingCommands;
 
-    void consumePendingEvents();
+    bool receiveState;
+
+    void consumePendingEvents(bool process);
 
 };
 

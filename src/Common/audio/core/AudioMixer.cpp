@@ -16,13 +16,13 @@ AudioMixer::AudioMixer(int sampleRate) :
 
 }
 
-void AudioMixer::addNode(AudioNode *node)
+void AudioMixer::addNode(QSharedPointer<AudioNode> node)
 {
     nodes.append(node);
     resamplers.insert(node, SamplesBufferResampler());
 }
 
-void AudioMixer::removeNode(AudioNode *node)
+void AudioMixer::removeNode(QSharedPointer<AudioNode> node)
 {
     nodes.removeOne(node);
     resamplers.remove(node);
@@ -32,9 +32,8 @@ AudioMixer::~AudioMixer()
 {
     qCDebug(jtAudio) << "Audio mixer destructor...";
 
-    for (auto node : resamplers.keys()) {
-        removeNode(node);
-    }
+    nodes.clear();
+    resamplers.clear();
 
     qCDebug(jtAudio) << "Audio mixer destructor finished!";
 }
@@ -45,7 +44,7 @@ void AudioMixer::process(const SamplesBuffer &in, SamplesBuffer &out, int sample
     // --------------------------------------
     bool hasSoloedBuffers = soloedBuffersInLastProcess > 0;
     soloedBuffersInLastProcess = 0;
-    for (auto node : nodes) {
+    for (const auto& node : std::as_const(nodes)) {
         bool canProcess = (!hasSoloedBuffers && !node->isMuted()) || (hasSoloedBuffers && node->isSoloed());
         if (canProcess) {
 

@@ -53,3 +53,4 @@ GeneratedFiles/
 *.xcbkptlist
 *.xcuserstate
 PROJECTS/AUPlugin/JamTaba.xcodeproj/xcshareddata/
+/dependencies/

@@ -16,8 +16,8 @@ void UploadIntervalData::appendData(const QByteArray &encodedData)
     dataToUpload.append(encodedData);
 }
 
-QByteArray UploadIntervalData::newGUID()
+ninjam::MessageGuid UploadIntervalData::newGUID()
 {
     QUuid uuid = QUuid::createUuid();
-    return uuid.toRfc4122();
+    return ninjam::MessageGuid(uuid.toRfc4122());
 }

@@ -3,6 +3,7 @@
 
 #include "log/Logging.h"
 #include "ninjam/Ninjam.h"
+#include "ninjam/common/CommonMessages.h"
 
 #include <QtGlobal>
 #include <QScopedPointer>
@@ -22,11 +23,9 @@ namespace client
     class Service;
     class ServerMessage;
     class ServerMessagesHandler;
-    class ServerKeepAliveMessage;
     class AuthChallengeMessage;
     class AuthReplyMessage;
     class ConfigChangeNotifyMessage;
-    class ServerKeepAliveMessage;
     class ServerToClientChatMessage;
     class UserInfoChangeNotifyMessage;
     class DownloadIntervalBegin;
@@ -54,8 +53,8 @@ namespace client
         void setChannelReceiveStatus(const QString &userFullName, quint8 channelIndex, bool receiveChannel);
 
         // audio interval upload
-        void sendIntervalPart(const QByteArray &GUID, const QByteArray &encodedAudioBuffer, bool isLastPart);
-        void sendIntervalBegin(const QByteArray &GUID, quint8 channelIndex, bool isAudioInterval);
+        void sendIntervalPart(const MessageGuid &GUID, const QByteArray &encodedAudioBuffer, bool isLastPart);
+        void sendIntervalBegin(const MessageGuid &GUID, quint8 channelIndex, bool isAudioInterval);
 
         void sendNewChannelsListToServer(const QList<ChannelMetadata> &channelsMetadata);
         void sendRemovedChannelIndex(int removedChannelIndex);
@@ -80,23 +79,23 @@ namespace client
         long getDownloadTransferRate(const QString userFullName, quint8 channelIndex) const;
 
     signals:
-        void userChannelCreated(const User &user, const UserChannel &channel);
-        void userChannelRemoved(const User &user, const UserChannel &channel);
-        void userChannelUpdated(const User &user, const UserChannel &channel);
+        void userChannelCreated(const ninjam::client::User &user, const ninjam::client::UserChannel &channel);
+        void userChannelRemoved(const ninjam::client::User &user, const ninjam::client::UserChannel &channel);
+        void userChannelUpdated(const ninjam::client::User &user, const ninjam::client::UserChannel &channel);
         void userCountMessageReceived(quint32 users, quint32 maxUsers);
         void serverBpiChanged(quint16 currentBpi, quint16 lastBpi);
         void serverBpmChanged(quint16 currentBpm);
         void serverInitialBpmBpiAvailable(quint16 bpm, quint16 bpi);
-        void audioIntervalCompleted(const User &user, quint8 channelIndex, const QByteArray &encodedAudioData);
-        void videoIntervalCompleted(const User &user, const QByteArray &encodedVideoData);
-        void audioIntervalDownloading(const User &user, quint8 channelIndex, const QByteArray &encodedAudioData, bool isFirstPart, bool isLastPart);
-        void disconnectedFromServer(const ServerInfo &server);
-        void connectedInServer(const ServerInfo &server);
-        void publicChatMessageReceived(const User &sender, const QString &message);
-        void privateChatMessageReceived(const User &sender, const QString &message);
+        void audioIntervalCompleted(const ninjam::client::User &user, quint8 channelIndex, const QByteArray &encodedAudioData);
+        void videoIntervalCompleted(const ninjam::client::User &user, const QByteArray &encodedVideoData);
+        void audioIntervalDownloading(const ninjam::client::User &user, quint8 channelIndex, const QByteArray &encodedAudioData, bool isFirstPart, bool isLastPart);
+        void disconnectedFromServer(const ninjam::client::ServerInfo &server);
+        void connectedInServer(const ninjam::client::ServerInfo &server);
+        void publicChatMessageReceived(const ninjam::client::User &sender, const QString &message);
+        void privateChatMessageReceived(const ninjam::client::User &sender, const QString &message);
         void serverTopicMessageReceived(const QString &topic);
-        void userEntered(const User &newUser);
-        void userExited(const User &user);
+        void userEntered(const ninjam::client::User &newUser);
+        void userExited(const ninjam::client::User &user);
         void error(const QString &msg);
 
     protected:
@@ -108,7 +107,7 @@ namespace client
         virtual void process(const ConfigChangeNotifyMessage &msg);
         virtual void process(const UserInfoChangeNotifyMessage &msg);
         virtual void process(const ServerToClientChatMessage &msg);
-        virtual void process(const ServerKeepAliveMessage &msg);
+        virtual void process(const common::KeepAliveMessage &msg);
         virtual void process(const DownloadIntervalBegin &msg);
         virtual void process(const DownloadIntervalWrite &msg);
 
@@ -143,8 +142,9 @@ namespace client
         NetworkUsageMeasurer totalDownloadMeasurer;
         QMap<QString, QMap<quint8, NetworkUsageMeasurer>> channelDownloadMeasurers; // using userFullName as key in first QMap and channel ID as key in second map
 
+        void sendMessageToServer(const common::CommonMessage &message);
         void sendMessageToServer(const ClientMessage &message);
-        void handleUserChannels(const User &remoteUser);
+        void handleUserChannels(const QString &userFullName, const QList<UserChannel> &remoteChannels);
         bool channelIsOutdate(const User &user, const UserChannel &serverChannel);
 
         void setBpm(quint16 newBpm);
@@ -152,7 +152,7 @@ namespace client
         void setInitialBpmBpi(quint16 bpm, quint16 bpi);
 
         class Download; // using a nested class here. This class is for internal purpouses only.
-        QMap<QByteArray, Download> downloads; // using GUID as key
+        QMap<MessageGuid, Download> downloads; // using GUID as key
 
         bool needSendKeepAlive() const;
 

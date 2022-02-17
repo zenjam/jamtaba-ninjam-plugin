@@ -35,8 +35,8 @@ public:
     virtual bool connect(AudioNode &other);
     virtual bool disconnect(AudioNode &otherNode);
 
-    virtual void addProcessor(AudioNodeProcessor *newProcessor, quint32 slotIndex);
-    void removeProcessor(AudioNodeProcessor *processor);
+    virtual void addProcessor(const QSharedPointer<AudioNodeProcessor> &newProcessor, quint32 slotIndex);
+    void removeProcessor(const QSharedPointer<AudioNodeProcessor> &processor);
     void suspendProcessors();
     void resumeProcessors();
     virtual void updateProcessorsGui();
@@ -74,7 +74,7 @@ protected:
     int getInputResamplingLength(int sourceSampleRate, int targetSampleRate, int outFrameLenght);
 
     QSet<AudioNode *> connections;
-    AudioNodeProcessor *processors[MAX_PROCESSORS_PER_TRACK];
+    QSharedPointer<AudioNodeProcessor> processors[MAX_PROCESSORS_PER_TRACK];
     SamplesBuffer internalInputBuffer;
     SamplesBuffer internalOutputBuffer;
 

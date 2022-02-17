@@ -5,7 +5,7 @@ using audio::LocalInputGroup;
 using audio::LocalInputNode;
 using audio::SamplesBuffer;
 
-LocalInputGroup::LocalInputGroup(int groupIndex, LocalInputNode *firstInput) :
+LocalInputGroup::LocalInputGroup(int groupIndex, QSharedPointer<LocalInputNode> firstInput) :
     groupIndex(groupIndex),
     transmiting(true),
     voiceChatActivated(false)
@@ -18,12 +18,12 @@ LocalInputGroup::~LocalInputGroup()
     groupedInputs.clear();
 }
 
-void LocalInputGroup::addInputNode(LocalInputNode *input)
+void LocalInputGroup::addInputNode(QSharedPointer<LocalInputNode> input)
 {
     groupedInputs.append(input);
 }
 
-LocalInputNode *LocalInputGroup::getInputNode(quint8 index) const
+QSharedPointer<LocalInputNode> LocalInputGroup::getInputNode(quint8 index) const
 {
     if (index < groupedInputs.size()) {
         return groupedInputs.at(index);
@@ -45,7 +45,7 @@ void LocalInputGroup::mixGroupedInputs(SamplesBuffer &out)
     }
 }
 
-void LocalInputGroup::removeInput(LocalInputNode *input)
+void LocalInputGroup::removeInput(QSharedPointer<LocalInputNode> input)
 {
     if (!groupedInputs.removeOne(input))
         qCritical() << "the input track was not removed!";
@@ -57,15 +57,16 @@ int LocalInputGroup::getMaxInputChannelsForEncoding() const
         return 2;    // stereo encoding
 
     if (!groupedInputs.isEmpty()) {
-
-        if (groupedInputs.first()->isMidi())
+        const auto& inputNode = groupedInputs.first();
+        if (inputNode->isMidi()) {
             return 2;    // just one midi track, use stereo encoding
-
-        if (groupedInputs.first()->isAudio())
-            return groupedInputs.first()->getAudioInputRange().getChannels();
-
-        if (groupedInputs.first()->isNoInput())
+        }
+        if (inputNode->isAudio()) {
+            return inputNode->getAudioInputRange().getChannels();
+        }
+        if (inputNode->isNoInput()) {
             return 2;    // allow channels using noInput but processing some vst looper in stereo
+        }
     }
     return 0;    // no channels to encoding
 }

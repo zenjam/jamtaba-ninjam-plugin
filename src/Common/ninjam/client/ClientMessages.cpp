@@ -10,28 +10,14 @@
 #include <QDataStream>
 #include <QString>
 
-using ninjam::client::ClientMessage;
 using ninjam::client::ClientAuthUserMessage;
 using ninjam::client::UploadIntervalWrite;
-using ninjam::client::ClientKeepAlive;
 using ninjam::client::ClientSetChannel;
 using ninjam::client::ClientSetUserMask;
 using ninjam::client::UploadIntervalBegin;
 using ninjam::client::ClientToServerChatMessage;
 using ninjam::client::UserChannel;
 using ninjam::MessageType;
-
-ClientMessage::ClientMessage(MessageType type, quint32 payload) :
-    msgType(type),
-    payload(payload)
-{
-    //
-}
-
-ClientMessage::~ClientMessage()
-{
-    //
-}
 
 //++++++++++++++++++++++++++++++++++++++=
 //class ClientAuthUser
@@ -51,238 +37,198 @@ ClientMessage::~ClientMessage()
     //message lenght = 20 bytes password hash + user name lengh + 4 bytes client capabilites + 4 bytes client version
 */
 
-ClientAuthUserMessage::ClientAuthUserMessage(const QString &userName, const QByteArray &challenge, quint32 protocolVersion, const QString &password)
-    : ClientMessage(MessageType::ClientAuthUser, 0),
-      userName(userName),
-      clientCapabilites(1),
-      protocolVersion(protocolVersion),
-      challenge(challenge)
-{
-    if (!password.isNull() && !password.isEmpty()) {
-        this->userName = userName;
+bool ClientAuthUserMessage::processReadedData(const QString& password) {
+    clientCapabilites = 1;
+    if (password.isNull() || password.isEmpty()) {
+        userName = "anonymous:" + userName;
     }
-    else{
-        this->userName = "anonymous:" + userName;
-    }
-
     QCryptographicHash sha1(QCryptographicHash::Sha1);
-    sha1.addData( userName.toStdString().c_str(), userName.size() );
+    sha1.addData(userName.toStdString().c_str(), userName.size());
     sha1.addData(":", 1);
     sha1.addData(password.toStdString().c_str(), password.size());
     QByteArray passHash = sha1.result();
     sha1.reset();
     sha1.addData(passHash);
     sha1.addData(challenge.constData(), 8);
-    this->passwordHash = sha1.result();
-    this->payload = 29 + this->userName.size();
+    passwordHash = sha1.result();
+    return true;
 }
 
-ClientAuthUserMessage ClientAuthUserMessage::unserializeFrom(QIODevice *device, quint32 payload)
+ClientAuthUserMessage::ClientAuthUserMessage()
+    : ClientMessage(MessageType::ClientAuthUser),
+      challenge(8, Qt::Uninitialized)
 {
-    Q_UNUSED(payload)
 
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
-
-    QByteArray passwordHash(20, Qt::Uninitialized);
-    int readed = stream.readRawData(passwordHash.data(), passwordHash.size());
-    Q_ASSERT(readed = passwordHash.size());
-
-    QString userName = ninjam::extractString(stream);
-
-    QByteArray challenge(8, Qt::Uninitialized);
-    readed = stream.readRawData(challenge.data(), challenge.size());
-    Q_ASSERT(readed = challenge.size());
-
-    quint32 clientCapabilites;
-    quint32 protocolVersion;
-
-    stream >> clientCapabilites;
-    stream >> protocolVersion;
-
-    return ClientAuthUserMessage(userName, challenge, protocolVersion, QString(passwordHash));
 }
 
-void ClientAuthUserMessage::serializeTo(QIODevice *device) const
+ClientAuthUserMessage::ClientAuthUserMessage(const QString &userName, const QByteArray &challenge, quint32 protocolVersion, const QString &password)
+    : ClientMessage(MessageType::ClientAuthUser),
+      userName(userName),
+      clientCapabilites(1),
+      protocolVersion(protocolVersion),
+      challenge(challenge)
 {
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
+    processReadedData(password);
+}
 
-    stream << static_cast<quint8>(msgType);
-    stream << payload;
+quint32 ClientAuthUserMessage::getSerializePayload() const
+{
+    return NinjamOutputDataStream::getByteArrayPayload(passwordHash) +
+            NinjamOutputDataStream::getUtf8StringPayload(userName) +
+            NinjamOutputDataStream::getPayload<quint32>() +
+            NinjamOutputDataStream::getPayload<quint32>();
+}
 
-    ninjam::serializeByteArray(passwordHash, stream);
-    ninjam::serializeString(userName, stream);
-    stream << clientCapabilites;
-    stream << protocolVersion;
+bool ClientAuthUserMessage::serializeTo(NinjamOutputDataStream& stream) const
+{
+    return (ClientMessage::serializeTo(stream) &&
+            stream.writeByteArray(passwordHash) &&
+            stream.writeUtf8String(userName) &&
+            stream.write<quint32>(clientCapabilites) &&
+            stream.write<quint32>(protocolVersion));
+}
+
+bool ClientAuthUserMessage::unserializeFrom(NinjamInputDataStream& stream)
+{
+    QString password;
+    return (stream.readAciiStringFixed(password, 20) &&
+            stream.readUtf8String(userName) &&
+            stream.readByteArray(challenge) &&
+            stream.read<quint32>(clientCapabilites) &&
+            stream.read<quint32>(protocolVersion) &&
+            processReadedData(password));
 }
 
 void ClientAuthUserMessage::printDebug(QDebug &dbg) const
 {
-    dbg << "SEND ClientAuthUserMessage{  userName:" << userName << " challenge:" << challenge <<"}" << endl;
+    dbg << "SEND ClientAuthUserMessage{  userName:"
+        << userName
+        << " challenge:"
+        << challenge
+        << "}"
+        << Qt::endl;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ClientSetChannel::ClientSetChannel() :
-    ClientMessage(MessageType::ClientSetChannel, 0)
+    ClientMessage(MessageType::ClientSetChannel)
 {
-    payload = sizeof(quint16);
 }
 
 ClientSetChannel::ClientSetChannel(const QList<ninjam::client::ChannelMetadata> &channels) :
     ClientSetChannel()
 {
-    for (auto channel : channels) {
+    for (const auto& channel : channels) {
         quint8 flags = channel.voiceChatActivated ? 2 : 0;  //Possible values: 0 - ninjam interval based , 2 - voice chat, 4 - session mode
-        addChannel(channel.name, flags);
+        addChannel(channel.name, flags, true);
     }
 }
 
-void ClientSetChannel::addChannel(const QString &channelName, quint8 flags, bool active)
-{
-    payload += (channelName.toUtf8().size() + 1) + 2 + 1 + 1; // NUL + volume(short) + pan(byte) + flags(byte)
-
-    channels.append(UserChannel(channelName, channels.size(), flags, active));
+quint32 ClientSetChannel::getSerializePayload() const {
+    quint32 payload = NinjamOutputDataStream::getPayload<quint16>();
+    for (const UserChannel &channel : channels) {
+        payload += NinjamOutputDataStream::getUtf8StringPayload(channel.getName());
+        payload += NinjamOutputDataStream::getPayload<quint16>();
+        payload += NinjamOutputDataStream::getPayload<quint8>();
+        payload += NinjamOutputDataStream::getPayload<quint8>();
+    }
+    return payload;
 }
 
-ClientSetChannel ClientSetChannel::unserializeFrom(QIODevice *device, quint32 payload)
+bool ClientSetChannel::serializeTo(NinjamOutputDataStream& stream) const
 {
-    if (payload <= 0)
-        return ClientSetChannel(); // no channels
+    if (ClientMessage::serializeTo(stream) &&
+        stream.write<quint16>(4)) { // parameter size (4 bytes - volume (2 bytes) + pan (1 byte) + flags (1 byte))
+        for (const UserChannel &channel : channels) {
+            if (stream.writeUtf8String(channel.getName()) &&
+                stream.write<quint16>(channel.getVolume()) &&
+                stream.write<quint8>(channel.getPan()) &&
+                stream.write<quint8>(static_cast<quint8>(channel.getFlags()))) {
+                // write channel info done
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
 
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
-
+bool ClientSetChannel::unserializeFrom(NinjamInputDataStream& stream)
+{
+    if (stream.getRemainingPayload() == 0) {
+        channels.clear();
+        return true; // no channels
+    }
     quint16 channelParameterSize; // ??
-    stream >> channelParameterSize;
-
-    quint32 bytesConsumed = sizeof(quint16);
-
-    ClientSetChannel  msg;
-
-    while (bytesConsumed < payload && !stream.atEnd()) {
-
+    if (!stream.read<quint16>(channelParameterSize)) {
+        return false;
+    }
+    channels.clear();
+    while (stream.getRemainingPayload() != 0) {
+        QString channelName;
         quint16 volume;
         quint8 pan;
         quint8 flags;
-
-        QString channelName = ninjam::extractString(stream);
-
-        stream >> volume;
-        stream >> pan;
-        stream >> flags;
-
-        bytesConsumed += channelName.toUtf8().size() + 1;
-        bytesConsumed += sizeof(volume) + sizeof(pan) + sizeof(flags);
-
-        bool active = true;// flags == 0;
-
-        msg.addChannel(channelName, flags, active);
+        if (stream.readUtf8String(channelName) &&
+            stream.read<quint16>(volume) &&
+            stream.read<quint8>(pan) &&
+            stream.read<quint8>(flags)) {
+            bool active = true; // flags == 0;
+            addChannel(channelName, flags, active);
+        } else {
+            return false;
+        }
     }
-
-    return msg;
-}
-
-void ClientSetChannel::serializeTo(QIODevice *device) const
-{
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
-
-    stream << static_cast<quint8>(msgType);
-    stream << payload;
-
-//    QString str = "SEND ClientSetChannel{ ";
-//    for (auto channel : channels) {
-//        str += QString(" {%1, %2}, ").arg(channel.getName()).arg(channel.getFlags());
-//    }
-//    str += "}";
-
-//    qDebug() << str << endl;
-
-
-    //++++++++
-    stream << quint16(4); // parameter size (4 bytes - volume (2 bytes) + pan (1 byte) + flags (1 byte))
-    for (const UserChannel &channel : channels) {
-        ninjam::serializeString(channel.getName(), stream);
-        stream << channel.getVolume();
-        stream << channel.getPan();
-        stream << channel.getFlags();
-    }
+    return true;
 }
 
 void ClientSetChannel::printDebug(QDebug &dbg) const
 {
-    dbg << "SEND ClientSetChannel{ payloadLenght="
-        << payload
-        << " channels="
+    dbg << "SEND ClientSetChannel{ channels="
         << channels.size()
         << '}'
-        << endl;
+        << Qt::endl;
 }
 
-//+++++++++++++++++++++
-
-ClientKeepAlive::ClientKeepAlive() :
-    ClientMessage(MessageType::KeepAlive, 0)
+void ClientSetChannel::addChannel(const QString &channelName, quint8 flags, bool active)
 {
-
-}
-
-void ClientKeepAlive::serializeTo(QIODevice *device) const
-{
-    // just the header bytes, no payload
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
-
-    stream << static_cast<quint8>(msgType);
-    stream << payload;
-}
-
-void ClientKeepAlive::printDebug(QDebug &dbg) const
-{
-    dbg << "SEND {Client KeepAlive}"
-        << endl;
+    channels.append(UserChannel(channelName, channels.size(), static_cast<UserChannel::Flags>(flags), active));
 }
 
 //+++++++++++++++++
 
-ClientSetUserMask::ClientSetUserMask(const QString &userName, quint32 channelsMask) :
-    ClientMessage(MessageType::ClientSetUserMask, 0),
-    userName(userName),
-    channelsMask(channelsMask)
+ClientSetUserMask::ClientSetUserMask() :
+    ClientMessage(MessageType::ClientSetUserMask)
 {
-    payload = 4; // 4 bytes (int) flag
-    payload += userName.size() + 1;
+
 }
 
-ClientSetUserMask ClientSetUserMask::from(QIODevice *device, quint32 payload)
+ClientSetUserMask::ClientSetUserMask(const QString &userFullName, quint32 channelsMask)
+    : ClientMessage(MessageType::ClientSetUserMask),
+      userName(userFullName),
+      channelsMask(channelsMask)
 {
-    Q_UNUSED(payload)
 
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
-
-    QString userName(ninjam::extractString(stream));
-    quint32 channelsMask;
-
-    stream >> channelsMask;
-
-    return ClientSetUserMask(userName, channelsMask);
 }
 
-void ClientSetUserMask::serializeTo(QIODevice *device) const
+quint32 ClientSetUserMask::getSerializePayload() const {
+    return NinjamOutputDataStream::getUtf8StringPayload(userName) +
+            NinjamOutputDataStream::getPayload<quint32>();
+}
+
+bool ClientSetUserMask::serializeTo(NinjamOutputDataStream& stream) const
 {
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
+    return (ClientMessage::serializeTo(stream) &&
+            stream.writeUtf8String(userName) &&
+            stream.write<quint32>(channelsMask));
+}
 
-    stream << static_cast<quint8>(msgType);
-    stream << payload;
-
-    //++++++++++++  END HEADER ++++++++++++
-
-    ninjam::serializeString(userName, stream);
-    stream << channelsMask;
+bool ClientSetUserMask::unserializeFrom(NinjamInputDataStream& stream)
+{
+    return (stream.readUtf8String(userName) &&
+            stream.read<quint32>(channelsMask));
 }
 
 void ClientSetUserMask::printDebug(QDebug &dbg) const
@@ -291,12 +237,20 @@ void ClientSetUserMask::printDebug(QDebug &dbg) const
         << userName
         << " flag="
         << channelsMask
-        << '}';
+        << '}'
+        << Qt::endl;
 }
 
 //+++++++++++++++++++++++++++++
+ClientToServerChatMessage::ClientToServerChatMessage()
+    : ClientMessage(MessageType::ChatMessage)
+{
+    //Q_ASSERT(arguments.size() == 4);
+}
+
+
 ClientToServerChatMessage::ClientToServerChatMessage(const QString &command, const QString &arg1, const QString &arg2, const QString &arg3, const QString &arg4) :
-    ClientMessage(MessageType::ChatMessage, 0),
+    ClientMessage(MessageType::ChatMessage),
     command(command)
 {
     arguments.append(arg1);
@@ -373,7 +327,7 @@ bool ClientToServerChatMessage::isBpmVoteMessage() const
     if (!isPublicMessage())
         return false;
 
-    QString voteCommand = arguments.at(0);
+    const QString& voteCommand = arguments.at(0);
     return voteCommand.startsWith("!vote bpm ");
 }
 
@@ -392,48 +346,43 @@ bool ClientToServerChatMessage::isAdminMessage() const
     return command == "ADMIN";
 }
 
-ClientToServerChatMessage ClientToServerChatMessage::from(QIODevice *device, quint32 payload)
+quint32 ClientToServerChatMessage::getSerializePayload() const
 {
-
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
-
-    QByteArray byteArray(payload, Qt::Uninitialized);
-
-    int readed = stream.readRawData(byteArray.data(), payload);
-
-    Q_ASSERT(readed == payload);
-
-    auto arrays = byteArray.split('\0');
-
-    Q_ASSERT(arrays.size() > 1);
-
-    QString command(arrays.at(0));
-    QString arg1 = QString::fromUtf8(arrays.at(1));
-
-    QString arg2 = (arrays.size() >= 3) ? QString::fromUtf8(arrays.at(2)) : QString();
-    QString arg3 = (arrays.size() >= 4) ? QString::fromUtf8(arrays.at(3)) : QString();
-    QString arg4 = (arrays.size() >= 5) ? QString::fromUtf8(arrays.at(4)) : QString();
-
-    return ClientToServerChatMessage(command, arg1, arg2, arg3,arg4);
+    quint32 payload = NinjamOutputDataStream::getUtf8StringPayload(command);
+    for (const auto &arg : arguments) {
+        payload += NinjamOutputDataStream::getUtf8StringPayload(arg);
+    }
+    return payload;
 }
 
-void ClientToServerChatMessage::serializeTo(QIODevice *device) const
+bool ClientToServerChatMessage::serializeTo(NinjamOutputDataStream& stream) const
 {
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
+    if (ClientMessage::serializeTo(stream) &&
+            stream.writeUtf8String(command)) {
+        for (const auto &arg : arguments) {
+            if (!stream.writeUtf8String(arg)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    return false;
+}
 
-    quint32 payload = command.size() + 1;
-    for (auto &arg : arguments)
-        payload += arg.toUtf8().size() + 1;
-
-    stream << static_cast<quint8>(msgType);
-    stream << payload;
-
-    ninjam::serializeString(command, stream);
-
-    for (auto &arg : arguments)
-        ninjam::serializeString(arg, stream);
+bool ClientToServerChatMessage::unserializeFrom(NinjamInputDataStream& stream)
+{
+    QStringList strings;
+    if (stream.readUtf8Strings(strings, stream.getRemainingPayload()) &&
+            strings.size() > 1) {
+        command = strings[0];
+        arguments.clear();
+        arguments.append(strings[1]);
+        arguments.append((strings.size() >= 3) ? strings[2] : QString());
+        arguments.append((strings.size() >= 4) ? strings[3] : QString());
+        arguments.append((strings.size() >= 5) ? strings[4] : QString());
+        return true;
+    }
+    return false;
 }
 
 void ClientToServerChatMessage::printDebug(QDebug &dbg) const
@@ -445,13 +394,20 @@ void ClientToServerChatMessage::printDebug(QDebug &dbg) const
         << " arg2=" << arguments.at(1)
         << " arg3=" << arguments.at(2)
         << " arg4=" << arguments.at(3)
-        << '}';
+        << '}'
+        << Qt::endl;
 }
 
 //+++++++++++++++++++++++++
 
-UploadIntervalBegin::UploadIntervalBegin(const QByteArray &GUID, quint8 channelIndex, bool isAudioInterval) :
-    ClientMessage(MessageType::UploadIntervalBegin, 16 + 4 + 4 + 1),
+UploadIntervalBegin::UploadIntervalBegin() :
+    ClientMessage(MessageType::UploadIntervalBegin)
+{
+
+}
+
+UploadIntervalBegin::UploadIntervalBegin(const MessageGuid &GUID, quint8 channelIndex, bool isAudioInterval) :
+    ClientMessage(MessageType::UploadIntervalBegin),
     GUID(GUID),
     estimatedSize(0),
     channelIndex(channelIndex)
@@ -471,52 +427,33 @@ UploadIntervalBegin::UploadIntervalBegin(const QByteArray &GUID, quint8 channelI
     }
 }
 
-UploadIntervalBegin UploadIntervalBegin::from(QIODevice *device, quint32 payload)
+quint32 UploadIntervalBegin::getSerializePayload() const
 {
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
-
-    QByteArray GUID(16, Qt::Uninitialized);
-    quint32 estimatedSize;
-
-    stream.readRawData(GUID.data(), GUID.size());
-    stream >> estimatedSize;
-
-    QByteArray fourCC(4, Qt::Uninitialized);
-    stream.readRawData(fourCC.data(), fourCC.size());
-
-    quint8 channelIndex;
-    stream >> channelIndex;
-
-    // reading and discarding another bytes, old jamtaba versions are wrongly sending user name in this message
-    ninjam::extractString(stream, payload - 16 - 4 - 4 - 1);
-
-    bool isAudioInterval = fourCC[0] == 'O' && fourCC[1] == 'G' && fourCC[2] == 'G' && fourCC[3] == 'v';
-    return UploadIntervalBegin(GUID, channelIndex, isAudioInterval);
+    return sizeof(GUID) + sizeof(estimatedSize) + sizeof(fourCC) + sizeof(channelIndex);
 }
 
-void UploadIntervalBegin::serializeTo(QIODevice *device) const
+bool UploadIntervalBegin::serializeTo(NinjamOutputDataStream& stream) const
 {
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
+    return (ClientMessage::serializeTo(stream) &&
+            stream.writeByteArray(GUID) &&
+            stream.write<quint32>(estimatedSize) &&
+            stream.writeByteArray(fourCC) &&
+            stream.write<quint8>(channelIndex));
+}
 
-    stream << static_cast<quint8>(msgType);
-    stream << payload;
-
-    stream.writeRawData(GUID.data(), 16);
-    stream << estimatedSize;
-    stream.writeRawData(fourCC, 4);
-    stream << channelIndex;
-
-    //ninjam::serializeString(userName, stream);
+bool UploadIntervalBegin::unserializeFrom(NinjamInputDataStream& stream) {
+    return (stream.readByteArray(GUID) &&
+            stream.read<quint32>(estimatedSize) &&
+            stream.readByteArray(fourCC) &&
+            stream.read<quint8>(channelIndex));
 }
 
 void UploadIntervalBegin::printDebug(QDebug &dbg) const
 {
     dbg << "SEND ClientUploadIntervalBegin{ GUID "
-        << QString(GUID)
+        << QString::fromUtf8(GUID.data(), GUID.size())
         << " fourCC"
-        << QString(fourCC)
+        << QString::fromUtf8(fourCC.data(), fourCC.size())
         << "channelIndex: "
         << channelIndex
         << "}";
@@ -524,8 +461,14 @@ void UploadIntervalBegin::printDebug(QDebug &dbg) const
 
 //+++++++++++++++++++++
 
-UploadIntervalWrite::UploadIntervalWrite(const QByteArray &GUID, const QByteArray &encodedData, bool isLastPart) :
-    ClientMessage(MessageType::UploadIntervalWrite, 16 + 1 + encodedData.size()),
+UploadIntervalWrite::UploadIntervalWrite() :
+    ClientMessage(MessageType::UploadIntervalWrite)
+{
+
+}
+
+UploadIntervalWrite::UploadIntervalWrite(const MessageGuid &GUID, const QByteArray &encodedData, bool isLastPart) :
+    ClientMessage(MessageType::UploadIntervalWrite),
     GUID(GUID),
     encodedData(encodedData),
     lastPart(isLastPart)
@@ -533,47 +476,38 @@ UploadIntervalWrite::UploadIntervalWrite(const QByteArray &GUID, const QByteArra
 
 }
 
-UploadIntervalWrite UploadIntervalWrite::from(QIODevice *device, quint32 payload)
+quint32 UploadIntervalWrite::getSerializePayload() const
 {
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
-
-    QByteArray GUID(16, Qt::Uninitialized);
-    stream.readRawData(GUID.data(), GUID.size());
-
-    quint8 lastPart;
-    stream >> lastPart;
-
-    bool isLastPart = lastPart == 1;
-
-    QByteArray encodedData(payload - 16 - 1, Qt::Uninitialized);
-
-    stream.readRawData(encodedData.data(), encodedData.size());
-
-    return UploadIntervalWrite(GUID, encodedData, isLastPart);
+    return sizeof(GUID) + sizeof(quint8) + NinjamOutputDataStream::getByteArrayPayload(encodedData);
 }
 
-void UploadIntervalWrite::serializeTo(QIODevice *device) const
+bool UploadIntervalWrite::serializeTo(NinjamOutputDataStream& stream) const
 {
-    QDataStream stream(device);
-    stream.setByteOrder(QDataStream::LittleEndian);
+    return (ClientMessage::serializeTo(stream) &&
+            stream.writeByteArray(GUID) &&
+            stream.write<quint8>(lastPart ? 1 : 0) && // If the Flag field bit 0 is set then the upload is complete.
+            stream.writeByteArray(encodedData));
+}
 
-    stream << static_cast<quint8>(msgType);
-    stream << payload;
-
-    stream.writeRawData(GUID.data(), 16);
-    quint8 intervalCompleted = lastPart ? (quint8) 1 : (quint8) 0; // If the Flag field bit 0 is set then the upload is complete.
-    stream << intervalCompleted;
-    stream.writeRawData(encodedData.data(), encodedData.size());
+bool UploadIntervalWrite::unserializeFrom(NinjamInputDataStream& stream)
+{
+    quint8 lastPartFlag;
+    if (stream.readByteArray(GUID) &&
+            stream.read<quint8>(lastPartFlag)) {
+        lastPart = lastPartFlag == 1;
+        encodedData.resize(stream.getRemainingPayload());
+        return stream.readByteArray(encodedData);
+    }
+    return false;
 }
 
 void UploadIntervalWrite::printDebug(QDebug &dbg) const
 {
     dbg << "SEND ClientIntervalUploadWrite{"
         << "GUID="
-        << QString(GUID)
+        << QString::fromUtf8(GUID.data(), GUID.size())
         << ", encodedAudioBuffer= "
-        << payload
+        << encodedData.size()
         << " bytes, isLastPart="
         << lastPart
         << '}';

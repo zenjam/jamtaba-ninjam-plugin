@@ -299,10 +299,10 @@ LocalTrackGroupViewStandalone *MainWindowStandalone::createLocalTrackGroupView(i
     return new LocalTrackGroupViewStandalone(channelGroupIndex, this);
 }
 
-QList<persistence::Plugin> buildPersistentPluginList(QList<const audio::Plugin *> trackPlugins)
+QList<persistence::Plugin> buildPersistentPluginList(QList<QSharedPointer<audio::Plugin>> trackPlugins)
 {
     QList<persistence::Plugin> persistentPlugins;
-    for (auto p : trackPlugins) {
+    for (const auto& p : trackPlugins) {
         QByteArray serializedData = p->getSerializedData();
         persistence::Plugin plugin(p->getDescriptor(), p->isBypassed(), serializedData);
         persistentPlugins.append(plugin);

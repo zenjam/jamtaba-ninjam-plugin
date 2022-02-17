@@ -7,6 +7,8 @@
 using ninjam::client::User;
 using ninjam::client::UserChannel;
 
+static const char* IP_MASK = ".x";
+
 QString ninjam::client::extractUserName(const QString &fullName)
 {
     QChar separator('@');
@@ -33,23 +35,21 @@ QString ninjam::client::maskIpInUserFullName(const QString &userFullName)
     if (ipIsMasked(ip))
         return userFullName;
 
-    return QString("%1@%2")
-           .arg(name)
-           .arg(maskIP(ip));
+    return QString("%1@%2").arg(name, maskIP(ip));
 }
 
 QString ninjam::client::maskIP(const QString &ip)
 {
     auto index = ip.lastIndexOf(".");
     if (index)
-        return ip.left(index) + ninjam::client::IP_MASK; // masking
+        return ip.left(index) + IP_MASK; // masking
 
     return ip;
 }
 
 bool ninjam::client::ipIsMasked(const QString &ip)
 {
-    return ip.endsWith(ninjam::client::IP_MASK);
+    return ip.endsWith(IP_MASK);
 }
 
 User::User(const QString &fullName) :
@@ -64,58 +64,46 @@ User::~User()
     //
 }
 
-UserChannel User::getChannel(quint8 index) const
-{
-    if (channels.contains(index))
-        return channels[index];
-
-    qCritical() << "invalid channel index (" << QString::number(index) << "), returning an empty channel!";
-
-    return UserChannel(); // return a invalid/empty channel
-}
-
 void User::addChannel(const UserChannel &channel)
 {
-    channels.insert(channel.getIndex(), UserChannel(channel));
-}
-
-void User::updateChannelName(quint8 channelIndex, const QString &newName)
-{
-    if (channels.contains(channelIndex))
-        channels[channelIndex].setName(newName);
-    else
-        qCritical() << "invalid channel index (" << QString::number(channelIndex) << "), can't update the channel!";
-}
-
-void User::updateChannelReceiveStatus(quint8 channelIndex, bool receiving)
-{
-    if (channels.contains(channelIndex))
-        channels[channelIndex].setActive(receiving);
-    else
-        qCritical() << "invalid channel index (" << QString::number(channelIndex) << "), can't update the channel!";
-}
-
-void User::updateChannelFlags(quint8 channelIndex, quint8 flags)
-{
-    if (channels.contains(channelIndex))
-        channels[channelIndex].setFlags(flags);
-    else
-        qCritical() << "invalid channel index (" << QString::number(channelIndex) << "), can't update the channel!";
+    for (int i = 0; i < channels.size(); i++) {
+        if (channels[i].getIndex() == channel.getIndex()) {
+            channels[i] = UserChannel(channel);
+            return;
+        }
+    }
+    channels.append(UserChannel(channel));
 }
 
 bool User::hasActiveChannels() const
 {
-    for (const auto &channel : channels.values()) {
-        if (channel.isActive())
+    for (int i = 0; i < channels.size(); i++) {
+        if (channels[i].isActive()) {
             return true;
+        }
     }
-
     return false;
 }
 
-void User::removeChannel(quint8 channelIndex)
+bool User::hasChannel(int channelIndex) const
 {
-    this->channels.remove(channelIndex);
+    for (int i = 0; i < channels.size(); i++) {
+        if (channels[i].getIndex() == channelIndex) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool User::removeChannel(quint8 channelIndex)
+{
+    for (int i = 0; i < channels.size(); i++) {
+        if (channels[i].getIndex() == channelIndex) {
+            channels.removeAt(i);
+            return true;
+        }
+    }
+    return false;
 }
 
 QDebug &ninjam::client::operator<<(QDebug &out, const User &user)

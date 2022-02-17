@@ -46,28 +46,34 @@ void ServerInfo::addUser(const User &user)
 
 void ServerInfo::updateUserChannel(const QString &userFullName, const UserChannel &serverChannel)
 {
-    if (users.contains(userFullName)) {
-
-        quint8 channelIndex = serverChannel.getIndex();
-        auto &user = users[userFullName];
-
-        user.updateChannelName(channelIndex, serverChannel.getName());
-        user.updateChannelReceiveStatus(channelIndex, serverChannel.isActive());
-        user.updateChannelFlags(channelIndex, serverChannel.getFlags());
+    auto iterator = users.find(userFullName);
+    if (iterator != users.end()) {
+        auto& user = iterator.value();
+        user.visitChannel(serverChannel.getIndex(), [&](UserChannel& channel) {
+            channel.setName(serverChannel.getName());
+            channel.setActive(serverChannel.isActive());
+            channel.setFlags(serverChannel.getFlags());
+        });
     }
 }
 
 void ServerInfo::updateUserChannelReceiveStatus(const QString &userFullName, quint8 channelIndex, bool receive)
 {
-    if (users.contains(userFullName)) {
-        users[userFullName].updateChannelReceiveStatus(channelIndex, receive);
+    auto iterator = users.find(userFullName);
+    if (iterator != users.end()) {
+        auto& user = iterator.value();
+        user.visitChannel(channelIndex, [&](UserChannel& channel) {
+            channel.setActive(receive);
+        });
     }
 }
 
 void ServerInfo::removeUserChannel(const QString &userFullName, const UserChannel &channel)
 {
-    if (users.contains(userFullName)) {
-        users[userFullName].removeChannel(channel.getIndex());
+    auto iterator = users.find(userFullName);
+    if (iterator != users.end()) {
+        auto& user = iterator.value();
+        user.removeChannel(channel.getIndex());
     }
 }
 
@@ -97,6 +103,15 @@ User ServerInfo::getUser(const QString &userFullName) const
         return users[userFullName];
 
     return User("");
+}
+
+User ServerInfo::getOrCreateUser(const QString &userFullName)
+{
+    auto iterator = users.find(userFullName);
+    if (iterator != users.end()) {
+        return iterator.value();
+    }
+    return users.insert(userFullName, User(userFullName)).value();
 }
 
 QList<User> ServerInfo::getUsers() const

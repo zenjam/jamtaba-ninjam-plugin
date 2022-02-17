@@ -26,6 +26,7 @@ namespace client
         void updateUserChannelReceiveStatus(const QString &userFullName, quint8 channelIndex, bool receive);
 
         User getUser(const QString &userFullName) const;
+        User getOrCreateUser(const QString &userFullName);
 
         inline void setStreamUrl(const QString &streamUrl)
         {

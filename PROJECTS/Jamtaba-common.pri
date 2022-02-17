@@ -40,7 +40,7 @@ win32 {
     QMAKE_CXXFLAGS += -D__WINDOWS_MM__
 }
 
-CONFIG += c++11
+CONFIG += c++14
 
 
 PRECOMPILED_HEADER += PreCompiledHeaders.h
@@ -101,6 +101,7 @@ HEADERS += ninjam/client/ServerInfo.h
 HEADERS += ninjam/client/ServerMessages.h
 HEADERS += ninjam/client/ClientMessages.h
 HEADERS += ninjam/client/ServerMessagesHandler.h
+HEADERS += ninjam/common/CommonMessages.h
 HEADERS += ninjam/server/Server.h
 HEADERS += gui/plugins/Guis.h
 HEADERS += gui/PluginScanDialog.h
@@ -219,6 +220,7 @@ SOURCES += ninjam/client/ServerMessages.cpp
 SOURCES += ninjam/client/ClientMessages.cpp
 SOURCES += ninjam/client/ServerMessagesHandler.cpp
 SOURCES += ninjam/client/UserChannel.cpp
+SOURCES += ninjam/common/CommonMessages.cpp
 SOURCES += ninjam/server/Server.cpp
 SOURCES += gui/widgets/PeakMeter.cpp
 SOURCES += gui/widgets/WavePeakPanel.cpp

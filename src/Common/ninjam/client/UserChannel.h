@@ -9,12 +9,16 @@ namespace ninjam
 
 namespace client
 {
-
     class UserChannel
     {
-
     public:
-        UserChannel(const QString &channelName, quint8 channelIndex, quint8 flags, bool active, quint16 volume=0, quint8 pan=0);
+        enum class Flags : quint8 {
+            Intervalic = 0,
+            VoiceChat = 2,
+            Session = 4,
+        };
+    public:
+        UserChannel(const QString &channelName, quint8 channelIndex, UserChannel::Flags flags, bool active, quint16 volume=0, quint8 pan=0);
         UserChannel();
 
         ~UserChannel();
@@ -34,7 +38,7 @@ namespace client
             return index;
         }
 
-        inline QString getName() const
+        inline const QString& getName() const
         {
             return channelName;
         }
@@ -50,19 +54,18 @@ namespace client
         }
 
         inline bool isIntervalicChannel() const {
-            return flags == 0;
+            return flags == Flags::Intervalic;
         }
 
         inline bool isVoiceChatChannel() const {
-            return flags == 2;
+            return flags == Flags::VoiceChat;
         }
 
-        inline quint8 getFlags() const
-        {
+        inline Flags getFlags() const {
             return flags;
         }
 
-        inline void setFlags(quint8 flags){
+        inline void setFlags(Flags flags){
             this->flags = flags;
         }
 
@@ -83,7 +86,7 @@ namespace client
                     .arg(index)
                     .arg(volume)
                     .arg(pan)
-                    .arg(flags);
+                    .arg(static_cast<quint8>(flags));
         }
 
 
@@ -93,7 +96,7 @@ namespace client
         quint8 index;
         quint16 volume; // (dB gain, 0=0dB, 10=1dB, -30=-3dB, etc)
         quint8 pan; // Pan [-128, 127]
-        quint8 flags; // received from server. Possible values: 0 - ninjam interval based channel, 2 - voice chat channel, 4 - session mode
+        Flags flags; // received from server. Possible values: 0 - ninjam interval based channel, 2 - voice chat channel, 4 - session mode
     };
 
 } // ns

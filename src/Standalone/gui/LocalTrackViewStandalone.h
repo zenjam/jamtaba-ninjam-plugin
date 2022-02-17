@@ -36,9 +36,9 @@ public:
 
     void reset() override;
 
-    void addPlugin(audio::Plugin *plugin, quint32 slotIndex, bool bypassed = false);
+    void addPlugin(const QSharedPointer<audio::Plugin> &plugin, quint32 slotIndex, bool bypassed = false);
 
-    QList<const audio::Plugin *> getInsertedPlugins() const;
+    QList<QSharedPointer<audio::Plugin>> getInsertedPlugins() const;
 
     void refreshInputSelectionName();
 

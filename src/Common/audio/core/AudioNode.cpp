@@ -31,7 +31,7 @@ void AudioNode::processReplacing(const SamplesBuffer &in, SamplesBuffer &out, in
 
     {
         QMutexLocker locker(&mutex);
-        for (auto node : connections) { // ask connected nodes to generate audio
+        for (auto node : std::as_const(connections)) { // ask connected nodes to generate audio
             node->processReplacing(internalInputBuffer, internalOutputBuffer, sampleRate, midiBuffer);
         }
     }
@@ -189,12 +189,7 @@ void AudioNode::updateGains()
 
 AudioNode::~AudioNode()
 {
-    for (int i = 0; i < MAX_PROCESSORS_PER_TRACK; ++i) {
-        if (processors[i]){
-            delete processors[i];
-            processors[i] = nullptr;
-        }
-    }
+
 }
 
 bool AudioNode::connect(AudioNode &other)
@@ -213,14 +208,14 @@ bool AudioNode::disconnect(AudioNode &otherNode)
     return true;
 }
 
-void AudioNode::addProcessor(AudioNodeProcessor *newProcessor, quint32 slotIndex)
+void AudioNode::addProcessor(const QSharedPointer<AudioNodeProcessor> &newProcessor, quint32 slotIndex)
 {
     assert(newProcessor);
     assert(slotIndex < MAX_PROCESSORS_PER_TRACK);
     processors[slotIndex] = newProcessor;
 }
 
-void AudioNode::removeProcessor(AudioNodeProcessor *processor)
+void AudioNode::removeProcessor(const QSharedPointer<AudioNodeProcessor> &processor)
 {
     assert(processor);
     processor->suspend();
@@ -230,7 +225,6 @@ void AudioNode::removeProcessor(AudioNodeProcessor *processor)
             break;
         }
     }
-    delete processor;
 }
 
 void AudioNode::suspendProcessors()

@@ -24,15 +24,15 @@ class FxPanelItem : public QFrame
 public:
     FxPanelItem(LocalTrackViewStandalone *parent, controller::MainControllerStandalone *mainController);
     virtual ~FxPanelItem();
-    void setPlugin(audio::Plugin *plugin);
+    void setPlugin(const QSharedPointer<audio::Plugin>& plugin);
     void unsetPlugin();
     inline bool containPlugin() const
     {
-        return plugin;
+        return plugin != nullptr;
     }
 
     bool pluginIsBypassed();
-    const audio::Plugin *getAudioPlugin() const
+    const QSharedPointer<audio::Plugin>& getAudioPlugin() const
     {
         return plugin;
     }
@@ -52,7 +52,7 @@ private slots:
     void loadSelectedPlugin();
 
 private:
-    audio::Plugin *plugin;
+    QSharedPointer<audio::Plugin> plugin;
     QPushButton *bypassButton;
     QLabel *label;
     controller::MainControllerStandalone *mainController; // used to ask about plugins

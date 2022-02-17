@@ -1,7 +1,7 @@
 #ifndef UPLOAD_INTERVAL_DATA_H
 #define UPLOAD_INTERVAL_DATA_H
 
-#include <QByteArray>
+#include <ninjam/Ninjam.h>
 
 class UploadIntervalData
 {
@@ -10,7 +10,7 @@ public:
     UploadIntervalData();
     ~UploadIntervalData();
 
-    inline QByteArray getGUID() const
+    inline const ninjam::MessageGuid& getGUID() const
     {
         return GUID;
     }
@@ -38,8 +38,8 @@ public:
     }
 
 private:
-    static QByteArray newGUID();
-    QByteArray GUID;
+    static ninjam::MessageGuid newGUID();
+    ninjam::MessageGuid GUID;
     QByteArray dataToUpload;
 
 };

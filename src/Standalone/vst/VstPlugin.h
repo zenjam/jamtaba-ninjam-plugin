@@ -22,7 +22,7 @@ typedef AEffect *(*vstPluginFuncPtr)(audioMasterCallback host); // Plugin's entr
 class VstPlugin : public audio::Plugin
 {
 public:
-    explicit VstPlugin(vst::VstHost *host, const QString &pluginPath);
+    explicit VstPlugin(const audio::PluginDescriptor &pluginDescriptor, AEffect* effect, vst::VstHost *host);
     ~VstPlugin();
 
     void process(const audio::SamplesBuffer &vstInputArray, audio::SamplesBuffer &outBuffer, std::vector<midi::MidiMessage> &midiBuffer) override;
@@ -30,7 +30,7 @@ public:
 
     void closeEditor() override;
 
-    bool load(const QString &path);
+    static QSharedPointer<VstPlugin> load(VstHost* host, const audio::PluginDescriptor &pluginDescriptor);
 
     inline QString getPath() const override
     {

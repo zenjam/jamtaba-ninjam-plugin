@@ -99,7 +99,7 @@ void Configurator::logHandler(QtMsgType type, const QMessageLogContext &context,
            << QString(QString(context.category) + "." + messageType).leftJustified(17, ' ')
            << " [" << timeStamp << "] "
            << localMsg.constData()
-           << COLOR_RESET << " [" << file << ", line " << context.line << "]" << endl;
+           << COLOR_RESET << " [" << file << ", line " << context.line << "]" << Qt::endl;
 
     QTextStream(stdout) << stringMsg;
 
@@ -120,8 +120,10 @@ void Configurator::logHandler(QtMsgType type, const QMessageLogContext &context,
         ts << stringMsg.replace(QRegularExpression("\\033\\[[0-6]{1,2}(;1)?m"), ""); // remove ANSI color codes from log file
     }
 
-    if (type == QtFatalMsg)
+    if (type == QtFatalMsg) {
+        outFile.close(); // ensure data is written before crash
         abort();
+    }
 }
 
 QStringList Configurator::loadPreviousLogContent() const

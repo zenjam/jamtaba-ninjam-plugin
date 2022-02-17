@@ -43,7 +43,7 @@ qint32 FxPanel::getPluginFreeSlotIndex() const
     return -1; // no free slot
 }
 
-void FxPanel::addPlugin(Plugin *plugin, quint32 pluginSlotIndex)
+void FxPanel::addPlugin(const QSharedPointer<Plugin> &plugin, quint32 pluginSlotIndex)
 {
     auto items = findChildren<FxPanelItem *>();
     if (pluginSlotIndex < (quint32)items.count()) {

@@ -150,15 +150,13 @@ void BaseTrackView::translateUI()
     boostSpinBox->updateToolTip();
 }
 
-void BaseTrackView::bindThisViewWithTrackNodeSignals()
+void BaseTrackView::bindThisViewWithTrackNodeSignals(audio::AudioNode* inputNode)
 {
-    auto trackNode = mainController->getTrackNode(trackID);
-    Q_ASSERT(trackNode);
-    connect(trackNode, &AudioNode::gainChanged, this, &BaseTrackView::setGainSliderPosition);
-    connect(trackNode, &AudioNode::panChanged, this, &BaseTrackView::setPanKnobPosition);
-    connect(trackNode, &AudioNode::muteChanged, this, &BaseTrackView::setMuteStatus);
-    connect(trackNode, &AudioNode::soloChanged, this, &BaseTrackView::setSoloStatus);
-    connect(trackNode, &AudioNode::boostChanged, this, &BaseTrackView::setBoostStatus);
+    connect(inputNode, &AudioNode::gainChanged, this, &BaseTrackView::setGainSliderPosition);
+    connect(inputNode, &AudioNode::panChanged, this, &BaseTrackView::setPanKnobPosition);
+    connect(inputNode, &AudioNode::muteChanged, this, &BaseTrackView::setMuteStatus);
+    connect(inputNode, &AudioNode::soloChanged, this, &BaseTrackView::setSoloStatus);
+    connect(inputNode, &AudioNode::boostChanged, this, &BaseTrackView::setBoostStatus);
 }
 
 // ++++++  signals emitted by Audio Node +++++++
