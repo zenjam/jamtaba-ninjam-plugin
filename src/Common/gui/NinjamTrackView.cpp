@@ -139,11 +139,6 @@ void NinjamTrackView::setReceiveState(bool receive)
 
     // send a message to ninjam server disabling channel receive status
     mainController->setChannelReceiveStatus(userFullName, channelIndex, receive);
-
-    // stop rendering downloaded audio
-    auto trackNode = getTrackNode();
-    if (trackNode)
-        trackNode->setReceiveState(receive);
 }
 
 QSharedPointer<NinjamTrackNode> NinjamTrackView::getTrackNode() const
@@ -322,12 +317,15 @@ void NinjamTrackView::setActivatedStatus(bool deactivated)
     BaseTrackView::setActivatedStatus(deactivated);
 
     if (deactivated) { // remote user stop xmiting and the track is greyed/unlighted?
-        auto trackNode = getTrackNode();
-        if (trackNode)
-            trackNode->resetLastPeak(); // reset the internal node last peak to avoid getting the last peak calculated when the remote user was transmiting.
-
         downloadingFirstInterval = true; // waiting for the first interval
         chunksDisplay->reset();
+    }
+
+    // stop rendering downloaded audio
+    auto trackNode = getTrackNode();
+    if (trackNode) {
+        trackNode->setReceiveState(!deactivated);
+        trackNode->resetLastPeak(); // reset the internal node last peak to avoid getting the last peak calculated when the remote user was transmiting.
     }
 }
 
