@@ -69,11 +69,10 @@ void LocalTrackGroupView::setAsVideoChannel()
     xmitButton->setChecked(false);
     xmitButton->setVisible(false);
 
-    auto tracks = getTracks<LocalTrackView *>();
-    for (auto track : tracks) {
+    visitTracks<LocalTrackView>([&](LocalTrackView *track) {
         track->setVisible(false);
         track->getInputNode()->setToNoInput();
-    }
+    });
 
     toolButton->setVisible(false);
 
@@ -182,9 +181,9 @@ QPushButton *LocalTrackGroupView::createToolButton()
 
 void LocalTrackGroupView::closePluginsWindows()
 {
-    auto trackViews = getTracks<LocalTrackView *>();
-    for (auto trackView : trackViews)
+    visitTracks<LocalTrackView>([&](LocalTrackView *trackView) {
         trackView->closeAllPlugins();
+    });
 }
 
 void LocalTrackGroupView::addChannel()
@@ -204,8 +203,9 @@ int LocalTrackGroupView::getInstrumentIcon() const
 
 void LocalTrackGroupView::resetTracks()
 {
-    for (auto track : getTracks<LocalTrackView *>())
+    visitTracks<LocalTrackView>([&](LocalTrackView *track) {
         track->reset();
+    });
 
     if (!xmitButton->isChecked())
         xmitButton->click(); // uncheck/reset the xmit button, the default is xmiting (button checked)
@@ -393,8 +393,9 @@ void LocalTrackGroupView::removeSubchannel()
 
 void LocalTrackGroupView::detachMainControllerInSubchannels()
 {
-    for (LocalTrackView *view : getTracks<LocalTrackView *>())
+    visitTracks<LocalTrackView>([&](LocalTrackView *view) {
         view->detachMainController();
+    });
 }
 
 void LocalTrackGroupView::removeChannel()
@@ -473,9 +474,9 @@ void LocalTrackGroupView::setPeakMeterMode(bool peakMeterOnly)
         toolButton->setVisible(!peakMeterOnly);
         instrumentsButton->setVisible(!peakMeterOnly);
 
-        for (auto view : getTracks<LocalTrackView *>()) {
+        visitTracks<LocalTrackView>([&](LocalTrackView *view) {
             view->setPeakMetersOnlyMode(peakMeterOnly);
-        }
+        });
 
         updateXmitButtonText();
         updateGeometry();

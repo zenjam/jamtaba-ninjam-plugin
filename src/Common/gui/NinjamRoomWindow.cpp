@@ -541,16 +541,16 @@ bool cameraSorter(NinjamTrackGroupView *track1, NinjamTrackGroupView *)
 
 void NinjamRoomWindow::reAddTrackGroups()
 {
-    for (auto trackGroup : trackGroups.values()) // remove all tracks from layout
+    for (auto trackGroup : trackGroups) // remove all tracks from layout
         ui->tracksLayout->removeWidget(trackGroup);
 
     auto itemsToAdd = trackGroups.values();
 
     if (tracksLayout == TracksLayout::GridLayout) { // if layout is Grid reorder trackGroups to show active cams first
-        qSort(itemsToAdd.begin(), itemsToAdd.end(), cameraSorter);
+        std::sort(itemsToAdd.begin(), itemsToAdd.end(), cameraSorter);
     }
 
-    for (auto trackGroup : itemsToAdd)
+    for (auto trackGroup : std::as_const(itemsToAdd))
         addTrack(trackGroup);
 
     adjustTracksPanelSizePolicy();
@@ -597,9 +597,13 @@ void NinjamRoomWindow::addChannel(const User &user, const UserChannel &channel, 
     // bind the new track view with ninjam channel data (user full name and channel index). These ninjam data is necessary to send receive on/off messages to server when user click in 'receive' button
     auto groupView = trackGroups[user.getFullName()];
     if (groupView != nullptr) {
-        auto trackViews = groupView->getTracks<NinjamTrackView*>();
-        if (!trackViews.isEmpty())
-            trackViews.last()->setNinjamChannelData(user.getFullName(), channel.getIndex());
+        int trackCount = groupView->getTracksCount();
+        if (trackCount != 0) {
+            auto *lastTrack = groupView->getTrack<NinjamTrackView>(trackCount - 1);
+            if (lastTrack != nullptr) {
+                lastTrack->setNinjamChannelData(user.getFullName(), channel.getIndex());
+            }
+        }
     }
 
     qCDebug(jtNinjamGUI) << "channel view created";

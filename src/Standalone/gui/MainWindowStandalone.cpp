@@ -22,9 +22,9 @@ using persistence::LocalInputTrackSettings;
 MainWindowStandalone::MainWindowStandalone(MainControllerStandalone *mainController) :
     MainWindow(mainController),
     controller(mainController),
-    fullScreenViewMode(false),
     pluginScanDialog(nullptr),
-    preferencesDialog(nullptr)
+    preferencesDialog(nullptr),
+    fullScreenViewMode(false)
 {
     setupSignals();
 
@@ -317,23 +317,19 @@ LocalInputTrackSettings MainWindowStandalone::getInputsSettings() const
 
     // recreate the settings including the plugins
     LocalInputTrackSettings settings;
-    QList<LocalTrackGroupViewStandalone *> groups
-        = getLocalChannels<LocalTrackGroupViewStandalone *>();
-    Q_ASSERT(groups.size() == baseSettings.channels.size());
+    Q_ASSERT(getChannelGroupsCount() == baseSettings.channels.size());
 
     int channelID = 0;
-    for (const Channel &channel : baseSettings.channels) {
-        LocalTrackGroupViewStandalone *trackGroupView = groups.at(channelID++);
+    for (const Channel &channel : std::as_const(baseSettings.channels)) {
+        auto trackGroupView = getLocalChannel<LocalTrackGroupViewStandalone>(channelID++);
         if (!trackGroupView)
             continue;
         Channel newChannel = channel;
         newChannel.subChannels.clear();
         int subChannelID = 0;
-        QList<LocalTrackViewStandalone *> trackViews
-            = trackGroupView->getTracks<LocalTrackViewStandalone *>();
-        for (SubChannel subchannel : channel.subChannels) {
+        for (const SubChannel& subchannel : channel.subChannels) {
             SubChannel newSubChannel = subchannel;
-            LocalTrackViewStandalone *trackView = trackViews.at(subChannelID);
+            LocalTrackViewStandalone *trackView = trackGroupView->getTrack<LocalTrackViewStandalone>(subChannelID);
             if (trackView)
                 newSubChannel.setPlugins(buildPersistentPluginList(trackView->getInsertedPlugins()));
 
@@ -358,7 +354,7 @@ void MainWindowStandalone::closeEvent(QCloseEvent *e)
     MainWindow::closeEvent(e);
     hide(); // hide before stop main controller and disconnect from login server
 
-    for (LocalTrackGroupView *trackGroup : localGroupChannels)
+    for (LocalTrackGroupView *trackGroup : std::as_const(localGroupChannels))
         trackGroup->closePluginsWindows();
 }
 
@@ -482,8 +478,9 @@ void MainWindowStandalone::setGlobalPreferences(const QList<bool> &midiInputsSta
 
     controller->updateInputTracksRange();
 
-    for (auto channel : getLocalChannels<LocalTrackGroupViewStandalone *>())
+    visitLocalChannels<LocalTrackGroupViewStandalone>([&](LocalTrackGroupViewStandalone *channel) {
         channel->refreshInputSelectionNames();
+    });
 
     midiDriver->start(midiInputsStatus, syncOutputsStatus);
     if (!audioDriver->start()) {
@@ -498,8 +495,9 @@ void MainWindowStandalone::setGlobalPreferences(const QList<bool> &midiInputsSta
 // input selection changed by user or by system
 void MainWindowStandalone::refreshTrackInputSelection(int inputTrackIndex)
 {
-    for (auto channel : getLocalChannels<LocalTrackGroupViewStandalone *>())
+    visitLocalChannels<LocalTrackGroupViewStandalone>([&](LocalTrackGroupViewStandalone *channel) {
         channel->refreshInputSelectionName(inputTrackIndex);
+    });
 }
 
 void MainWindowStandalone::addChannelsGroup(int instrumentIndex)

@@ -385,7 +385,7 @@ void Service::sendNewChannelsListToServer(const QList<ChannelMetadata> &channels
     this->channels = channels;
 
     ClientSetChannel msg;
-    for (auto channelMetadata : channels) {
+    for (const auto& channelMetadata : channels) {
         msg.addChannel(channelMetadata.name, ClientSetChannel::toFlags(channelMetadata.voiceChatActivated));
     }
 

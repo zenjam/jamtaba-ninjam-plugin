@@ -207,7 +207,7 @@ void MainWindow::setCameraComboVisibility(bool show)
     if (show) {
         cameraCombo->clear();
         auto cameras = QCameraInfo::availableCameras();
-        for (auto cameraInfo : cameras) {
+        for (const auto& cameraInfo : std::as_const(cameras)) {
             cameraCombo->addItem(cameraInfo.description(), cameraInfo.deviceName());
         }
     }
@@ -233,7 +233,7 @@ void MainWindow::initializeCamera(const QString &cameraDeviceName)
 
     camera = new QCamera(preferredCameraName.toUtf8());
 
-    connect(camera, static_cast<void(QCamera::*)(QCamera::Error)>(&QCamera::error), [=]()
+    connect(camera, static_cast<void(QCamera::*)(QCamera::Error)>(&QCamera::error), this, [=]()
     {
         QMessageBox::critical(this, tr("Error!"), camera->errorString());
     });
@@ -333,7 +333,7 @@ void MainWindow::changeCameraStatus(bool activated)
     if (!videoFrameGrabber) {
         videoFrameGrabber = new CameraFrameGrabber(this);
 
-        connect(videoFrameGrabber, &CameraFrameGrabber::frameAvailable, [=](const QImage &frame) {
+        connect(videoFrameGrabber, &CameraFrameGrabber::frameAvailable, this, [=](const QImage &frame) {
 
             if (mainController && !mainController->isPlayingInNinjamRoom()) {
                 if (cameraView)
@@ -493,13 +493,11 @@ void MainWindow::handleThemeChanged()
 
     ui.masterFader->updateStyleSheet();
 
-    for (auto groupChannels : localGroupChannels) {
-        for (auto trackView : groupChannels->getTracks<LocalTrackView *>()) {
+    for (auto groupChannels : std::as_const(localGroupChannels)) {
+        groupChannels->visitTracks<LocalTrackView>([&](LocalTrackView *trackView) {
             trackView->updateStyleSheet();
-        }
+        });
     }
-
-
 }
 
 void MainWindow::setTheme(const QString &themeName)
@@ -535,7 +533,7 @@ void MainWindow::setTintColor(const QColor &color)
 
     ui.localControlsCollapseButton->setIcon(IconFactory::createLocalControlsIcon(color));
 
-    for(auto group : this->localGroupChannels) {
+    for(auto group : std::as_const(this->localGroupChannels)) {
         group->setTintColor(color);
     }
 
@@ -546,7 +544,7 @@ void MainWindow::setTintColor(const QColor &color)
         ninjamWindow->setTintColor(color);
 
 
-    for (auto looperWindow : looperWindows)
+    for (auto looperWindow : std::as_const(looperWindows))
         looperWindow->setTintColor(color);
 
     ui.chatTabWidget->setChatsTintColor(color);
@@ -564,7 +562,7 @@ void MainWindow::initializeThemeMenu()
     // create a menu action for each theme
     QString themesDir = Configurator::getInstance()->getThemesDir().absolutePath();
     auto themes = theme::Loader::getAvailableThemes(themesDir);
-    for (const auto &themeDir : themes) {
+    for (const auto &themeDir : std::as_const(themes)) {
         QString themeName = QFileInfo(themeDir).baseName();
         QAction *action = ui.menuTheme->addAction(getStripedThemeName(themeName));
         action->setData(themeName);
@@ -619,7 +617,7 @@ void MainWindow::initializeLanguageMenu()
     QDir translationsDir(":/tr");
     if (translationsDir.exists()) {
         QStringList locales = translationsDir.entryList();
-        for (auto translationFile : locales) {
+        for (const auto& translationFile : std::as_const(locales)) {
             QLocale loc(translationFile);
             QString nativeLanguageName = gui::capitalize(loc.nativeLanguageName());
             QString englishLanguageName = gui::capitalize(QLocale::languageToString(loc.language())); // QLocale::languageToString is returning capitalized String, but just to be shure (Qt can change in future) I'm using capitalize here too.
@@ -674,9 +672,8 @@ void MainWindow::initialize()
 
     doWindowInitialization();
 
-    auto localChannels = getLocalChannels<LocalTrackGroupView *>();
-    Q_ASSERT(!localChannels.isEmpty());
-    auto firstChannelXmitButton = localChannels.first()->getXmitButton();
+    Q_ASSERT(!localGroupChannels.isEmpty());
+    auto firstChannelXmitButton = getLocalChannel<LocalTrackGroupView>(0)->getXmitButton();
     uint intervalsBeforeInactivityWarning = mainController->getSettings().getIntervalsBeforeInactivityWarning();
     xmitInactivityDetector = new InactivityDetector(this, firstChannelXmitButton, intervalsBeforeInactivityWarning);
 
@@ -702,7 +699,7 @@ void MainWindow::doWindowInitialization()
 
 void MainWindow::showPeakMetersOnlyInLocalControls(bool showPeakMetersOnly)
 {
-    for (LocalTrackGroupView *channel : localGroupChannels) {
+    for (LocalTrackGroupView *channel : std::as_const(localGroupChannels)) {
         channel->setPeakMeterMode(showPeakMetersOnly);
     }
 
@@ -770,7 +767,7 @@ persistence::LocalInputTrackSettings MainWindow::getInputsSettings() const
     for (auto trackGroupView : localGroupChannels) {
         Channel channel(trackGroupView->getInstrumentIcon());
         int subchannelsCount = 0;
-        for (auto trackView : trackGroupView->getTracks<LocalTrackView *>()) {
+        trackGroupView->visitTracks<LocalTrackView>([&](LocalTrackView *trackView) {
             auto inputNode = trackView->getInputNode();
             ChannelRange inputNodeRange = inputNode->getAudioInputRange();
             int firstInput = inputNodeRange.getFirstChannel();
@@ -792,7 +789,7 @@ persistence::LocalInputTrackSettings MainWindow::getInputsSettings() const
             channel.subChannels.append(sub);
 
             subchannelsCount++;
-        }
+        });
         settings.channels.append(channel);
     }
     return settings;
@@ -949,7 +946,7 @@ void MainWindow::loadPreset(const Preset &preset)
         initializeLocalInputChannels(preset.inputTrackSettings);
 
         //set all loaded channels xmit to ON
-        for (auto  trackGroupView :  localGroupChannels ) {
+        for (auto trackGroupView : std::as_const(localGroupChannels)) {
             mainController->setTransmitingStatus(trackGroupView->getChannelIndex(), true);
         }
 
@@ -1166,7 +1163,7 @@ void MainWindow::showNewVersionAvailableMessage(const QString &versionTag, const
 
     if (!latestVersionDetails.isEmpty()) {
         text += "<br><br>";
-        text += QString("<b>%1</b> (release date: %2)<br>").arg(versionTag).arg(formatedDate);
+        text += QString("<b>%1</b> (release date: %2)<br>").arg(versionTag, formatedDate);
         text += MainWindow::sanitizeLatestVersionDetails(latestVersionDetails);
     }
 
@@ -1210,7 +1207,7 @@ QList<login::RoomInfo> MainWindow::loadPrivateServersFromJson(const QFileInfo &p
                     auto indexOfSeparator = serverName.indexOf(":");
                     if (indexOfSeparator > 0) {
                         auto name = serverName.left(indexOfSeparator);
-                        auto port = serverName.right(serverName.length() - (indexOfSeparator + 1)).toInt();
+                        auto port = serverName.rightRef(serverName.length() - (indexOfSeparator + 1)).toInt();
                         auto userName = serverJson["user_name"].toString(mainController->getUserName());
                         auto userPass = serverJson["user_pass"].toString(QString());
                         RoomInfo privateServer(name, port, serverMaxUsers);
@@ -1245,7 +1242,7 @@ void MainWindow::refreshPublicRoomsList(const QList<login::RoomInfo> &publicRoom
     hideBusyDialog();
 
     QList<login::RoomInfo> sortedRooms(publicRooms);
-    qSort(sortedRooms.begin(), sortedRooms.end(), jamRoomLessThan);
+    std::sort(sortedRooms.begin(), sortedRooms.end(), jamRoomLessThan);
 
     // put the private servers (if available) at the first positions
     int totalPrivateServers = 0;
@@ -1291,7 +1288,7 @@ void MainWindow::refreshPublicRoomsList(const QList<login::RoomInfo> &publicRoom
 void MainWindow::playPublicRoomStream(const login::RoomInfo &roomInfo)
 {
     // clear all plots
-    for (auto viewPanel : this->roomViewPanels.values())
+    for (auto viewPanel : std::as_const(this->roomViewPanels))
         viewPanel->clear(roomInfo.getUniqueName() != viewPanel->getRoomInfo().getUniqueName());
 
     if (roomInfo.hasStream()) // just in case...
@@ -1516,7 +1513,7 @@ void MainWindow::handleUserLeaving(const QString &userFullName)
     }
 
     auto localUser = mainController->getUserName();
-    for (auto chat : chatsToReport)
+    for (auto chat : std::as_const(chatsToReport))
         chat->addMessage(localUser, JAMTABA_CHAT_BOT_NAME, tr("%1 has left the room.").arg(ninjam::client::extractUserName(userFullName)));
 
     usersColorsPool->giveBack(userFullName); // reuse the color mapped to this 'leaving' user
@@ -1538,7 +1535,7 @@ void MainWindow::handleUserEntering(const QString &userFullName)
     }
 
     auto localUser = mainController->getUserName();
-    for (auto chat : chatsToReport)
+    for (auto chat : std::as_const(chatsToReport))
         chat->addMessage(localUser, JAMTABA_CHAT_BOT_NAME, tr("%1 has joined the room.").arg(ninjam::client::extractUserName(userFullName)));
 
 }
@@ -1711,7 +1708,7 @@ void MainWindow::createMainChat(bool turnedOn)
 
     connect(mainChatPanel, &ChatPanel::userSendingNewMessage, mainChat.data(), &MainChat::sendPublicMessage);
 
-    connect(mainChat.data(), &MainChat::messageReceived, [=](const QString &userFullName, const QString &content){
+    connect(mainChat.data(), &MainChat::messageReceived, this, [=](const QString &userFullName, const QString &content){
         if (!mainController->userIsBlockedInChat(userFullName)) {
             auto localUserName = mainController->getUserName();
             bool showBlockButton = canShowBlockButtonInChatMessage(userFullName);
@@ -1729,7 +1726,7 @@ void MainWindow::createMainChat(bool turnedOn)
 
     connect(mainChatPanel, &ChatPanel::fontSizeOffsetEdited, mainController, &MainController::storeChatFontSizeOffset);
 
-    connect(mainChat.data(), &MainChat::serverInviteReceived, [=](const QString &senderFullName, const QString &serverIP, quint16 serverPort, bool isPrivateServer){
+    connect(mainChat.data(), &MainChat::serverInviteReceived, this, [=](const QString &senderFullName, const QString &serverIP, quint16 serverPort, bool isPrivateServer){
 
         auto localUserName = mainController->getUserName();
         bool showBlockButton = true;
@@ -1739,7 +1736,7 @@ void MainWindow::createMainChat(bool turnedOn)
         mainChatPanel->createServerInviteButton(serverIP, serverPort);
     });
 
-    connect(mainChatPanel, &ChatPanel::userAcceptingServerInvite, [=](const QString &serverIP, quint16 serverPort){
+    connect(mainChatPanel, &ChatPanel::userAcceptingServerInvite, this, [=](const QString &serverIP, quint16 serverPort){
         tryEnterInRoom(login::RoomInfo(serverIP, serverPort, 8));
     });
 
@@ -1747,7 +1744,7 @@ void MainWindow::createMainChat(bool turnedOn)
 
     mainChatPanel->setInputsStatus(false);
 
-    connect(mainChat.data(), &MainChat::connected, [=](){
+    connect(mainChat.data(), &MainChat::connected, this, [=](){
 
         auto localUserName = mainController->getUserName();
         mainChat->setUserName(localUserName);
@@ -1759,7 +1756,7 @@ void MainWindow::createMainChat(bool turnedOn)
         mainChatPanel->showConnectedUsersWidget(true);
     });
 
-    connect(mainChat.data(), &MainChat::disconnected, [=](){
+    connect(mainChat.data(), &MainChat::disconnected, this, [=](){
         if (mainController) { // if still running
             mainChatPanel->setInputsStatus(false);
             auto localUserName = mainController->getUserName();
@@ -1768,7 +1765,7 @@ void MainWindow::createMainChat(bool turnedOn)
         }
     });
 
-    connect(mainChat.data(), &MainChat::error, [=](const QString &errorMessage){
+    connect(mainChat.data(), &MainChat::error, this, [=](const QString &errorMessage){
         Q_UNUSED(errorMessage)
 
         if (mainController && mainChatPanel->isOn()) {
@@ -1782,16 +1779,16 @@ void MainWindow::createMainChat(bool turnedOn)
         }
     });
 
-    connect(mainController, &MainController::userBlockedInChat, [=](const QString &userFullName){
+    connect(mainController, &MainController::userBlockedInChat, this, [=](const QString &userFullName){
         mainChatPanel->setConnectedUserBlockedStatus(userFullName, true);
     });
 
-    connect(mainController, &MainController::userUnblockedInChat, [=](const QString &userFullName){
+    connect(mainController, &MainController::userUnblockedInChat, this, [=](const QString &userFullName){
         mainChatPanel->setConnectedUserBlockedStatus(userFullName, false);
     });
 
     connect(mainChatPanel, &ChatPanel::turnedOn, this, &MainWindow::connectInMainChat);
-    connect(mainChatPanel, &ChatPanel::turnedOff, [=](){
+    connect(mainChatPanel, &ChatPanel::turnedOff, this, [=](){
          mainChat->disconnectFromServer();
          mainChatPanel->showConnectedUsersWidget(false);
          mainController->setPublicChatActivated(false);
@@ -1826,7 +1823,7 @@ void MainWindow::fillUserContextMenu(QMenu &menu, const QString &userFullName, b
             auto serverInfo = service->getCurrentServer();
             if (serverInfo) {
                 bool userIsAlreadyConnected = false;
-                for (auto user : serverInfo->getUsers()) {
+                for (const auto& user : serverInfo->getUsers()) {
                     if (ninjam::client::maskIpInUserFullName(user.getFullName()) == ninjam::client::maskIpInUserFullName(userFullName)) {
                         if (user.hasActiveChannels()) {
                             userIsAlreadyConnected = true;
@@ -1838,8 +1835,7 @@ void MainWindow::fillUserContextMenu(QMenu &menu, const QString &userFullName, b
                 if (!userIsAlreadyConnected) { // skip the invite menu entry if user is already connected in the server
 
                     QString inviteText = tr("Invite %1 to play in %2 [%3]")
-                                    .arg(userName)
-                                    .arg(serverInfo->getHostName())
+                                    .arg(userName, serverInfo->getHostName())
                                     .arg(serverInfo->getPort());
 
                     bool isPrivateServer = false;
@@ -1848,7 +1844,7 @@ void MainWindow::fillUserContextMenu(QMenu &menu, const QString &userFullName, b
                     }
 
                     auto action = menu.addAction(inviteText);
-                    connect(action, &QAction::triggered, [=](){
+                    connect(action, &QAction::triggered, this, [=](){
                         mainChat->sendServerInvite(userFullName, serverInfo->getHostName(), serverInfo->getPort(), isPrivateServer);
                     });
 
@@ -1939,9 +1935,7 @@ void MainWindow::createPrivateChat(const QString &remoteUserName, const QString 
 
         auto ninjamController = mainController->getNinjamController();
 
-        QString text = QString("/msg %1 %2")
-                .arg(userFullName)
-                .arg(message);
+        QString text = QString("/msg %1 %2").arg(userFullName, message);
 
         ninjamController->sendChatMessage(text);
 
@@ -1950,7 +1944,7 @@ void MainWindow::createPrivateChat(const QString &remoteUserName, const QString 
 
     });
 
-    connect(chatPanel, &ChatPanel::userAcceptingServerInvite, [=](const QString &serverIP, quint16 serverPort){
+    connect(chatPanel, &ChatPanel::userAcceptingServerInvite, this, [=](const QString &serverIP, quint16 serverPort){
         tryEnterInRoom(login::RoomInfo(serverIP, serverPort, 8));
     });
 
@@ -2016,11 +2010,10 @@ void MainWindow::showFeedbackAboutUnblockedUserInChat(const QString &userFullNam
 
 void MainWindow::enableLooperButtonInLocalTracks(bool enable)
 {
-    for (auto trackGroupView : localGroupChannels) {
-        auto tracks = trackGroupView->getTracks<LocalTrackView *>();
-        for (auto track : tracks) {
+    for (auto trackGroupView : std::as_const(localGroupChannels)) {
+        trackGroupView->visitTracks<LocalTrackView>([&](LocalTrackView *track) {
             track->enableLopperButton(enable);
-        }
+        });
     }
 }
 
@@ -2118,10 +2111,10 @@ void MainWindow::exitFromRoom(bool normalDisconnection, QString disconnectionMes
 
     closeAllLooperWindows();
 
-    for (LocalTrackGroupView *trackGroup : localGroupChannels) {
-        for (LocalTrackView *trackView : trackGroup->getTracks<LocalTrackView*>()) {
+    for (LocalTrackGroupView *trackGroup : std::as_const(localGroupChannels)) {
+        trackGroup->visitTracks<LocalTrackView>([&](LocalTrackView *trackView) {
             trackView->getInputNode()->stopLooper();
-        }
+        });
     }
 
     if (xmitInactivityDetector)
@@ -2133,7 +2126,7 @@ void MainWindow::exitFromRoom(bool normalDisconnection, QString disconnectionMes
 
 void MainWindow::closeAllLooperWindows()
 {
-    for (LooperWindow *looperWindow : looperWindows.values()) {
+    for (LooperWindow *looperWindow : std::as_const(looperWindows)) {
         if (looperWindow) {
             looperWindow->close();
             looperWindow->detachCurrentLooper();
@@ -2145,7 +2138,7 @@ void MainWindow::closeAllLooperWindows()
 
 void MainWindow::setInputTracksPreparingStatus(bool preparing)
 {
-    for (LocalTrackGroupView *trackGroup : localGroupChannels) {
+    for (LocalTrackGroupView *trackGroup : std::as_const(localGroupChannels)) {
         trackGroup->setPreparingStatus(preparing);
     }
 }
@@ -2156,7 +2149,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         return;
 
     // update local input track peaks
-    for (TrackGroupView *channel : localGroupChannels)
+    for (TrackGroupView *channel : std::as_const(localGroupChannels))
         channel->updateGuiElements();
 
     // update metronome peaks
@@ -2216,7 +2209,7 @@ void MainWindow::timerEvent(QTimerEvent *)
     }
 
     // update looper window sound waves
-    for (auto looperWindow : looperWindows.values()) {
+    for (auto looperWindow : std::as_const(looperWindows)) {
         if (looperWindow && looperWindow->isVisible()) {
             looperWindow->updateDrawings();
         }
@@ -2244,17 +2237,13 @@ void MainWindow::timerEvent(QTimerEvent *)
         if (ellapsedTime >= networkUsageUpdatePeriod) {
             QString transmitTransferRate = QString::number(mainController->getTotalUploadTransferRate() / 1024 * 8);
             transmitTransferRateLabel->setText(transmitTransferRate.leftJustified(3, QChar(' ')));
-            QString transmitText = QString("%1 %2 Kbps")
-                                            .arg(tr("Uploading"))
-                                            .arg(transmitTransferRate);
+            QString transmitText = QString("%1 %2 Kbps").arg(tr("Uploading"), transmitTransferRate);
             transmitTransferRateLabel->setToolTip(transmitText);
             transmitIcon->setToolTip(transmitTransferRateLabel->toolTip());
 
             QString receiveTransferRate = QString::number(mainController->getTotalDownloadTransferRate() / 1024 * 8);
             receiveTransferRateLabel->setText(receiveTransferRate.leftJustified(3, QChar(' ')));
-            QString receiveText = QString("%1 %2 Kbps")
-                                            .arg(tr("Downloading"))
-                                            .arg(receiveTransferRate);
+            QString receiveText = QString("%1 %2 Kbps").arg(tr("Downloading"), receiveTransferRate);
             receiveTransferRateLabel->setToolTip(receiveText);
             receiveIcon->setToolTip(transmitTransferRateLabel->toolTip());
 
@@ -2305,7 +2294,7 @@ void MainWindow::translatePublicChatCountryNames()
     if (publicChat) {
         auto connectedUsers = publicChat->getConnectedUsers();
 
-        for (const QString &userFullName : connectedUsers) {
+        for (const QString &userFullName : std::as_const(connectedUsers)) {
             auto ip = ninjam::client::extractUserIP(userFullName);
             publicChat->updateUsersLocation(ip, mainController->getGeoLocation(ip));
         }
@@ -2323,7 +2312,7 @@ void MainWindow::translateCollapseButtonsToolTips()
 
 QPointF MainWindow::computeLocation() const
 {
-    QRect screen = QApplication::desktop()->screenGeometry();
+    QRect screen = QApplication::desktop()->screenGeometry(this);
     float x = (float)this->pos().x()/screen.width();
     float y = (float)this->pos().y()/screen.height();
     return QPointF(x, y);
@@ -2346,7 +2335,7 @@ MainWindow::~MainWindow()
     if (mainController)
         mainController->stop();
 
-    for (LocalTrackGroupView *groupView : this->localGroupChannels)
+    for (LocalTrackGroupView *groupView : std::as_const(this->localGroupChannels))
         groupView->detachMainControllerInSubchannels();
 
     mainController = nullptr;
@@ -2401,7 +2390,7 @@ void MainWindow::showPrivateServerWindow()
     if (!privateServerWindow) {
         privateServerWindow.reset(new PrivateServerWindow());
 
-        connect(privateServerWindow.data(), &PrivateServerWindow::userConnectingInPrivateServer, [=](QString server, quint16 port){
+        connect(privateServerWindow.data(), &PrivateServerWindow::userConnectingInPrivateServer, this, [=](QString server, quint16 port){
             if (mainController)
                 connectInPrivateServer(server, port, mainController->getUserName(), QString());
         });
@@ -2595,7 +2584,7 @@ void MainWindow::updatePublicRoomsListLayout()
 {
     QList<login::RoomInfo> roomInfos;
 
-    for (auto roomView : roomViewPanels) {
+    for (auto roomView : std::as_const(roomViewPanels)) {
         if (!roomView->getRoomInfo().isPrivateServer())
             roomInfos.append(roomView->getRoomInfo());
     }
@@ -2611,7 +2600,7 @@ QSize MainWindow::getSanitizedWindowSize(const QSize &size, const QSize &minimum
     // window size is a valid window size.
     QDesktopWidget desktop;
 
-    QSize screenSize = desktop.availableGeometry().size();
+    QSize screenSize = desktop.availableGeometry(this).size();
 
     static int topBarHeight = 0;
     if (topBarHeight == 0) // when the window is fullscreen the topBarHeight is zero (no title window).
@@ -2655,7 +2644,7 @@ void MainWindow::initializeWindowSize()
 
     // local tracks are narrowed in mini mode if user is using more than 1 subchannel
     bool usingSmallWindow = width() < MAIN_WINDOW_MIN_SIZE.width();
-    for (LocalTrackGroupView *localTrackGroup : localGroupChannels) {
+    for (LocalTrackGroupView *localTrackGroup : std::as_const(localGroupChannels)) {
         if (usingSmallWindow && (localTrackGroup->getTracksCount() > 1 || localGroupChannels.size() > 1))
             localTrackGroup->setToNarrow();
         else
@@ -2682,7 +2671,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
 
 void MainWindow::resetLocalChannels()
 {
-    for (LocalTrackGroupView *localChannel : localGroupChannels) {
+    for (LocalTrackGroupView *localChannel : std::as_const(localGroupChannels)) {
         localChannel->resetTracks();
     }
 }
@@ -2779,8 +2768,7 @@ void MainWindow::acceptChordProgression(const ChordProgression &progression)
     } else {
         int measures = progression.getMeasures().size();
         QString msg = tr("These chords (%1 measures) can't be used in a %2 bpi interval!")
-                      .arg(QString::number(measures))
-                      .arg(QString::number(currentBpi));
+                      .arg(QString::number(measures), QString::number(currentBpi));
         QMessageBox::warning(this, tr("Problem..."), msg);
     }
 }

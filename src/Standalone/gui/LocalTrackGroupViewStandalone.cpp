@@ -18,7 +18,7 @@ void LocalTrackGroupViewStandalone::populateMenu(QMenu &menu)
 void LocalTrackGroupViewStandalone::removeSubchannel()
 {
     if (trackViews.size() > 1) { // only the second subchannel can be removed
-         auto secondTrack = getTracks<LocalTrackViewStandalone *>().at(1);
+         auto secondTrack = getTrack<LocalTrackViewStandalone>(1);
          if (secondTrack) {
              auto inputNode = secondTrack->getInputNode();
              if (inputNode->isRoutingMidiInput()) {
@@ -61,7 +61,7 @@ LocalTrackViewStandalone* LocalTrackGroupViewStandalone::createTrackView(long tr
 
 void LocalTrackGroupViewStandalone::repaintLocalTracks()
 {
-    for (auto trackView : this->trackViews) {
+    for (auto trackView : std::as_const(this->trackViews)) {
         trackView->update();
     }
 }
@@ -80,14 +80,16 @@ LocalTrackViewStandalone *LocalTrackGroupViewStandalone::addTrackView(long track
 
 void LocalTrackGroupViewStandalone::refreshInputSelectionName(int inputTrackIndex)
 {
-    for (auto trackView : getTracks<LocalTrackViewStandalone *>()) {
-        if (trackView->getInputIndex() == inputTrackIndex)
+    visitTracks<LocalTrackViewStandalone>([&](LocalTrackViewStandalone *trackView) {
+        if (trackView->getInputIndex() == inputTrackIndex) {
             trackView->refreshInputSelectionName();
-    }
+        }
+    });
 }
 
 void LocalTrackGroupViewStandalone::refreshInputSelectionNames()
 {
-    for (auto trackView : getTracks<LocalTrackViewStandalone *>())
+    visitTracks<LocalTrackViewStandalone>([&](LocalTrackViewStandalone *trackView) {
         trackView->refreshInputSelectionName();
+    });
 }

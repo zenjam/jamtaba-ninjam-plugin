@@ -292,7 +292,7 @@ void NinjamController::setSyncEnabled(bool enabled)
 
 void NinjamController::removeEncoder(int groupChannelIndex)
 {
-    QMutexLocker locker(&mutex);
+    QMutexLocker locker(&encodersMutex);
     encoders.remove(groupChannelIndex);
 }
 
@@ -366,7 +366,12 @@ void NinjamController::process(const audio::SamplesBuffer &in, audio::SamplesBuf
                     {
                         audio::SamplesBuffer inputMixBuffer(channels, samplesToProcessInThisStep);
 
-                        if (encoders.contains(groupIndex))
+                        bool containEncoder;
+                        {
+                            QMutexLocker locker(&encodersMutex);
+                            containEncoder = encoders.contains(groupIndex);
+                        }
+                        if (containEncoder)
                         {
                             inputMixBuffer.zero();
                             mainController->mixGroupedInputs(groupIndex, inputMixBuffer);

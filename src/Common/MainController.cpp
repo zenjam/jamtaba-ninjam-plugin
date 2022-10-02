@@ -407,12 +407,10 @@ void MainController::enqueueVideoDataToUpload(const QByteArray &encodedData, boo
 
 int MainController::getMaxAudioChannelsForEncoding(uint trackGroupIndex) const
 {
-    if (trackGroups.contains(trackGroupIndex)) {
-        audio::LocalInputGroup *group = trackGroups[trackGroupIndex];
-        if (group)
-            return group->getMaxInputChannelsForEncoding();
+    auto it = trackGroups.find(trackGroupIndex);
+    if (it != trackGroups.end()) {
+        return it.value()->getMaxInputChannelsForEncoding();
     }
-
     return 0;
 }
 
@@ -442,15 +440,28 @@ QString getFirstIpPart(const QString &ip){
 
 login::Location MainController::getGeoLocation(const QString &ip)
 {
+    if (locationCache.isEmpty()) {
+        return login::Location();
+    }
+
+    // try first level cache
     auto maskedIp = ninjam::client::maskIP(ip);
-    if (locationCache.contains(maskedIp))
-        return locationCache[maskedIp];
+    {
+        auto it = locationCache.find(maskedIp);
+        if (it != locationCache.end()) {
+            return it.value();
+        }
+    }
 
     // try second level cache
     auto halfIp = getFirstIpPart(ip);
-    for(auto key : locationCache.keys()){
-        if (getFirstIpPart(key) == halfIp && !halfIp.isEmpty())
-            return locationCache[key];
+    if (!halfIp.isEmpty()) {
+        for (auto it = locationCache.keyValueBegin();
+             it != locationCache.keyValueEnd(); ++it) {
+            if (getFirstIpPart(it->first) == halfIp) {
+                return it->second;
+            }
+        }
     }
 
     return login::Location();
@@ -458,8 +469,10 @@ login::Location MainController::getGeoLocation(const QString &ip)
 
 void MainController::mixGroupedInputs(int groupIndex, audio::SamplesBuffer &out)
 {
-    if (groupIndex >= 0 && groupIndex < trackGroups.size())
-        trackGroups[groupIndex]->mixGroupedInputs(out);
+    auto it = trackGroups.find(groupIndex);
+    if (it != trackGroups.end()) {
+        it.value()->mixGroupedInputs(out);
+    }
 }
 
 // this is called when a new ninjam interval is received and the 'record multi track' option is enabled
@@ -485,10 +498,12 @@ void MainController::removeInputTrackNode(int inputTrackIndex)
         // remove from group
         auto inputTrack = inputTracks[inputTrackIndex];
         int trackGroupIndex = inputTrack->getChanneGroupIndex();
-        if (trackGroups.contains(trackGroupIndex)) {
-            trackGroups[trackGroupIndex]->removeInput(inputTrack);
-            if (trackGroups[trackGroupIndex]->isEmpty())
-                trackGroups.remove(trackGroupIndex);
+        auto it = trackGroups.find(trackGroupIndex);
+        if (it != trackGroups.end()) {
+            it.value()->removeInput(inputTrack);
+            if (it.value()->isEmpty()) {
+                trackGroups.erase(it);
+            }
         }
 
         inputTracks.remove(inputTrackIndex);
@@ -503,10 +518,12 @@ int MainController::addInputTrackNode(QSharedPointer<audio::LocalInputNode> inpu
     addTrack(inputTrackID, inputTrackNode);
 
     int trackGroupIndex = inputTrackNode->getChanneGroupIndex();
-    if (!trackGroups.contains(trackGroupIndex))
-        trackGroups.insert(trackGroupIndex, new audio::LocalInputGroup(trackGroupIndex, inputTrackNode));
-    else
-        trackGroups[trackGroupIndex]->addInputNode(inputTrackNode);
+    auto it = trackGroups.find(trackGroupIndex);
+    if (it != trackGroups.end()) {
+        it.value()->addInputNode(inputTrackNode);
+    } else {
+        trackGroups.insert(trackGroupIndex, QSharedPointer<audio::LocalInputGroup>::create(trackGroupIndex, inputTrackNode));
+    }
 
     return inputTrackID;
 }
@@ -755,34 +772,38 @@ audio::AudioPeak MainController::getRoomStreamPeak()
 
 void MainController::setVoiceChatStatus(int channelID, bool voiceChatActivated)
 {
-    if (trackGroups.contains(channelID)) {
-        auto trackGroup = trackGroups[channelID];
-        trackGroup->setVoiceChatStatus(voiceChatActivated);
+    auto it = trackGroups.find(channelID);
+    if (it != trackGroups.end()) {
+        it.value()->setVoiceChatStatus(voiceChatActivated);
     }
 }
 
 bool MainController::isVoiceChatActivated(int channelID) const
 {
-    if (trackGroups.contains(channelID))
-        return trackGroups[channelID]->isVoiceChatActivated();
-
+    auto it = trackGroups.find(channelID);
+    if (it != trackGroups.end()) {
+        return it.value()->isVoiceChatActivated();
+    }
     return false;
 }
 
 void MainController::setTransmitingStatus(int channelID, bool transmiting)
 {
-    if (trackGroups.contains(channelID)) {
-        auto trackGroup = trackGroups[channelID];
-        if (trackGroup->isTransmiting() != transmiting)
+    auto it = trackGroups.find(channelID);
+    if (it != trackGroups.end()) {
+        auto trackGroup = it.value();
+        if (trackGroup->isTransmiting() != transmiting) {
             trackGroup->setTransmitingStatus(transmiting);
+        }
     }
 }
 
 bool MainController::isTransmiting(int channelID) const
 {
-    if (trackGroups.contains(channelID))
-        return trackGroups[channelID]->isTransmiting();
-
+    auto it = trackGroups.find(channelID);
+    if (it != trackGroups.end()) {
+        return it.value()->isTransmiting();
+    }
     return false;
 }
 
@@ -901,9 +922,6 @@ MainController::~MainController()
     tracksNodes.clear();
 
     inputTracks.clear();
-
-    for (auto group : trackGroups)
-        delete group;
 
     trackGroups.clear();
 
@@ -1159,11 +1177,11 @@ void MainController::storeMeteringSettings(bool showingMaxPeaks, quint8 meterOpt
 
 QSharedPointer<audio::LocalInputNode> MainController::getInputTrackInGroup(quint8 groupIndex, quint8 trackIndex) const
 {
-    auto trackGroup = trackGroups[groupIndex];
-    if (!trackGroup)
-        return nullptr;
-
-    return trackGroup->getInputNode(trackIndex);
+    auto it = trackGroups.find(groupIndex);
+    if (it != trackGroups.end()) {
+        return it.value()->getInputNode(trackIndex);
+    }
+    return nullptr;
 }
 
 bool MainController::canGrabNewFrameFromCamera() const

@@ -135,8 +135,8 @@ public slots:
     void showFeedbackAboutBlockedUserInChat(const QString &userFullName);
     void showFeedbackAboutUnblockedUserInChat(const QString &userFullName);
 
-    void addNinjamServerChatMessage(const User &, const QString &message);
-    void addPrivateChatMessage(const User &, const QString &message);
+    void addNinjamServerChatMessage(const ninjam::client::User &, const QString &message);
+    void addPrivateChatMessage(const ninjam::client::User &, const QString &message);
     void addPrivateChat(const QString &remoteUserName, const QString &userIP);
 
 protected:
@@ -162,15 +162,19 @@ protected:
 
     virtual void removeAllInputLocalTracks();
 
+    template<class T, class F>
+    void visitLocalChannels(F&& visitor) {
+        for (auto trackGroupView : localGroupChannels) {
+            T *castedGroupView = dynamic_cast<T*>(trackGroupView);
+            if (castedGroupView != nullptr) {
+                visitor(castedGroupView);
+            }
+        }
+    }
+
     template<class T>
-    QList<T> getLocalChannels() const
-    {
-        QList<T> localChannels;
-
-        for (auto trackGroupView : localGroupChannels)
-            localChannels.append(dynamic_cast<T>(trackGroupView));
-
-        return localChannels;
+    T* getLocalChannel(int index) const {
+        return dynamic_cast<T*>(localGroupChannels.at(index));
     }
 
     void updatePublicRoomsListLayout();

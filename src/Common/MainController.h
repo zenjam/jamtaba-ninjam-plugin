@@ -386,7 +386,7 @@ private:
     QSharedPointer<AbstractMp3Streamer> roomStreamer;
     QString currentStreamingRoomID;
 
-    QMap<int, LocalInputGroup *> trackGroups;
+    QMap<int, QSharedPointer<LocalInputGroup>> trackGroups;
 
     QMap<int, bool> getXmitChannelsFlags() const;
 

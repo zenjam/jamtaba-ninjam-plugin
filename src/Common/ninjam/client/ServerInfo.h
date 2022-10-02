@@ -56,7 +56,7 @@ namespace client
         inline bool hasStream() const
         {
             // mutantlab server is using a nsv format, I did not find a lib to handle this audio format
-            return !streamUrl.isNull() && !host.toLower().contains("mutant");
+            return !streamUrl.isNull() && !host.contains("mutant", Qt::CaseInsensitive);
         }
 
         inline bool isFull() const

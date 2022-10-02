@@ -21,7 +21,7 @@ TrackGroupView::TrackGroupView(QWidget *parent) :
 
 void TrackGroupView::setTintColor(const QColor &color)
 {
-    for (auto trackGroup : trackViews) {
+    for (auto trackGroup : std::as_const(trackViews)) {
         trackGroup->setTintColor(color);
     }
 }
@@ -129,7 +129,7 @@ void TrackGroupView::setUnlightStatus(bool unlighted)
 
 void TrackGroupView::updateGuiElements()
 {
-    for (BaseTrackView *trackView : trackViews)
+    for (BaseTrackView *trackView : std::as_const(trackViews))
         trackView->updateGuiElements();
 }
 
@@ -147,7 +147,7 @@ BaseTrackView *TrackGroupView::addTrackView(long trackID)
         trackViews.append(newTrackView);
 
         if (trackViews.size() > 1) {
-            for (BaseTrackView *trackView : trackViews)
+            for (BaseTrackView *trackView : std::as_const(trackViews))
                 trackView->setToNarrow();
 
             updateGeometry();
