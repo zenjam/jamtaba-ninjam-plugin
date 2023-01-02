@@ -63,7 +63,7 @@ SOURCES += $$VST_SDK_PATH/VST2_SDK/public.sdk/source/vst2.x/audioeffect.cpp
 win32 {
     #message("Windows VST build")
 
-    LIBS +=  -lwinmm -lole32 -lws2_32 -lAdvapi32 -lUser32 #-lPsapi
+    LIBS +=  -lwinmm -lole32 -lws2_32 -ladvapi32 -luser32 #-lPsapi
     #performance monitor lib
     #QMAKE_CXXFLAGS += -DPSAPI_VERSION=1
 
