@@ -126,7 +126,7 @@ win32{
         QMAKE_LFLAGS_RELEASE += /LTCG
     }
 
-    LIBS += -lwinmm -lole32 -lws2_32 -lAdvapi32 -lUser32 -lPsapi
+    LIBS += -lwinmm -lole32 -lws2_32 -ladvapi32 -luser32 -lPsapi
     LIBS += -lIPHlpApi # used by miniupnp lib
     LIBS += -lSecur32   # used by libx264
     LIBS += -llegacy_stdio_definitions
