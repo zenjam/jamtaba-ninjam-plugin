@@ -1,7 +1,7 @@
 #ifndef KEYBOARDHOOK_H
 #define KEYBOARDHOOK_H
 
-#include "Windows.h"
+#include <windows.h>
 #include <QString>
 
 namespace keyboardHook

@@ -17,7 +17,7 @@
 #include <QHostAddress>
 
 #ifdef Q_OS_WIN
-    #include "windows.h"
+    #include <windows.h>
 #endif
 
 #ifdef Q_OS_MAC

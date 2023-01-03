@@ -1,7 +1,7 @@
 #include "PerformanceMonitor.h"
 #include "../log/logging.h"
 
-#include "Windows.h"
+#include <windows.h>
 #include "psapi.h"
 
 PerformanceMonitor::PerformanceMonitor()

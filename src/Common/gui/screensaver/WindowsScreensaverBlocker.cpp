@@ -1,5 +1,5 @@
 #include "ScreensaverBlocker.h"
-#include "Windows.h"
+#include <windows.h>
 
 #include <QDateTime>
 #include <QDebug>
