@@ -6,6 +6,7 @@
 #include <QString>
 #include <QByteArray>
 #include <array>
+#include <cstring>
 
 namespace ninjam {
 
