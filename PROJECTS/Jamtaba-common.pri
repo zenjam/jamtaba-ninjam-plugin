@@ -42,6 +42,7 @@ win32 {
         # nothing
     } else {
         INCLUDEPATH += /usr/local/include
+        INCLUDEPATH += /mingw32/include
     }
 }
 
