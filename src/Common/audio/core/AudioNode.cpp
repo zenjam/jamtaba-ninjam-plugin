@@ -31,7 +31,7 @@ void AudioNode::processReplacing(const SamplesBuffer &in, SamplesBuffer &out, in
 
     {
         QMutexLocker locker(&mutex);
-        for (auto node : std::as_const(connections)) { // ask connected nodes to generate audio
+        for (auto node : qAsConst(connections)) { // ask connected nodes to generate audio
             node->processReplacing(internalInputBuffer, internalOutputBuffer, sampleRate, midiBuffer);
         }
     }

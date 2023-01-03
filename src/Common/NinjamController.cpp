@@ -251,7 +251,7 @@ User NinjamController::getUserByName(const QString &userName) const
 {
     auto server = mainController->getNinjamService()->getCurrentServer();
     auto users = server->getUsers();
-    for (const auto &user : std::as_const(users)) {
+    for (const auto &user : qAsConst(users)) {
         if (user.getName() == userName) {
             return user;
         }
@@ -614,7 +614,7 @@ void NinjamController::start(const ServerInfo &server)
 
         // add tracks for users connected in server
         auto users = server.getUsers();
-        for (const auto &user : std::as_const(users))
+        for (const auto &user : qAsConst(users))
         {
             for (const auto &channel : user.getChannels())
                 addTrack(user, channel);
@@ -788,7 +788,7 @@ void NinjamController::handleNewInterval()
         trackNodesList = trackNodes.values();
     }
 
-    for (const auto& track : std::as_const(trackNodesList)) {
+    for (const auto& track : qAsConst(trackNodesList)) {
         bool trackWasPlaying = track->isPlaying();
         bool trackIsPlaying = track->startNewInterval();
         if (trackWasPlaying != trackIsPlaying) {
@@ -809,7 +809,7 @@ void NinjamController::processScheduledChanges()
             QMutexLocker locker(&scheduledEventsMutex);
             std::swap(events, scheduledEvents);
         }
-        for (const auto& event : std::as_const(events)) {
+        for (const auto& event : qAsConst(events)) {
             event->process();
         }
     }

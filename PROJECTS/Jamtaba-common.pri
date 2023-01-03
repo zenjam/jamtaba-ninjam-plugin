@@ -16,8 +16,6 @@ INCLUDEPATH += $$ROOT_PATH/libs/includes/miniupnp
 
 DEFINES += MINIUPNP_STATICLIB
 
-win32:INCLUDEPATH += $$ROOT_PATH/libs/includes/stackwalker
-
 VPATH += $$SOURCE_PATH/Common
 
 DEFINES += VST_FORCE_DEPRECATED=0#enable VST 2.3 features
@@ -36,10 +34,9 @@ macx{
 }
 
 win32 {
-    QMAKE_LFLAGS_RELEASE += /DEBUG # releasing with debug symbols
     QMAKE_CXXFLAGS += -D__WINDOWS_MM__
     win32-msvc: {
-        # nothing
+        QMAKE_LFLAGS_RELEASE += /DEBUG # releasing with debug symbols
     } else {
         INCLUDEPATH += /usr/local/include
         INCLUDEPATH += /mingw32/include

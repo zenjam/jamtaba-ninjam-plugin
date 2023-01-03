@@ -550,7 +550,7 @@ void NinjamRoomWindow::reAddTrackGroups()
         std::sort(itemsToAdd.begin(), itemsToAdd.end(), cameraSorter);
     }
 
-    for (auto trackGroup : std::as_const(itemsToAdd))
+    for (auto trackGroup : qAsConst(itemsToAdd))
         addTrack(trackGroup);
 
     adjustTracksPanelSizePolicy();

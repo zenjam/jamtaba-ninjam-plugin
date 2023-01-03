@@ -61,7 +61,7 @@ LocalTrackViewStandalone* LocalTrackGroupViewStandalone::createTrackView(long tr
 
 void LocalTrackGroupViewStandalone::repaintLocalTracks()
 {
-    for (auto trackView : std::as_const(this->trackViews)) {
+    for (auto trackView : qAsConst(this->trackViews)) {
         trackView->update();
     }
 }

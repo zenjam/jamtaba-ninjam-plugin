@@ -320,7 +320,7 @@ LocalInputTrackSettings MainWindowStandalone::getInputsSettings() const
     Q_ASSERT(getChannelGroupsCount() == baseSettings.channels.size());
 
     int channelID = 0;
-    for (const Channel &channel : std::as_const(baseSettings.channels)) {
+    for (const Channel &channel : qAsConst(baseSettings.channels)) {
         auto trackGroupView = getLocalChannel<LocalTrackGroupViewStandalone>(channelID++);
         if (!trackGroupView)
             continue;
@@ -354,7 +354,7 @@ void MainWindowStandalone::closeEvent(QCloseEvent *e)
     MainWindow::closeEvent(e);
     hide(); // hide before stop main controller and disconnect from login server
 
-    for (LocalTrackGroupView *trackGroup : std::as_const(localGroupChannels))
+    for (LocalTrackGroupView *trackGroup : qAsConst(localGroupChannels))
         trackGroup->closePluginsWindows();
 }
 

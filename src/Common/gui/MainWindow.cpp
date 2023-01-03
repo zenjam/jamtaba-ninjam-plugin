@@ -207,7 +207,7 @@ void MainWindow::setCameraComboVisibility(bool show)
     if (show) {
         cameraCombo->clear();
         auto cameras = QCameraInfo::availableCameras();
-        for (const auto& cameraInfo : std::as_const(cameras)) {
+        for (const auto& cameraInfo : qAsConst(cameras)) {
             cameraCombo->addItem(cameraInfo.description(), cameraInfo.deviceName());
         }
     }
@@ -493,7 +493,7 @@ void MainWindow::handleThemeChanged()
 
     ui.masterFader->updateStyleSheet();
 
-    for (auto groupChannels : std::as_const(localGroupChannels)) {
+    for (auto groupChannels : qAsConst(localGroupChannels)) {
         groupChannels->visitTracks<LocalTrackView>([&](LocalTrackView *trackView) {
             trackView->updateStyleSheet();
         });
@@ -533,7 +533,7 @@ void MainWindow::setTintColor(const QColor &color)
 
     ui.localControlsCollapseButton->setIcon(IconFactory::createLocalControlsIcon(color));
 
-    for(auto group : std::as_const(this->localGroupChannels)) {
+    for(auto group : qAsConst(this->localGroupChannels)) {
         group->setTintColor(color);
     }
 
@@ -544,7 +544,7 @@ void MainWindow::setTintColor(const QColor &color)
         ninjamWindow->setTintColor(color);
 
 
-    for (auto looperWindow : std::as_const(looperWindows))
+    for (auto looperWindow : qAsConst(looperWindows))
         looperWindow->setTintColor(color);
 
     ui.chatTabWidget->setChatsTintColor(color);
@@ -562,7 +562,7 @@ void MainWindow::initializeThemeMenu()
     // create a menu action for each theme
     QString themesDir = Configurator::getInstance()->getThemesDir().absolutePath();
     auto themes = theme::Loader::getAvailableThemes(themesDir);
-    for (const auto &themeDir : std::as_const(themes)) {
+    for (const auto &themeDir : qAsConst(themes)) {
         QString themeName = QFileInfo(themeDir).baseName();
         QAction *action = ui.menuTheme->addAction(getStripedThemeName(themeName));
         action->setData(themeName);
@@ -617,7 +617,7 @@ void MainWindow::initializeLanguageMenu()
     QDir translationsDir(":/tr");
     if (translationsDir.exists()) {
         QStringList locales = translationsDir.entryList();
-        for (const auto& translationFile : std::as_const(locales)) {
+        for (const auto& translationFile : qAsConst(locales)) {
             QLocale loc(translationFile);
             QString nativeLanguageName = gui::capitalize(loc.nativeLanguageName());
             QString englishLanguageName = gui::capitalize(QLocale::languageToString(loc.language())); // QLocale::languageToString is returning capitalized String, but just to be shure (Qt can change in future) I'm using capitalize here too.
@@ -699,7 +699,7 @@ void MainWindow::doWindowInitialization()
 
 void MainWindow::showPeakMetersOnlyInLocalControls(bool showPeakMetersOnly)
 {
-    for (LocalTrackGroupView *channel : std::as_const(localGroupChannels)) {
+    for (LocalTrackGroupView *channel : qAsConst(localGroupChannels)) {
         channel->setPeakMeterMode(showPeakMetersOnly);
     }
 
@@ -946,7 +946,7 @@ void MainWindow::loadPreset(const Preset &preset)
         initializeLocalInputChannels(preset.inputTrackSettings);
 
         //set all loaded channels xmit to ON
-        for (auto trackGroupView : std::as_const(localGroupChannels)) {
+        for (auto trackGroupView : qAsConst(localGroupChannels)) {
             mainController->setTransmitingStatus(trackGroupView->getChannelIndex(), true);
         }
 
@@ -1288,7 +1288,7 @@ void MainWindow::refreshPublicRoomsList(const QList<login::RoomInfo> &publicRoom
 void MainWindow::playPublicRoomStream(const login::RoomInfo &roomInfo)
 {
     // clear all plots
-    for (auto viewPanel : std::as_const(this->roomViewPanels))
+    for (auto viewPanel : qAsConst(this->roomViewPanels))
         viewPanel->clear(roomInfo.getUniqueName() != viewPanel->getRoomInfo().getUniqueName());
 
     if (roomInfo.hasStream()) // just in case...
@@ -1513,7 +1513,7 @@ void MainWindow::handleUserLeaving(const QString &userFullName)
     }
 
     auto localUser = mainController->getUserName();
-    for (auto chat : std::as_const(chatsToReport))
+    for (auto chat : qAsConst(chatsToReport))
         chat->addMessage(localUser, JAMTABA_CHAT_BOT_NAME, tr("%1 has left the room.").arg(ninjam::client::extractUserName(userFullName)));
 
     usersColorsPool->giveBack(userFullName); // reuse the color mapped to this 'leaving' user
@@ -1535,7 +1535,7 @@ void MainWindow::handleUserEntering(const QString &userFullName)
     }
 
     auto localUser = mainController->getUserName();
-    for (auto chat : std::as_const(chatsToReport))
+    for (auto chat : qAsConst(chatsToReport))
         chat->addMessage(localUser, JAMTABA_CHAT_BOT_NAME, tr("%1 has joined the room.").arg(ninjam::client::extractUserName(userFullName)));
 
 }
@@ -2010,7 +2010,7 @@ void MainWindow::showFeedbackAboutUnblockedUserInChat(const QString &userFullNam
 
 void MainWindow::enableLooperButtonInLocalTracks(bool enable)
 {
-    for (auto trackGroupView : std::as_const(localGroupChannels)) {
+    for (auto trackGroupView : qAsConst(localGroupChannels)) {
         trackGroupView->visitTracks<LocalTrackView>([&](LocalTrackView *track) {
             track->enableLopperButton(enable);
         });
@@ -2111,7 +2111,7 @@ void MainWindow::exitFromRoom(bool normalDisconnection, QString disconnectionMes
 
     closeAllLooperWindows();
 
-    for (LocalTrackGroupView *trackGroup : std::as_const(localGroupChannels)) {
+    for (LocalTrackGroupView *trackGroup : qAsConst(localGroupChannels)) {
         trackGroup->visitTracks<LocalTrackView>([&](LocalTrackView *trackView) {
             trackView->getInputNode()->stopLooper();
         });
@@ -2126,7 +2126,7 @@ void MainWindow::exitFromRoom(bool normalDisconnection, QString disconnectionMes
 
 void MainWindow::closeAllLooperWindows()
 {
-    for (LooperWindow *looperWindow : std::as_const(looperWindows)) {
+    for (LooperWindow *looperWindow : qAsConst(looperWindows)) {
         if (looperWindow) {
             looperWindow->close();
             looperWindow->detachCurrentLooper();
@@ -2138,7 +2138,7 @@ void MainWindow::closeAllLooperWindows()
 
 void MainWindow::setInputTracksPreparingStatus(bool preparing)
 {
-    for (LocalTrackGroupView *trackGroup : std::as_const(localGroupChannels)) {
+    for (LocalTrackGroupView *trackGroup : qAsConst(localGroupChannels)) {
         trackGroup->setPreparingStatus(preparing);
     }
 }
@@ -2149,7 +2149,7 @@ void MainWindow::timerEvent(QTimerEvent *)
         return;
 
     // update local input track peaks
-    for (TrackGroupView *channel : std::as_const(localGroupChannels))
+    for (TrackGroupView *channel : qAsConst(localGroupChannels))
         channel->updateGuiElements();
 
     // update metronome peaks
@@ -2209,7 +2209,7 @@ void MainWindow::timerEvent(QTimerEvent *)
     }
 
     // update looper window sound waves
-    for (auto looperWindow : std::as_const(looperWindows)) {
+    for (auto looperWindow : qAsConst(looperWindows)) {
         if (looperWindow && looperWindow->isVisible()) {
             looperWindow->updateDrawings();
         }
@@ -2294,7 +2294,7 @@ void MainWindow::translatePublicChatCountryNames()
     if (publicChat) {
         auto connectedUsers = publicChat->getConnectedUsers();
 
-        for (const QString &userFullName : std::as_const(connectedUsers)) {
+        for (const QString &userFullName : qAsConst(connectedUsers)) {
             auto ip = ninjam::client::extractUserIP(userFullName);
             publicChat->updateUsersLocation(ip, mainController->getGeoLocation(ip));
         }
@@ -2335,7 +2335,7 @@ MainWindow::~MainWindow()
     if (mainController)
         mainController->stop();
 
-    for (LocalTrackGroupView *groupView : std::as_const(this->localGroupChannels))
+    for (LocalTrackGroupView *groupView : qAsConst(this->localGroupChannels))
         groupView->detachMainControllerInSubchannels();
 
     mainController = nullptr;
@@ -2584,7 +2584,7 @@ void MainWindow::updatePublicRoomsListLayout()
 {
     QList<login::RoomInfo> roomInfos;
 
-    for (auto roomView : std::as_const(roomViewPanels)) {
+    for (auto roomView : qAsConst(roomViewPanels)) {
         if (!roomView->getRoomInfo().isPrivateServer())
             roomInfos.append(roomView->getRoomInfo());
     }
@@ -2644,7 +2644,7 @@ void MainWindow::initializeWindowSize()
 
     // local tracks are narrowed in mini mode if user is using more than 1 subchannel
     bool usingSmallWindow = width() < MAIN_WINDOW_MIN_SIZE.width();
-    for (LocalTrackGroupView *localTrackGroup : std::as_const(localGroupChannels)) {
+    for (LocalTrackGroupView *localTrackGroup : qAsConst(localGroupChannels)) {
         if (usingSmallWindow && (localTrackGroup->getTracksCount() > 1 || localGroupChannels.size() > 1))
             localTrackGroup->setToNarrow();
         else
@@ -2671,7 +2671,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
 
 void MainWindow::resetLocalChannels()
 {
-    for (LocalTrackGroupView *localChannel : std::as_const(localGroupChannels)) {
+    for (LocalTrackGroupView *localChannel : qAsConst(localGroupChannels)) {
         localChannel->resetTracks();
     }
 }

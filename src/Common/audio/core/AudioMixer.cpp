@@ -44,7 +44,7 @@ void AudioMixer::process(const SamplesBuffer &in, SamplesBuffer &out, int sample
     // --------------------------------------
     bool hasSoloedBuffers = soloedBuffersInLastProcess > 0;
     soloedBuffersInLastProcess = 0;
-    for (const auto& node : std::as_const(nodes)) {
+    for (const auto& node : qAsConst(nodes)) {
         bool canProcess = (!hasSoloedBuffers && !node->isMuted()) || (hasSoloedBuffers && node->isSoloed());
         if (canProcess) {
 

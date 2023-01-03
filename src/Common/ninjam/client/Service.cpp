@@ -309,7 +309,7 @@ void Service::setChannelReceiveStatus(const QString &userFullName, quint8 channe
 
         User user = currentServer->getUser(userFullName);
         quint32 channelsMask = 0;
-        for (const UserChannel &channel : std::as_const(user.getChannels())) {
+        for (const UserChannel &channel : qAsConst(user.getChannels())) {
             if (channel.isActive() || (channel.getIndex() == channelIndex && receiveChannel))
                 channelsMask |= 1 << channel.getIndex();
         }

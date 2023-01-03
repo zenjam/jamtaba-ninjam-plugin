@@ -7,6 +7,7 @@ VPATH += $$SOURCE_PATH
 VPATH += $$SOURCE_PATH/Standalone
 
 INCLUDEPATH += $$SOURCE_PATH/Libs
+INCLUDEPATH += $$SOURCE_PATH/Libs/minimp3
 INCLUDEPATH += $$SOURCE_PATH/Libs/RtMidi
 
 INCLUDEPATH += $$ROOT_PATH/libs/includes/portaudio
@@ -38,6 +39,7 @@ HEADERS += PluginFinder.h
 HEADERS += vst/VstPluginFinder.h
 HEADERS += vst/Utils.h
 HEADERS += Libs/SingleApplication/singleapplication.h
+HEADERS += Libs/minimp3/minimp3.h
 HEADERS += Libs/RtMidi/RtMidi.h
 
 mac:HEADERS += AU/AudioUnitHost.h
@@ -62,6 +64,7 @@ SOURCES += vst/VstPluginFinder.cpp
 SOURCES += vst/Utils.cpp
 SOURCES += vst/VstLoader.cpp
 SOURCES += Libs/SingleApplication/singleapplication.cpp
+SOURCES += Libs/minimp3/minimp3.c
 SOURCES += Libs/RtMidi/RtMidi.cpp
 SOURCES += audio/PortAudioDriver.cpp
 SOURCES += gui/CrashReportDialog.cpp
@@ -75,6 +78,9 @@ FORMS += gui/CrashReportDialog.ui
 
 #conditional sources to different platforms
 win32{
+    INCLUDEPATH += $$SOURCE_PATH/Libs/StackWalker
+    HEADERS += Libs/StackWalker/StackWalker.h
+    SOURCES += Libs/StackWalker/StackWalker.cpp
     SOURCES += audio/WindowsPortAudioDriver.cpp
     SOURCES += vst/WindowsVstPluginChecker.cpp
 }
@@ -99,47 +105,57 @@ linux{
 
 win32{
 
-    #supressing warning about missing .pdb files
-    QMAKE_LFLAGS += /ignore:4099
+    win32-msvc: {
+        #supressing warning about missing .pdb files
+        QMAKE_LFLAGS += /ignore:4099
+        QMAKE_LFLAGS += "/NODEFAULTLIB:libcmt"
 
-    !contains(QMAKE_TARGET.arch, x86_64) {
-        #message("msvc x86 build") ## Windows x86 (32bit) specific build here
-        LIBS_PATH = "static/win32-msvc"
+        !contains(QMAKE_TARGET.arch, x86_64) {
+            #message("msvc x86 build") ## Windows x86 (32bit) specific build here
+            LIBS_PATH = "static/win32-msvc"
 
-        #after a lot or research Ezee found this userfull link explaining how compile to be compatible with Windows XP: http://www.tripleboot.org/?p=423
-        QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+            #after a lot or research Ezee found this userfull link explaining how compile to be compatible with Windows XP: http://www.tripleboot.org/?p=423
+            QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+        } else {
+            #message("msvc x86_64 build") ## Windows x64 (64bit) specific build here
+            LIBS_PATH = "static/win64-msvc"
+        }
+        LIBS += -L$$ROOT_PATH/libs/$$LIBS_PATH
+        LIBS += -llegacy_stdio_definitions
     } else {
-        #message("msvc x86_64 build") ## Windows x64 (64bit) specific build here
-        LIBS_PATH = "static/win64-msvc"
+        LIBS += -L/usr/local/lib
+        LIBS += -L/mingw32/lib
+        LIBS += -lvorbisenc
     }
 
     CONFIG(release, debug|release) {
-        LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lportaudio -lminimp3 -lvorbisfile -lvorbis -logg -lx264 -lavcodec -lavutil -lavformat -lswscale -lswresample -lstackwalker -lminiupnpc
+        LIBS += -lportaudio -lvorbisfile -lvorbis -logg -lx264 -lavcodec -lavutil -lavformat -lswscale -lswresample -lminiupnpc
     } else:CONFIG(debug, debug|release) {
-        LIBS += -L$$PWD/../../libs/$$LIBS_PATH/ -lportaudiod -lminimp3 -lvorbisfiled -lvorbisd -loggd -lx264 -lavcodecd -lavutild -lavformatd -lswscaled -lswresample -lstackwalker -lminiupnpcd
+        LIBS += -lportaudiod -lvorbisfiled -lvorbisd -loggd -lx264 -lavcodecd -lavutild -lavformatd -lswscaled -lswresample -lminiupnpcd
     }
 
     CONFIG(release, debug|release) {
-        #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
         win32-msvc: {
+            #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
             QMAKE_CXXFLAGS_RELEASE +=  -GL -Gy -Gw
+            QMAKE_LFLAGS_RELEASE += /LTCG
         } else {
             QMAKE_CXXFLAGS_RELEASE += -flto -O2
+            # force linker think there is references:
+            # QtConcurrent::RunFunctionTask<void>::run()
+            QMAKE_LFLAGS_RELEASE += -Wl,--allow-multiple-definition
         }
-        QMAKE_LFLAGS_RELEASE += /LTCG
     }
 
-    LIBS += -lwinmm -lole32 -lws2_32 -ladvapi32 -luser32 -lPsapi
-    LIBS += -lIPHlpApi # used by miniupnp lib
-    LIBS += -lSecur32   # used by libx264
-    LIBS += -llegacy_stdio_definitions
+    LIBS += -lwinmm -lole32 -lws2_32 -ladvapi32 -luser32 -lpsapi
+    LIBS += -liphlpapi  # used by miniupnp lib
+    LIBS += -lsecur32   # used by libx264
+    LIBS += -lbcrypt    # used by ffmpeg
 
     #performance monitor lib
     QMAKE_CXXFLAGS += -DPSAPI_VERSION=1
 
     RC_FILE = ../Jamtaba2.rc #windows icon
-
-    QMAKE_LFLAGS += "/NODEFAULTLIB:libcmt"
 }
 
 macx{

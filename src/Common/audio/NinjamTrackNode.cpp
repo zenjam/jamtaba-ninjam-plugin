@@ -331,12 +331,12 @@ void NinjamTrackNode::addVorbisEncodedInterval(const QByteArray &fullIntervalByt
 
     //decoding the first samples in a separated thread to avoid slow down the audio thread in interval start (first beat)
     auto decoderWeakPtr = std::weak_ptr<IntervalDecoder>(decoder);
-    QtConcurrent::run([decoderWeakPtr]() {
-        auto decoder = decoderWeakPtr.lock();
-        if (decoder) {
-            decoder->decode(256);
+    QtConcurrent::run([](std::weak_ptr<IntervalDecoder> decoderWeakPtr) {
+        auto pdecoder = decoderWeakPtr.lock();
+        if (pdecoder) {
+            pdecoder->decode(256);
         }
-    });
+    }, decoderWeakPtr);
 }
 
 // ++++++++++++++
