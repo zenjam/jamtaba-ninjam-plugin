@@ -122,7 +122,11 @@ win32{
 
     CONFIG(release, debug|release) {
         #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
-        QMAKE_CXXFLAGS_RELEASE +=  -GL -Gy -Gw
+        win32-msvc: {
+            QMAKE_CXXFLAGS_RELEASE +=  -GL -Gy -Gw
+        } else {
+            QMAKE_CXXFLAGS_RELEASE += -flto -O2
+        }
         QMAKE_LFLAGS_RELEASE += /LTCG
     }
 
