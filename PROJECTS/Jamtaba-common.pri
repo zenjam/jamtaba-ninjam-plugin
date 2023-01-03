@@ -38,6 +38,11 @@ macx{
 win32 {
     QMAKE_LFLAGS_RELEASE += /DEBUG # releasing with debug symbols
     QMAKE_CXXFLAGS += -D__WINDOWS_MM__
+    win32-msvc: {
+        # nothing
+    } else {
+        INCLUDEPATH += /usr/local/include
+    }
 }
 
 CONFIG += c++14

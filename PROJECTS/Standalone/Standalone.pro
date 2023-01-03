@@ -10,7 +10,6 @@ INCLUDEPATH += $$SOURCE_PATH/Libs
 INCLUDEPATH += $$SOURCE_PATH/Libs/RtMidi
 
 INCLUDEPATH += $$ROOT_PATH/libs/includes/portaudio
-INCLUDEPATH += $$ROOT_PATH/libs/includes/rtmidi
 
 INCLUDEPATH += $$SOURCE_PATH/Standalone
 
