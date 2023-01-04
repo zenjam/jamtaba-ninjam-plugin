@@ -1,5 +1,5 @@
 #include "PerformanceMonitor.h"
-#include "../log/logging.h"
+#include "../log/Logging.h"
 
 #include <windows.h>
 #include "psapi.h"
