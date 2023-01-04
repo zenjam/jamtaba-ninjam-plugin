@@ -7,7 +7,6 @@ VPATH += $$SOURCE_PATH
 VPATH += $$SOURCE_PATH/Standalone
 
 INCLUDEPATH += $$SOURCE_PATH/Libs
-INCLUDEPATH += $$SOURCE_PATH/Libs/minimp3
 INCLUDEPATH += $$SOURCE_PATH/Libs/RtMidi
 
 INCLUDEPATH += $$ROOT_PATH/libs/includes/portaudio
@@ -39,7 +38,6 @@ HEADERS += PluginFinder.h
 HEADERS += vst/VstPluginFinder.h
 HEADERS += vst/Utils.h
 HEADERS += Libs/SingleApplication/singleapplication.h
-HEADERS += Libs/minimp3/minimp3.h
 HEADERS += Libs/RtMidi/RtMidi.h
 
 mac:HEADERS += AU/AudioUnitHost.h
@@ -64,7 +62,6 @@ SOURCES += vst/VstPluginFinder.cpp
 SOURCES += vst/Utils.cpp
 SOURCES += vst/VstLoader.cpp
 SOURCES += Libs/SingleApplication/singleapplication.cpp
-SOURCES += Libs/minimp3/minimp3.c
 SOURCES += Libs/RtMidi/RtMidi.cpp
 SOURCES += audio/PortAudioDriver.cpp
 SOURCES += gui/CrashReportDialog.cpp

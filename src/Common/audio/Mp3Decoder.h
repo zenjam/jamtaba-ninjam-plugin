@@ -2,7 +2,7 @@
 #define JT_CODEC_H
 
 extern "C" { // this give me a error in linux
-    #include "minimp3.h"
+    #include "minimp3/minimp3.h"
 }
 
 #include <QByteArray>

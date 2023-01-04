@@ -8,9 +8,9 @@ VST_SDK_PATH = "$$ROOT_PATH/VST_SDK"
 
 INCLUDEPATH += $$SOURCE_PATH/Common
 
+
 INCLUDEPATH += $$ROOT_PATH/libs/includes/ogg
 INCLUDEPATH += $$ROOT_PATH/libs/includes/vorbis
-INCLUDEPATH += $$ROOT_PATH/libs/includes/minimp3
 INCLUDEPATH += $$ROOT_PATH/libs/includes/ffmpeg
 INCLUDEPATH += $$ROOT_PATH/libs/includes/miniupnp
 
@@ -48,6 +48,7 @@ CONFIG += c++14
 
 PRECOMPILED_HEADER += PreCompiledHeaders.h
 
+HEADERS += minimp3/minimp3.h
 HEADERS += midi/MidiDriver.h
 HEADERS += midi/MidiMessage.h
 HEADERS += looper/Looper.h
@@ -173,6 +174,7 @@ HEADERS += UploadIntervalData.h
 HEADERS += performance/PerformanceMonitor.h
 HEADERS += upnp/UPnPManager.h
 
+SOURCES += minimp3/minimp3.c
 SOURCES += MainController.cpp
 SOURCES += NinjamController.cpp
 SOURCES += MetronomeUtils.cpp
