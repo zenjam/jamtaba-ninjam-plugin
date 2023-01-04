@@ -118,7 +118,6 @@ win32{
         LIBS += -llegacy_stdio_definitions
     } else {
         LIBS += -L/usr/local/lib
-        LIBS += -L/mingw32/lib
         LIBS += -lvorbisenc
     }
 

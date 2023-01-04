@@ -78,7 +78,6 @@ win32 {
         LIBS += -L$$PWD/../../libs/$$LIBS_PATH
     } else {
         LIBS += -L/usr/local/lib
-        LIBS += -L/mingw32/lib
         LIBS += -lvorbisenc
     }
 

@@ -39,7 +39,6 @@ win32 {
         QMAKE_LFLAGS_RELEASE += /DEBUG # releasing with debug symbols
     } else {
         INCLUDEPATH += /usr/local/include
-        INCLUDEPATH += /mingw32/include
     }
 }
 
