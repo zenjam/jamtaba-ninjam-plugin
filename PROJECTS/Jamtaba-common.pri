@@ -173,6 +173,7 @@ HEADERS += log/Logging.h
 HEADERS += UploadIntervalData.h
 HEADERS += performance/PerformanceMonitor.h
 HEADERS += upnp/UPnPManager.h
+win32:HEADERS += log/stackwalker/StackWalker.h
 
 SOURCES += minimp3/minimp3.c
 SOURCES += MainController.cpp
@@ -255,6 +256,7 @@ SOURCES += gui/chat/NinjamChatMessageParser.cpp
 win32:SOURCES += gui/screensaver/WindowsScreensaverBlocker.cpp
 linux:SOURCES += gui/screensaver/LinuxScreensaverBlocker.cpp
 OBJECTIVE_SOURCES += gui/screensaver/MacScreensaverBlocker.mm
+win32:SOURCES += log/stackwalker/StackWalker.cpp
 win32:SOURCES += log/stackwalker/WindowsStackWalker.cpp
 
 SOURCES += gui/Highligther.cpp

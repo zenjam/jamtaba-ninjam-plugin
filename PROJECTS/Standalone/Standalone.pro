@@ -75,9 +75,6 @@ FORMS += gui/CrashReportDialog.ui
 
 #conditional sources to different platforms
 win32{
-    INCLUDEPATH += $$SOURCE_PATH/Libs/StackWalker
-    HEADERS += Libs/StackWalker/StackWalker.h
-    SOURCES += Libs/StackWalker/StackWalker.cpp
     SOURCES += audio/WindowsPortAudioDriver.cpp
     SOURCES += vst/WindowsVstPluginChecker.cpp
 }
@@ -137,7 +134,7 @@ win32{
             QMAKE_CXXFLAGS_RELEASE +=  -GL -Gy -Gw
             QMAKE_LFLAGS_RELEASE += /LTCG
         } else {
-            QMAKE_CXXFLAGS_RELEASE += -flto -O2
+            QMAKE_CXXFLAGS_RELEASE += -flto -O3
         }
     }
 
