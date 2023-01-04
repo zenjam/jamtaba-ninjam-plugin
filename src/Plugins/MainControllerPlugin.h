@@ -32,7 +32,7 @@ public:
     MainControllerPlugin(const Settings &settings, JamTabaPlugin *plugin);
     virtual ~MainControllerPlugin();
 
-    QString getUserEnvironmentString() const;
+    QString getUserEnvironmentString() const override;
 
     AudioDriver *createAudioDriver(const Settings &settings);
 
@@ -45,7 +45,7 @@ public:
 
     void setCSS(const QString &css) override;
 
-    int addInputTrackNode(LocalInputNode *inputTrackNode) override;
+    int addInputTrackNode(QSharedPointer<audio::LocalInputNode> inputTrackNode) override;
 
     void setSampleRate(int newSampleRate) override;
 

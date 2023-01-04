@@ -6,8 +6,8 @@
 
 NinjamControllerPlugin::NinjamControllerPlugin(MainControllerPlugin *controller) :
     NinjamController(controller),
-    waitingForHostSync(false),
-    controller(controller)
+    controller(controller),
+    waitingForHostSync(false)
 {
     //
 }
@@ -27,7 +27,7 @@ void NinjamControllerPlugin::deactivateAudioNodes()
 {
     metronomeTrackNode->deactivate();
 
-    for (NinjamTrackNode *node : trackNodes)
+    for (auto node : trackNodes)
         node->deactivate();
 
     mainController->setAllLoopersStatus(false); // deactivate all loopers
@@ -37,7 +37,7 @@ void NinjamControllerPlugin::activateAudioNodes()
 {
     metronomeTrackNode->activate();
 
-    for (NinjamTrackNode *node : trackNodes)
+    for (auto node : trackNodes)
         node->activate();
 
     mainController->setAllLoopersStatus(true); // activate all loopers

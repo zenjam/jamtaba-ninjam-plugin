@@ -53,3 +53,8 @@ GeneratedFiles/
 *.xcuserstate
 PROJECTS/AUPlugin/JamTaba.xcodeproj/xcshareddata/
 /dependencies/
+*_plugin_import.cpp
+/PROJECTS/Standalone/release
+/PROJECTS/VstPlugin/release
+/PROJECTS/VstScanner/release
+/PROJECTS/.qmake.stash

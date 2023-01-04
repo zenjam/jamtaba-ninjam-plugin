@@ -17,8 +17,8 @@ MainWindowPlugin::MainWindowPlugin(MainControllerPlugin *mainController) :
     MainWindow(mainController),
     firstChannelIsInitialized(false),
     increaseWindowWidthAction(nullptr),
-    decreaseWindowWidthAction(nullptr),
     increaseWindowHeightAction(nullptr),
+    decreaseWindowWidthAction(nullptr),
     decreaseWindowHeightAction(nullptr)
 {
 

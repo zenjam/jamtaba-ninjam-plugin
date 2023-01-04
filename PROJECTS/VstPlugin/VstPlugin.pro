@@ -15,8 +15,6 @@ INCLUDEPATH += $$SOURCE_PATH/Plugins/VST
 win32{
     DEFINES += _CRT_SECURE_NO_WARNINGS
 
-    QMAKE_LFLAGS += /ignore:4099 #supressing warning about missing .pdb files
-
     INCLUDEPATH += "$$VST_SDK_PATH/VST2_SDK"
     INCLUDEPATH += "$$VST_SDK_PATH/VST2_SDK/pluginterfaces/vst2.x/"
     INCLUDEPATH += "$$VST_SDK_PATH/VST2_SDK/public.sdk/source/vst2.x"
@@ -63,55 +61,69 @@ SOURCES += $$VST_SDK_PATH/VST2_SDK/public.sdk/source/vst2.x/audioeffect.cpp
 win32 {
     #message("Windows VST build")
 
-    LIBS +=  -lwinmm -lole32 -lws2_32 -ladvapi32 -luser32 #-lPsapi
     #performance monitor lib
     #QMAKE_CXXFLAGS += -DPSAPI_VERSION=1
 
-    !contains(QMAKE_TARGET.arch, x86_64) {
-        #message("x86 build") ## Windows x86 (32bit) specific build here
-        LIBS_PATH = "static/win32-msvc"
+    win32-msvc: {
+        QMAKE_LFLAGS += /ignore:4099 #supressing warning about missing .pdb files
+        QMAKE_LFLAGS += "/NODEFAULTLIB:libcmt"
+
+        !contains(QMAKE_TARGET.arch, x86_64) {
+            #message("x86 build") ## Windows x86 (32bit) specific build here
+            LIBS_PATH = "static/win32-msvc"
+        } else {
+            #message("x86_64 build") ## Windows x64 (64bit) specific build here
+            LIBS_PATH = "static/win64-msvc"
+        }
+        LIBS += -L$$PWD/../../libs/$$LIBS_PATH
     } else {
-        #message("x86_64 build") ## Windows x64 (64bit) specific build here
-        LIBS_PATH = "static/win64-msvc"
+        LIBS += -L/usr/local/lib
+        LIBS += -L/mingw32/lib
+        LIBS += -lvorbisenc
     }
 
     #+++++++++++++ link windows platform statically +++++++++++++++++++++++++++++++++++
     #release platform libs
-    CONFIG(release, debug|release): LIBS += -lQt5PlatformSupport
-    CONFIG(release, debug|release): LIBS += -L$(QTDIR)\plugins\platforms\ -lqwindows #link windows platform statically
-    CONFIG(release, debug|release):   LIBS += -L$(QTDIR)\plugins\mediaservice\ -ldsengine # necessary to use QCamera
-    CONFIG(release, debug|release):   LIBS += -L$(QTDIR)\plugins\mediaservice\ -lqtfreetype
+    #CONFIG(release, debug|release): LIBS += -lQt5PlatformSupport
+    #CONFIG(release, debug|release): LIBS += -L$(QTDIR)\plugins\platforms\ -lqwindows #link windows platform statically
+    #CONFIG(release, debug|release):   LIBS += -L$(QTDIR)\plugins\mediaservice\ -ldsengine # necessary to use QCamera
+    #CONFIG(release, debug|release):   LIBS += -L$(QTDIR)\plugins\mediaservice\ -lqtfreetype
 
 
 
     #debug platform libs
-    CONFIG(debug, debug|release): LIBS += -lQt5PlatformSupportd #link windows platform statically
-    CONFIG(debug, debug|release): LIBS += -L$(QTDIR)\plugins\platforms\ -lqwindowsd #link windows platform statically
-    CONFIG(debug, debug|release): LIBS += -L$(QTDIR)\plugins\mediaservice\ -ldsengined # necessary to use QCamera
-    CONFIG(debug, debug|release):   LIBS += -L$(QTDIR)\plugins\mediaservice\ -lqtfreetyped
+    #CONFIG(debug, debug|release): LIBS += -lQt5PlatformSupportd #link windows platform statically
+    #CONFIG(debug, debug|release): LIBS += -L$(QTDIR)\plugins\platforms\ -lqwindowsd #link windows platform statically
+    #CONFIG(debug, debug|release): LIBS += -L$(QTDIR)\plugins\mediaservice\ -ldsengined # necessary to use QCamera
+    #CONFIG(debug, debug|release):   LIBS += -L$(QTDIR)\plugins\mediaservice\ -lqtfreetyped
     #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lminimp3 -lvorbisfile -lvorbis -logg -lx264 -lavcodec -lavutil -lavformat -lswscale -lswresample -lstackwalker -lminiupnpc
+    LIBS += -lvorbisfile -lvorbis -logg -lx264 -lavcodec -lavutil -lavformat -lswscale -lswresample -lminiupnpc
 
-    LIBS += -lIPHlpApi # used by miniupnp lib
-    LIBS += -lSecur32   # used by libx264
-    LIBS += -lMfplat
+    LIBS += -lwinmm -lole32 -lws2_32 -ladvapi32 -luser32 #-lPsapi
+
+    LIBS += -liphlpapi  # used by miniupnp lib
+    LIBS += -lsecur32   # used by libx264
+    LIBS += -lbcrypt    # used by ffmpeg
+    LIBS += -lmfplat
     LIBS += -lmfuuid
-    LIBS += -lD3D9
-    LIBS += -lMf
-    LIBS += -lDxva2
-    LIBS += -lMfreadwrite
+    LIBS += -ld3d9
+    LIBS += -lmf
+    LIBS += -ldxva2
+    LIBS += -lmfreadwrite
     LIBS += -levr
-    LIBS += -lWtsapi32
+    LIBS += -lwtsapi32
     LIBS += -lwmcodecdspuuid
 
 
 
     CONFIG(release, debug|release) {
-      #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
-      QMAKE_CXXFLAGS_RELEASE +=  -GL
-      QMAKE_LFLAGS_RELEASE += /LTCG
+        win32-msvc: {
+            #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
+            QMAKE_CXXFLAGS_RELEASE +=  -GL
+            QMAKE_LFLAGS_RELEASE += /LTCG
+        } else {
+            QMAKE_CXXFLAGS_RELEASE += -flto -O3
+        }
     }
-
-    QMAKE_LFLAGS += "/NODEFAULTLIB:libcmt"
 }
