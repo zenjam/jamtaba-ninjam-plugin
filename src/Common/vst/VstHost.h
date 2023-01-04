@@ -39,8 +39,7 @@ public:
     void setPositionInSamples(int intervalPosition) override;
 
 protected:
-    static long VSTCALLBACK hostCallback(AEffect *effect, long opcode, long index, long value,
-                                         void *ptr, float opt);
+    static VstIntPtr VSTCALLBACK hostCallback(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt);
 
 signals:
     void pluginRequestingWindowResize(const QString &pluginName, int newWidth, int newHeight);

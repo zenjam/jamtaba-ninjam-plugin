@@ -48,7 +48,7 @@ AEffect* VstLoader::load(const QString &path, VstHost* host){
     //QCoreApplication::processEvents();
     try{
         qCDebug(jtStandaloneVstPlugin) << "Initializing effect for " << path ;
-        effect = entryPoint((audioMasterCallback)host->hostCallback);// myHost->vstHost->AudioMasterCallback);
+        effect = entryPoint(host->hostCallback);// myHost->vstHost->AudioMasterCallback);
     }
     catch(... ){
         qCritical() << "Error loading VST plugin";
