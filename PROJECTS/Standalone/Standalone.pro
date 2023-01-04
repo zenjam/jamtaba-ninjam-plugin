@@ -141,9 +141,6 @@ win32{
             QMAKE_LFLAGS_RELEASE += /LTCG
         } else {
             QMAKE_CXXFLAGS_RELEASE += -flto -O2
-            # force linker think there is references:
-            # QtConcurrent::RunFunctionTask<void>::run()
-            QMAKE_LFLAGS_RELEASE += -Wl,--allow-multiple-definition
         }
     }
 

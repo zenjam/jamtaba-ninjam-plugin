@@ -58,7 +58,7 @@ public slots:
 
 private:
 
-    void finishCurrentInterval();
+    bool finishCurrentInterval();
     bool prepareToEncodeNewInterval();
 
     bool addVideoStream(AVCodecID codecID, AVDictionary **opts);

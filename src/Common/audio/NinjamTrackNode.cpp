@@ -336,6 +336,7 @@ void NinjamTrackNode::addVorbisEncodedInterval(const QByteArray &fullIntervalByt
         if (pdecoder) {
             pdecoder->decode(256);
         }
+        return 0;
     }, decoderWeakPtr);
 }
 

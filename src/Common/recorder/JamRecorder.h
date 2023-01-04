@@ -265,7 +265,7 @@ private:
 
     QString getNewJamName();
 
-    void writeEncodedFile(const QByteArray &encodedData, const QString &path);
+    bool writeEncodedFile(const QByteArray &encodedData, const QString &path);
 
     static QString buildAudioFileName(const QString &userName, quint8 channelIndex, int currentInterval);
     static QString buildVideoFileName(const QString &userName, int currentInterval, const QString &fileExtension);

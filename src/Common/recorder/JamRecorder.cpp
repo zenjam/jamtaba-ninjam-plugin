@@ -127,14 +127,15 @@ QString JamRecorder::getNewJamName()
     return "Jam-" + nowString;
 }
 
-void JamRecorder::writeEncodedFile(const QByteArray& encodedData, const QString &path)
+bool JamRecorder::writeEncodedFile(const QByteArray& encodedData, const QString &path)
 {
     QFile audioFile(path);
     if (!audioFile.open(QFile::WriteOnly)) {
         qCritical() << "can't open file " << path;
-        return;
+        return false;
     }
     audioFile.write(encodedData.data(), encodedData.size());
+    return true;
 }
 
 QString JamRecorder::buildVideoFileName(const QString &userName, int currentInterval, const QString &fileExtension)
