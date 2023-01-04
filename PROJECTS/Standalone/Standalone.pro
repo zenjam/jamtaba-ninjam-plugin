@@ -133,7 +133,7 @@ win32{
             QMAKE_CXXFLAGS_RELEASE +=  -GL -Gy -Gw
             QMAKE_LFLAGS_RELEASE += /LTCG
         } else {
-            QMAKE_CXXFLAGS_RELEASE += -flto -O3
+            QMAKE_CXXFLAGS_RELEASE += -flto
         }
     }
 
