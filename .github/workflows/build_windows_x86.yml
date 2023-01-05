@@ -1,7 +1,6 @@
 name: Build everything for Windows 32 bit (x86)
 
-on:
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   build_all:
