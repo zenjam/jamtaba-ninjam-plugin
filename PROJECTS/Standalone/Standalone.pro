@@ -3,6 +3,8 @@ TEMPLATE = app
 
 include(../Jamtaba-common.pri)
 
+JAMTABA_BUILDER = $$(JAMTABA_BUILDER)
+
 VPATH += $$SOURCE_PATH
 VPATH += $$SOURCE_PATH/Standalone
 
@@ -99,7 +101,10 @@ linux{
 
 win32{
 
-    win32-msvc: {
+    equals(JAMTABA_BUILDER, "docker") {
+        LIBS += -L/usr/local/lib
+        LIBS += -lvorbisenc
+    } else {
         #supressing warning about missing .pdb files
         QMAKE_LFLAGS += /ignore:4099
         QMAKE_LFLAGS += "/NODEFAULTLIB:libcmt"
@@ -116,9 +121,6 @@ win32{
         }
         LIBS += -L$$ROOT_PATH/libs/$$LIBS_PATH
         LIBS += -llegacy_stdio_definitions
-    } else {
-        LIBS += -L/usr/local/lib
-        LIBS += -lvorbisenc
     }
 
     CONFIG(release, debug|release) {
@@ -128,12 +130,12 @@ win32{
     }
 
     CONFIG(release, debug|release) {
-        win32-msvc: {
+        equals(JAMTABA_BUILDER, "docker") {
+            QMAKE_CXXFLAGS_RELEASE += -flto
+        } else {
             #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
             QMAKE_CXXFLAGS_RELEASE +=  -GL -Gy -Gw
             QMAKE_LFLAGS_RELEASE += /LTCG
-        } else {
-            QMAKE_CXXFLAGS_RELEASE += -flto
         }
     }
 
@@ -167,17 +169,24 @@ macx{
 }
 
 linux{
-    contains(QMAKE_HOST.arch, x86_64) {
-        LIBS_PATH = "static/linux64"
+    equals(JAMTABA_BUILDER, "docker") {
+        message("Linux docker build")
+
+        QMAKE_CXXFLAGS_RELEASE += -flto
     } else {
-        LIBS_PATH = "static/linux32"
+        message("Linux local build")
+
+        contains(QMAKE_HOST.arch, x86_64) {
+            LIBS_PATH = "static/linux64"
+        } else {
+            LIBS_PATH = "static/linux32"
+        }
+        LIBS += -L$$PWD/../../libs/$$LIBS_PATH
     }
-    message($$LIBS_PATH)
 
     DEFINES += __LINUX_ALSA__
 
-
-    LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lportaudio -lminimp3 -lvorbisfile -lvorbisenc -lvorbis -logg -lavformat -lavcodec -lswscale -lavutil -lswresample -lminiupnpc -lx264
+    LIBS += -lportaudio -lvorbisfile -lvorbisenc -lvorbis -logg -lavformat -lavcodec -lswscale -lavutil -lswresample -lminiupnpc -lx264
     LIBS += -lasound
     LIBS += -ldl
     LIBS += -lz

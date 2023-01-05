@@ -1,6 +1,7 @@
 #ifndef _NINJAM_H_
 #define _NINJAM_H_
 
+#include <QDebug>
 #include <QString>
 #include <QDataStream>
 #include <QString>

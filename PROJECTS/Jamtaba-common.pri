@@ -5,6 +5,7 @@ mac:LIBS += -dead_strip
 ROOT_PATH = "$$PWD/.."
 SOURCE_PATH = "$$ROOT_PATH/src"
 VST_SDK_PATH = "$$ROOT_PATH/VST_SDK"
+JAMTABA_BUILDER = $$(JAMTABA_BUILDER)
 
 INCLUDEPATH += $$SOURCE_PATH/Common
 
@@ -35,10 +36,10 @@ macx{
 
 win32 {
     QMAKE_CXXFLAGS += -D__WINDOWS_MM__
-    win32-msvc: {
-        QMAKE_LFLAGS_RELEASE += /DEBUG # releasing with debug symbols
-    } else {
+    equals(JAMTABA_BUILDER, "docker") {
         INCLUDEPATH += /usr/local/include
+    } else {
+        QMAKE_LFLAGS_RELEASE += /DEBUG # releasing with debug symbols
     }
 }
 
@@ -97,6 +98,7 @@ HEADERS += loginserver/natmap.h
 HEADERS += MainController.h
 HEADERS += NinjamController.h
 HEADERS += MetronomeUtils.h
+HEADERS += ninjam/Ninjam.h
 HEADERS += ninjam/client/User.h
 HEADERS += ninjam/client/UserChannel.h
 HEADERS += ninjam/client/Service.h

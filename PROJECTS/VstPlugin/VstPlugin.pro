@@ -64,7 +64,10 @@ win32 {
     #performance monitor lib
     #QMAKE_CXXFLAGS += -DPSAPI_VERSION=1
 
-    win32-msvc: {
+    equals(JAMTABA_BUILDER, "docker") {
+        LIBS += -L/usr/local/lib
+        LIBS += -lvorbisenc
+    } else {
         QMAKE_LFLAGS += /ignore:4099 #supressing warning about missing .pdb files
         QMAKE_LFLAGS += "/NODEFAULTLIB:libcmt"
 
@@ -76,9 +79,6 @@ win32 {
             LIBS_PATH = "static/win64-msvc"
         }
         LIBS += -L$$PWD/../../libs/$$LIBS_PATH
-    } else {
-        LIBS += -L/usr/local/lib
-        LIBS += -lvorbisenc
     }
 
     #+++++++++++++ link windows platform statically +++++++++++++++++++++++++++++++++++
@@ -117,12 +117,12 @@ win32 {
 
 
     CONFIG(release, debug|release) {
-        win32-msvc: {
+        equals(JAMTABA_BUILDER, "docker") {
+            QMAKE_CXXFLAGS_RELEASE += -flto
+        } else {
             #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
             QMAKE_CXXFLAGS_RELEASE +=  -GL
             QMAKE_LFLAGS_RELEASE += /LTCG
-        } else {
-            QMAKE_CXXFLAGS_RELEASE += -flto
         }
     }
 }
