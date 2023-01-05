@@ -6,7 +6,7 @@ jobs:
   build_all:
     runs-on: ubuntu-latest
     container: 
-      image: defter/jamtaba-win32:latest
+      image: defter/jamtaba-win32:v5.15.7
 
     steps:
       - name: Chekout
