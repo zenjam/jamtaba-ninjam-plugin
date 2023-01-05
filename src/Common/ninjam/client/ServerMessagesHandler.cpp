@@ -5,8 +5,8 @@ using namespace ninjam;
 using namespace ninjam::client;
 
 ServerMessagesHandler::ServerMessagesHandler(Service *service) :
-    service(service),
-    device(nullptr)
+    device(nullptr),
+    service(service)
 {
     //
 }
@@ -52,7 +52,7 @@ bool ServerMessagesHandler::executeMessageHandler(const MessageHeader &header)
     case MessageType::UserInfoChangeNorify:
         return handleMessage<UserInfoChangeNotifyMessage>(header.getPayload());
     case MessageType::KeepAlive:
-        return handleMessage<ServerKeepAliveMessage>(header.getPayload());
+        return handleMessage<common::KeepAliveMessage>(header.getPayload());
     case MessageType::ChatMessage:
         return handleMessage<ServerToClientChatMessage>(header.getPayload());
     case MessageType::DownloadIntervalBegin:

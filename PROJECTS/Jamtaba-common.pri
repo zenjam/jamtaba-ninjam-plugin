@@ -5,18 +5,17 @@ mac:LIBS += -dead_strip
 ROOT_PATH = "$$PWD/.."
 SOURCE_PATH = "$$ROOT_PATH/src"
 VST_SDK_PATH = "$$ROOT_PATH/VST_SDK"
+JAMTABA_BUILDER = $$(JAMTABA_BUILDER)
 
 INCLUDEPATH += $$SOURCE_PATH/Common
 
+
 INCLUDEPATH += $$ROOT_PATH/libs/includes/ogg
 INCLUDEPATH += $$ROOT_PATH/libs/includes/vorbis
-INCLUDEPATH += $$ROOT_PATH/libs/includes/minimp3
 INCLUDEPATH += $$ROOT_PATH/libs/includes/ffmpeg
 INCLUDEPATH += $$ROOT_PATH/libs/includes/miniupnp
 
 DEFINES += MINIUPNP_STATICLIB
-
-win32:INCLUDEPATH += $$ROOT_PATH/libs/includes/stackwalker
 
 VPATH += $$SOURCE_PATH/Common
 
@@ -36,15 +35,20 @@ macx{
 }
 
 win32 {
-    QMAKE_LFLAGS_RELEASE += /DEBUG # releasing with debug symbols
     QMAKE_CXXFLAGS += -D__WINDOWS_MM__
+    equals(JAMTABA_BUILDER, "docker") {
+        INCLUDEPATH += /usr/local/include
+    } else {
+        QMAKE_LFLAGS_RELEASE += /DEBUG # releasing with debug symbols
+    }
 }
 
-CONFIG += c++11
+CONFIG += c++14
 
 
 PRECOMPILED_HEADER += PreCompiledHeaders.h
 
+HEADERS += minimp3/minimp3.h
 HEADERS += midi/MidiDriver.h
 HEADERS += midi/MidiMessage.h
 HEADERS += looper/Looper.h
@@ -94,6 +98,7 @@ HEADERS += loginserver/natmap.h
 HEADERS += MainController.h
 HEADERS += NinjamController.h
 HEADERS += MetronomeUtils.h
+HEADERS += ninjam/Ninjam.h
 HEADERS += ninjam/client/User.h
 HEADERS += ninjam/client/UserChannel.h
 HEADERS += ninjam/client/Service.h
@@ -101,6 +106,7 @@ HEADERS += ninjam/client/ServerInfo.h
 HEADERS += ninjam/client/ServerMessages.h
 HEADERS += ninjam/client/ClientMessages.h
 HEADERS += ninjam/client/ServerMessagesHandler.h
+HEADERS += ninjam/common/CommonMessages.h
 HEADERS += ninjam/server/Server.h
 HEADERS += gui/plugins/Guis.h
 HEADERS += gui/PluginScanDialog.h
@@ -168,7 +174,9 @@ HEADERS += log/Logging.h
 HEADERS += UploadIntervalData.h
 HEADERS += performance/PerformanceMonitor.h
 HEADERS += upnp/UPnPManager.h
+win32:HEADERS += log/stackwalker/StackWalker.h
 
+SOURCES += minimp3/minimp3.c
 SOURCES += MainController.cpp
 SOURCES += NinjamController.cpp
 SOURCES += MetronomeUtils.cpp
@@ -219,6 +227,7 @@ SOURCES += ninjam/client/ServerMessages.cpp
 SOURCES += ninjam/client/ClientMessages.cpp
 SOURCES += ninjam/client/ServerMessagesHandler.cpp
 SOURCES += ninjam/client/UserChannel.cpp
+SOURCES += ninjam/common/CommonMessages.cpp
 SOURCES += ninjam/server/Server.cpp
 SOURCES += gui/widgets/PeakMeter.cpp
 SOURCES += gui/widgets/WavePeakPanel.cpp
@@ -248,6 +257,7 @@ SOURCES += gui/chat/NinjamChatMessageParser.cpp
 win32:SOURCES += gui/screensaver/WindowsScreensaverBlocker.cpp
 linux:SOURCES += gui/screensaver/LinuxScreensaverBlocker.cpp
 OBJECTIVE_SOURCES += gui/screensaver/MacScreensaverBlocker.mm
+win32:SOURCES += log/stackwalker/StackWalker.cpp
 win32:SOURCES += log/stackwalker/WindowsStackWalker.cpp
 
 SOURCES += gui/Highligther.cpp

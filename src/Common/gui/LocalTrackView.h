@@ -35,7 +35,7 @@ public:
 
     int getInputIndex() const;
 
-    audio::LocalInputNode *getInputNode() const;
+    QSharedPointer<audio::LocalInputNode> getInputNode() const;
 
     virtual void setActivatedStatus(bool unlighted) override;
 
@@ -58,16 +58,15 @@ signals:
     void openLooperEditor(uint trackIndex);
 
 protected:
-    audio::LocalInputNode *inputNode;
-
     QPushButton *buttonStereoInversion;
     QPushButton *buttonLooper;
+    QSharedPointer<audio::LocalInputNode> inputNode;
 
     bool peakMetersOnly;
 
     virtual void setupMetersLayout();
 
-    void bindThisViewWithTrackNodeSignals() override;
+    void bindThisViewWithTrackNodeSignals();
 
     void translateUI() override;
 

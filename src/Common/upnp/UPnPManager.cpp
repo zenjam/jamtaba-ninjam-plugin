@@ -49,7 +49,7 @@ QString UPnPManager::getExternalIp() const
     return externalIP;
 }
 
-void UPnPManager::openPort(quint16 port)
+bool UPnPManager::openPort(quint16 port)
 {
     int ipv6 = 0;
     unsigned char ttl = 2;	/* defaulting to 2 */
@@ -60,7 +60,7 @@ void UPnPManager::openPort(quint16 port)
 
     if(!devlist) {
         emit errorDetected(QString("Error discovering UpNp devices (code: %1)").arg(error));
-        return;
+        return false;
     }
 
 
@@ -75,7 +75,7 @@ void UPnPManager::openPort(quint16 port)
         else
             emit errorDetected(QString("UPnP device found. Is it an IGD ? : %1").arg(QString(urls.controlURL)));
 
-        return;
+        return false;
     }
 
     char externalIPAddress[40];
@@ -83,7 +83,7 @@ void UPnPManager::openPort(quint16 port)
 
     if(result != UPNPCOMMAND_SUCCESS) {
         emit errorDetected("GetExternalIPAddress failed");
-        return;
+        return false;
     }
 
     QByteArray ba = QString::number(port).toLatin1();
@@ -102,19 +102,20 @@ void UPnPManager::openPort(quint16 port)
                    .arg(iaddr)
                    .arg(result)
                    .arg(strupnperror(result)));
-        return;
+        return false;
     }
 
 
     externalIP = QString(externalIPAddress);
 
     emit portOpened(QString(iaddr), externalIP);
+    return true;
 }
 
-void UPnPManager::closePort(quint16 port)
+bool UPnPManager::closePort(quint16 port)
 {
     if (!devlist)
-        return;
+        return false;
 
     QByteArray ba = QString::number(port).toLatin1();
     const char *eport = ba.data();
@@ -123,4 +124,5 @@ void UPnPManager::closePort(quint16 port)
         emit portClosed();
     else
         emit errorDetected(QString(strupnperror(result)));
+    return true;
 }

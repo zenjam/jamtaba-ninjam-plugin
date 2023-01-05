@@ -33,6 +33,8 @@ PortAudioDriver::PortAudioDriver(controller::MainController* mainController, QSt
 
     auto devicesNames = getDeviceNames();
 
+    qCDebug(jtAudio) << "Device names: " << devicesNames;
+
     auto devicesFound = devicesNames.contains(audioInputDevice) && devicesNames.contains(audioOutputDevice);
 
     if (devicesFound) {
@@ -140,7 +142,7 @@ bool PortAudioDriver::initPortAudio(int sampleRate, int bufferSize)
 
     if (device != paNoDevice) { // avoid query sample rates in a invalid device
         QList<int> validSampleRates = getValidSampleRates(device);
-        if (this->sampleRate > validSampleRates.last()) {
+        if (!validSampleRates.isEmpty() && this->sampleRate > validSampleRates.last()) {
             this->sampleRate = validSampleRates.last(); // use the max supported sample rate
         }
     }
@@ -244,9 +246,15 @@ int portaudioCallBack(const void *inputBuffer, void *outputBuffer,
 bool PortAudioDriver::start()
 {
     PaDeviceIndex device = useSystemDefaultDevices ? Pa_GetDefaultOutputDevice() : audioOutputDeviceIndex;
-    if (device == paNoDevice) return false;
+    if (device == paNoDevice) {
+        qCWarning(jtAudio) << "No audio output devices found";
+        return false;
+    }
     device = useSystemDefaultDevices ? Pa_GetDefaultInputDevice() : audioInputDeviceIndex;
-    if (device == paNoDevice) return false;
+    if (device == paNoDevice) {
+        qCWarning(jtAudio) << "No audio input devices found";
+        return false;
+    }
 
     stop();
 
@@ -299,8 +307,11 @@ bool PortAudioDriver::start()
     }
 
 
-    if (globalOutputRange.isEmpty())
+    if (globalOutputRange.isEmpty()) {
+        qCInfo(jtAudio) << "No output devices channels found";
+        releaseHostSpecificParameters(inputParams, outputParams);
         return false;
+    }
 
     // test if output format is supported
     PaError error =  Pa_IsFormatSupported(nullptr, &outputParams, sampleRate);
@@ -308,7 +319,7 @@ bool PortAudioDriver::start()
         qCritical() << "unsuported output format: " <<
                        Pa_GetErrorText(error) <<
                        "sampleRate: " << sampleRate <<
-                       "channels: " << outputParams.channelCount << endl;
+                       "channels: " << outputParams.channelCount << Qt::endl;
         this->audioOutputDeviceIndex = paNoDevice;
         releaseHostSpecificParameters(inputParams, outputParams);
         return false;
@@ -322,7 +333,7 @@ bool PortAudioDriver::start()
             qCritical() << "unsuported input format: " <<
                            Pa_GetErrorText(error) <<
                            "sampleRate: " << sampleRate <<
-                           "channels: " << inputParams.channelCount << endl;
+                           "channels: " << inputParams.channelCount << Qt::endl;
             this->audioInputDeviceIndex = paNoDevice;
             releaseHostSpecificParameters(inputParams, outputParams);
             return false;
@@ -366,8 +377,7 @@ QList<int> PortAudioDriver::getValidSampleRates(int deviceIndex) const
     outputParams.device = deviceIndex;
     outputParams.sampleFormat = paFloat32 | paNonInterleaved;
     const PaDeviceInfo *dev = Pa_GetDeviceInfo(deviceIndex);
-    if(dev)
-    { outputParams.suggestedLatency = dev->defaultLowOutputLatency; }
+    outputParams.suggestedLatency = dev ? dev->defaultLowOutputLatency : 0;
     outputParams.hostApiSpecificStreamInfo = NULL;
     QList<int> validSRs;
     validSRs.append(44100);

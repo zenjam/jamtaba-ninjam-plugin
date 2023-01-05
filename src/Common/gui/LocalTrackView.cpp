@@ -118,8 +118,8 @@ LocalTrackView::LocalTrackView(controller::MainController *mainController, int c
 {
     Q_ASSERT(mainController);
 
+    this->inputNode = QSharedPointer<audio::LocalInputNode>::create(mainController, channelIndex);
     // insert a input node in controller
-    inputNode = new audio::LocalInputNode(mainController, channelIndex);
     trackID = mainController->addInputTrackNode(this->inputNode);
     bindThisViewWithTrackNodeSignals();// now is secure bind this LocalTrackView with the respective TrackNode model
 
@@ -130,22 +130,25 @@ LocalTrackView::LocalTrackView(controller::MainController *mainController, int c
     secondaryChildsLayout->addWidget(buttonLooper, 0, Qt::AlignCenter);
     secondaryChildsLayout->addWidget(buttonStereoInversion, 0, Qt::AlignCenter);
 
-    connect(inputNode->getLooper(), &audio::Looper::stateChanged, this, &LocalTrackView::updateLooperButtonIcon);
-    connect(inputNode->getLooper(), &audio::Looper::currentLayerChanged, this, &LocalTrackView::updateLooperButtonIcon);
+    auto looper = this->inputNode->getLooper();
+    connect(looper, &audio::Looper::stateChanged, this, &LocalTrackView::updateLooperButtonIcon);
+    connect(looper, &audio::Looper::currentLayerChanged, this, &LocalTrackView::updateLooperButtonIcon);
 }
 
 void LocalTrackView::updateLooperButtonIcon()
 {
     // get a new icon based in looper state
-    QIcon newIcon = looperIconFactory.getIcon(inputNode->getLooper(), buttonLooper->fontMetrics());
+    auto looper = this->inputNode->getLooper();
+    QIcon newIcon = looperIconFactory.getIcon(looper, buttonLooper->fontMetrics());
     buttonLooper->setIcon(newIcon);
 }
 
 void LocalTrackView::bindThisViewWithTrackNodeSignals()
 {
-    BaseTrackView::bindThisViewWithTrackNodeSignals();
+    BaseTrackView::bindThisViewWithTrackNodeSignals(this->inputNode.data());
 
-    connect(inputNode, &audio::LocalInputNode::stereoInversionChanged, this, &LocalTrackView::setStereoInversion);
+    connect(this->inputNode.data(),
+            &audio::LocalInputNode::stereoInversionChanged, this, &LocalTrackView::setStereoInversion);
 }
 
 void LocalTrackView::setInitialValues(float initialGain, BaseTrackView::Boost boostValue,
@@ -260,9 +263,9 @@ void LocalTrackView::setActivatedStatus(bool unlighted)
     update();
 }
 
-audio::LocalInputNode *LocalTrackView::getInputNode() const
+QSharedPointer<audio::LocalInputNode> LocalTrackView::getInputNode() const
 {
-    return inputNode;
+    return this->inputNode;
 }
 
 void LocalTrackView::reset()

@@ -3,6 +3,8 @@ TEMPLATE = app
 
 include(../Jamtaba-common.pri)
 
+JAMTABA_BUILDER = $$(JAMTABA_BUILDER)
+
 VPATH += $$SOURCE_PATH
 VPATH += $$SOURCE_PATH/Standalone
 
@@ -10,7 +12,6 @@ INCLUDEPATH += $$SOURCE_PATH/Libs
 INCLUDEPATH += $$SOURCE_PATH/Libs/RtMidi
 
 INCLUDEPATH += $$ROOT_PATH/libs/includes/portaudio
-INCLUDEPATH += $$ROOT_PATH/libs/includes/rtmidi
 
 INCLUDEPATH += $$SOURCE_PATH/Standalone
 
@@ -100,41 +101,53 @@ linux{
 
 win32{
 
-    #supressing warning about missing .pdb files
-    QMAKE_LFLAGS += /ignore:4099
-
-    !contains(QMAKE_TARGET.arch, x86_64) {
-        #message("msvc x86 build") ## Windows x86 (32bit) specific build here
-        LIBS_PATH = "static/win32-msvc"
-
-        #after a lot or research Ezee found this userfull link explaining how compile to be compatible with Windows XP: http://www.tripleboot.org/?p=423
-        QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+    equals(JAMTABA_BUILDER, "docker") {
+        LIBS += -L/usr/local/lib
+        LIBS += -lvorbisenc
     } else {
-        #message("msvc x86_64 build") ## Windows x64 (64bit) specific build here
-        LIBS_PATH = "static/win64-msvc"
+        #supressing warning about missing .pdb files
+        QMAKE_LFLAGS += /ignore:4099
+        QMAKE_LFLAGS += "/NODEFAULTLIB:libcmt"
+
+        !contains(QMAKE_TARGET.arch, x86_64) {
+            #message("msvc x86 build") ## Windows x86 (32bit) specific build here
+            LIBS_PATH = "static/win32-msvc"
+
+            #after a lot or research Ezee found this userfull link explaining how compile to be compatible with Windows XP: http://www.tripleboot.org/?p=423
+            QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01
+        } else {
+            #message("msvc x86_64 build") ## Windows x64 (64bit) specific build here
+            LIBS_PATH = "static/win64-msvc"
+        }
+        LIBS += -L$$ROOT_PATH/libs/$$LIBS_PATH
+        LIBS += -llegacy_stdio_definitions
     }
-
-    CONFIG(release, debug|release): LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lportaudio
-    else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../libs/$$LIBS_PATH/ -lportaudiod
-
-    LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lminimp3 -lvorbisfile -lvorbis -logg -lx264 -lavcodec -lavutil -lavformat -lswscale -lswresample -lstackwalker -lminiupnpc
 
     CONFIG(release, debug|release) {
-        #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
-        QMAKE_CXXFLAGS_RELEASE +=  -GL -Gy -Gw
-        QMAKE_LFLAGS_RELEASE += /LTCG
+        LIBS += -lportaudio -lvorbisfile -lvorbis -logg -lx264 -lavcodec -lavutil -lavformat -lswscale -lswresample -lminiupnpc
+    } else:CONFIG(debug, debug|release) {
+        LIBS += -lportaudiod -lvorbisfiled -lvorbisd -loggd -lx264 -lavcodecd -lavutild -lavformatd -lswscaled -lswresample -lminiupnpcd
     }
 
-    LIBS += -lwinmm -lole32 -lws2_32 -lAdvapi32 -lUser32 -lPsapi
-    LIBS += -lIPHlpApi # used by miniupnp lib
-    LIBS += -lSecur32   # used by libx264
+    CONFIG(release, debug|release) {
+        equals(JAMTABA_BUILDER, "docker") {
+            QMAKE_CXXFLAGS_RELEASE += -flto
+        } else {
+            #ltcg - http://blogs.msdn.com/b/vcblog/archive/2009/02/24/quick-tips-on-using-whole-program-optimization.aspx
+            QMAKE_CXXFLAGS_RELEASE +=  -GL -Gy -Gw
+            QMAKE_LFLAGS_RELEASE += /LTCG
+        }
+    }
+
+    LIBS += -lwinmm -lole32 -lws2_32 -ladvapi32 -luser32 -lpsapi
+    LIBS += -liphlpapi  # used by miniupnp lib
+    LIBS += -lsecur32   # used by libx264
+    LIBS += -lbcrypt    # used by ffmpeg
 
     #performance monitor lib
     QMAKE_CXXFLAGS += -DPSAPI_VERSION=1
 
     RC_FILE = ../Jamtaba2.rc #windows icon
-
-    QMAKE_LFLAGS += "/NODEFAULTLIB:libcmt"
 }
 
 macx{
@@ -156,17 +169,24 @@ macx{
 }
 
 linux{
-    contains(QMAKE_HOST.arch, x86_64) {
-        LIBS_PATH = "static/linux64"
+    equals(JAMTABA_BUILDER, "docker") {
+        message("Linux docker build")
+
+        QMAKE_CXXFLAGS_RELEASE += -flto
     } else {
-        LIBS_PATH = "static/linux32"
+        message("Linux local build")
+
+        contains(QMAKE_HOST.arch, x86_64) {
+            LIBS_PATH = "static/linux64"
+        } else {
+            LIBS_PATH = "static/linux32"
+        }
+        LIBS += -L$$PWD/../../libs/$$LIBS_PATH
     }
-    message($$LIBS_PATH)
 
     DEFINES += __LINUX_ALSA__
 
-
-    LIBS += -L$$PWD/../../libs/$$LIBS_PATH -lportaudio -lminimp3 -lvorbisfile -lvorbisenc -lvorbis -logg -lavformat -lavcodec -lswscale -lavutil -lswresample -lminiupnpc -lx264
+    LIBS += -lportaudio -lvorbisfile -lvorbisenc -lvorbis -logg -lavformat -lavcodec -lswscale -lavutil -lswresample -lminiupnpc -lx264
     LIBS += -lasound
     LIBS += -ldl
     LIBS += -lz

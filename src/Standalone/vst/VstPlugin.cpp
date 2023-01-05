@@ -34,14 +34,14 @@ using vst::VstHost;
 
 QMap<QString, QDialog*> VstPlugin::editorsWindows;
 
-VstPlugin::VstPlugin(VstHost* host, const QString &pluginPath) :
-    audio::Plugin(vst::utils::createDescriptor(nullptr, pluginPath)),
-    effect(nullptr),
+VstPlugin::VstPlugin(const audio::PluginDescriptor &pluginDescriptor, AEffect* effect, VstHost* host) :
+    audio::Plugin(pluginDescriptor),
+    effect(effect),
     host(host),
-    loaded(false),
+    wantMidi(false),
     started(false),
     turnedOn(false),
-    wantMidi(false)
+    loaded(true)
 {
     vstMidiEvents.reserved = 0;
     vstMidiEvents.numEvents = 0;
@@ -50,33 +50,20 @@ VstPlugin::VstPlugin(VstHost* host, const QString &pluginPath) :
     }
 
     assert(host);
-
 }
 
-bool VstPlugin::load(const QString &path){
+QSharedPointer<VstPlugin> VstPlugin::load(VstHost* host, const audio::PluginDescriptor &pluginDescriptor) {
     if (!host) {
-        return false;
+        return nullptr;
     }
-
-    loaded = false;
-    this->effect = vst::VstLoader::load(path, host);
+    AEffect* effect = vst::VstLoader::load(pluginDescriptor.getPath(), host);
     if (!effect) {
-        unload();
-        return false;
+        return nullptr;
     }
-
-    descriptor = vst::utils::createDescriptor(effect, path);
-
-    this->name = descriptor.getName();
-
+    audio::PluginDescriptor descriptor = vst::utils::createDescriptor(effect, pluginDescriptor.getPath());
     long ver = effect->dispatcher(effect, effGetVstVersion, 0, 0, NULL, 0);
-    qCDebug(jtVstPlugin) << "loading " << getName() << " version " << ver;
-
-    this->path = path;
-
-    loaded = true;
-
-    return true;
+    qCDebug(jtVstPlugin) << "loading " << descriptor.getName() << " version " << ver;
+    return QSharedPointer<VstPlugin>::create(descriptor, effect, host);
 }
 
 bool VstPlugin::canGenerateMidiMessages() const
@@ -99,7 +86,7 @@ QByteArray VstPlugin::getSerializedData() const
         char* chunk = 0;
         long result = effect->dispatcher(effect, effGetChunk, false, 0, &chunk, 0 );
         if (result) {
-            qCDebug(jtVstPlugin) << "saving " << getName() << " state";
+            qCDebug(jtVstPlugin) << "saving " << name << " state";
             return QByteArray(chunk, result);
         }
     }
@@ -109,16 +96,16 @@ QByteArray VstPlugin::getSerializedData() const
 void VstPlugin::restoreFromSerializedData(const QByteArray &dataToRestore)
 {
     if (!dataToRestore.isEmpty()) {
-        qCInfo(jtVstPlugin) << "\t\trestoring plugin data to" << getName();
+        qCInfo(jtVstPlugin) << "\t\trestoring plugin data to" << name;
         const char* data = dataToRestore.data();
         effect->dispatcher(effect, effSetChunk, false, dataToRestore.size(), (void*)data, 0 );
-        qCInfo(jtVstPlugin) << "\t\trestore finished for" << getName();
+        qCInfo(jtVstPlugin) << "\t\trestore finished for" << name;
     }
 }
 
 void VstPlugin::resume()
 {
-    qCDebug(jtVstPlugin) << "Resuming " << getName() << "thread: " << QThread::currentThreadId();
+    qCDebug(jtVstPlugin) << "Resuming " << name << "thread: " << QThread::currentThreadId();
     effect->dispatcher(effect, effMainsChanged, 0, 1, NULL, 0.0f);
 
     effect->dispatcher(effect, effStartProcess, 0, 1, NULL, 0.0f);
@@ -126,7 +113,7 @@ void VstPlugin::resume()
 
 void VstPlugin::suspend()
 {
-    qCDebug(jtVstPlugin) << "Suspending " << getName() << "Thread: " << QThread::currentThreadId();
+    qCDebug(jtVstPlugin) << "Suspending " << name << "Thread: " << QThread::currentThreadId();
 
     effect->dispatcher(effect, effStopProcess, 0, 1, NULL, 0.0f);
 
@@ -140,14 +127,14 @@ void VstPlugin::start()
         return;
     }
 
-    qCDebug(jtVstPlugin) << "starting plugin " << getName() << " thread: " << QThread::currentThreadId();
+    qCDebug(jtVstPlugin) << "starting plugin " << name << " thread: " << QThread::currentThreadId();
 
     int hostBufferSize = host->getBufferSize();
     internalOutputBuffer.reset(new audio::SamplesBuffer(effect->numOutputs, hostBufferSize));
     internalInputBuffer.reset(new audio::SamplesBuffer(effect->numInputs, hostBufferSize));
 
     long ver = effect->dispatcher(effect, effGetVstVersion, 0, 0, NULL, 0);// EffGetVstVersion();
-    qCDebug(jtVstPlugin) << "Starting " << getName() << " version " << ver;
+    qCDebug(jtVstPlugin) << "Starting " << name << " version " << ver;
 
     // setting buffer size and sample before open just to avoid problems (I see this trick in VstBoard source code)
     qCDebug(jtVstPlugin) << "setting sample rate and block size " << QThread::currentThreadId();
@@ -180,7 +167,7 @@ void VstPlugin::setSampleRate(int newSampleRate)
 
 VstPlugin::~VstPlugin()
 {
-    qCDebug(jtVstPlugin) << getName() << " VSt plugin destructor Thread:" << QThread::currentThreadId();
+    qCDebug(jtVstPlugin) << name << " VSt plugin destructor Thread:" << QThread::currentThreadId();
     unload();
 
     if (editorWindow) {
@@ -196,7 +183,7 @@ VstPlugin::~VstPlugin()
 
 void VstPlugin::unload()
 {
-    qCDebug(jtVstPlugin) << "unloading VST plugin " << getName() << " Thread:" << QThread::currentThreadId();
+    qCDebug(jtVstPlugin) << "unloading VST plugin " << name << " Thread:" << QThread::currentThreadId();
 
     if (effect) {
 
@@ -295,7 +282,7 @@ void VstPlugin::setBypass(bool state)
 
 void VstPlugin::closeEditor()
 {
-    qCDebug(jtVstPlugin) << "Closing " << getName() << " editor. Thread:" << QThread::currentThreadId();
+    qCDebug(jtVstPlugin) << "Closing " << name << " editor. Thread:" << QThread::currentThreadId();
 
     if (effect && editorWindow) {
         effect->dispatcher(effect, effEditClose, 0, 0, NULL, 0);
@@ -304,7 +291,7 @@ void VstPlugin::closeEditor()
     audio::Plugin::closeEditor();
     qCDebug(jtVstPlugin) << "Editor closed";
 
-    VstPlugin::editorsWindows.remove(getName()); // remove the plugin editor reference from map
+    VstPlugin::editorsWindows.remove(name); // remove the plugin editor reference from map
 }
 
 void VstPlugin::openEditor(const QPoint &centerOfScreen)
@@ -323,14 +310,14 @@ void VstPlugin::openEditor(const QPoint &centerOfScreen)
         return;
     }
 
-    qCDebug(jtVstPlugin) << "opening " <<getName() << "editor thread: " << QThread::currentThreadId();
+    qCDebug(jtVstPlugin) << "opening " << name << "editor thread: " << QThread::currentThreadId();
 
     if (editorWindow) {
         editorWindow->deleteLater();
     }
 
     this->editorWindow = new QDialog(0, Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    this->editorWindow->setWindowTitle(getName());
+    this->editorWindow->setWindowTitle(name);
     QObject::connect( this->editorWindow, SIGNAL(finished(int)), this, SLOT(editorDialogFinished()));
 
     // get plugin window size
@@ -360,10 +347,10 @@ void VstPlugin::openEditor(const QPoint &centerOfScreen)
         editorWindow->move(centerOfScreen.x() - rectWidth / 2, centerOfScreen.y() - rectHeight / 2);
 	}
 
-    qCDebug(jtVstPlugin) << getName() << " editor opened";
+    qCDebug(jtVstPlugin) << name << " editor opened";
 
     // save the editor in a map to use this reference when plugin request a window resize
-    VstPlugin::editorsWindows.insert(getName(), editorWindow);
+    VstPlugin::editorsWindows.insert(name, editorWindow);
 
     //resume();
 }

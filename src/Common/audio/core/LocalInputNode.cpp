@@ -276,7 +276,7 @@ void LocalInputNode::processReplacing(const SamplesBuffer &in, SamplesBuffer &ou
 void LocalInputNode::setRoutingMidiInput(bool routeMidiInput)
 {
     quint8 subchannelIndex = 0; // first subchannel
-    LocalInputNode *firstSubchannel = mainController->getInputTrackInGroup(channelGroupIndex, subchannelIndex);
+    auto firstSubchannel = mainController->getInputTrackInGroup(channelGroupIndex, subchannelIndex);
 
     if (firstSubchannel == this)
         return; // midi routing is not allowed in first subchannel
@@ -330,7 +330,7 @@ qint8 LocalInputNode::getTranspose() const
     }
     else {
         quint8 subchannelIndex = 1; // second subchannel
-        LocalInputNode *secondSubchannel = mainController->getInputTrackInGroup(channelGroupIndex, subchannelIndex);
+        auto secondSubchannel = mainController->getInputTrackInGroup(channelGroupIndex, subchannelIndex);
         if (secondSubchannel && secondSubchannel->isMidi()) {
             return secondSubchannel->midiInput.transpose;
         }

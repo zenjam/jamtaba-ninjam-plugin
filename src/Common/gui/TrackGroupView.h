@@ -35,15 +35,19 @@ public:
     void setUnlightStatus(bool unlighted);
     bool isUnlighted() const;
 
-    // is not possible return a covariant container, so I'm using template to return a container of a more specific (derived) type
-    template<class T>
-    QList<T> getTracks() const
-    {
-        QList<T> castedTracks;
+    template<class T, class F>
+    void visitTracks(F&& visitor) const {
         foreach (BaseTrackView *trackView, trackViews) {
-            castedTracks.append(dynamic_cast<T>(trackView));
+            T* castedTrack = dynamic_cast<T*>(trackView);
+            if (castedTrack != nullptr) {
+                visitor(castedTrack);
+            }
         }
-        return castedTracks;
+    }
+
+    template<class T>
+    T* getTrack(int index) const {
+        return dynamic_cast<T*>(trackViews.at(index));
     }
 
     void setTintColor(const QColor &color);

@@ -8,8 +8,18 @@
 #include <QMap>
 #include <cmath>
 #include "log/Logging.h"
+#include "Utils.h"
 
 using vst::VstHost;
+
+template<size_t MAX_SIZE, class T>
+static void CopyFixedSizeString(void* ptr, const T& stringValue)
+{
+    static_assert(std::is_array<T>::value && std::is_same<T, char[sizeof(T)]>::value,
+            "SafeCopyFixedString: wrong string type");
+    static_assert(sizeof(T) < MAX_SIZE, "SafeCopyFixedString: found too long string");
+    memcpy(ptr, &stringValue, sizeof(T));
+}
 
 QScopedPointer<VstHost> VstHost::hostInstance;
 
@@ -136,7 +146,7 @@ bool VstHost::tempoIsValid() const
     return this->vstTimeInfo.flags & kVstTempoValid;
 }
 
-long VSTCALLBACK VstHost::hostCallback(AEffect *effect, long opcode, long index, long value, void *ptr, float opt)
+VstIntPtr VSTCALLBACK VstHost::hostCallback(AEffect *effect, VstInt32 opcode, VstInt32 index, VstIntPtr value, void *ptr, float opt)
 {
     Q_UNUSED(effect)
     Q_UNUSED(index)
@@ -156,10 +166,8 @@ long VSTCALLBACK VstHost::hostCallback(AEffect *effect, long opcode, long index,
         // [index]: new width [value]: new height [return value]: 1 if supported
         int newWidth = index;
         int newHeight = value;
-        char temp[128];// kVstMaxEffectNameLen]; //some dumb plugins don't respect kVstMaxEffectNameLen
-        effect->dispatcher(effect, effGetEffectName, 0, 0, temp, 0);
-        emit VstHost::getInstance()->pluginRequestingWindowResize(QString::fromUtf8(
-                                                                   temp), newWidth, newHeight);
+        QString pluginName = vst::utils::getPluginName(effect);
+        emit VstHost::getInstance()->pluginRequestingWindowResize(pluginName, newWidth, newHeight);
         return 1L;
     }
 
@@ -173,17 +181,17 @@ long VSTCALLBACK VstHost::hostCallback(AEffect *effect, long opcode, long index,
         return true;
 
     case audioMasterGetTime:  // 7
-        return (long)(&VstHost::getInstance()->vstTimeInfo);
+        return reinterpret_cast<VstIntPtr>(&VstHost::getInstance()->vstTimeInfo);
 
     case audioMasterGetCurrentProcessLevel:  // 23
         return 2L;
 
     case audioMasterGetVendorString:  // 32
-        strcpy((char *)ptr, "www.jamtaba.com");
+        CopyFixedSizeString<kVstMaxVendorStrLen>(ptr, "www.jamtaba.com");
         return 1L;
 
     case audioMasterGetProductString:  // 33
-        strcpy((char *)ptr, "Jamtaba II");
+        CopyFixedSizeString<kVstMaxProductStrLen>(ptr, "Jamtaba II");
         return 1L;
 
     case audioMasterGetVendorVersion:  // 34

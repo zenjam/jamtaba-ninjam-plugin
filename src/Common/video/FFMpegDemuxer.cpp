@@ -154,23 +154,23 @@ uint FFMpegDemuxer::getFrameRate() const
     return 0;
 }
 
-void FFMpegDemuxer::decode()
+bool FFMpegDemuxer::decode()
 {
     QList<QImage> decodedImages;
 
     if (!open()) {
         qCritical() << "Can't open the video decoder!";
         emit imagesDecoded(decodedImages, getFrameRate());
-        return;
+        return false;
     }
 
     if (!formatContext || formatContext->nb_streams <= 0)
-        return;
+        return false;
 
     auto codecContext = formatContext->streams[0]->codec;
 
     if (!codecContext)
-        return;
+        return false;
 
     /* initialize packet, set data to NULL, let the demuxer fill it */
     AVPacket packet;
@@ -194,7 +194,7 @@ void FFMpegDemuxer::decode()
                     qCritical() << "error decoding video frame" << av_error_to_qt_string(ret) << ret;
                     emit imagesDecoded(decodedImages, getFrameRate());
                 }
-                return;
+                return false;
             }
 
             while((ret = avcodec_receive_frame(codecContext, frame)) == 0)  // got a frame?
@@ -225,7 +225,7 @@ void FFMpegDemuxer::decode()
                 if(!swsContext){
                     qCritical() << "Cannot initialize the conversion context!";
                     emit imagesDecoded(decodedImages, getFrameRate());
-                    return;
+                    return false;
                 }
                 sws_scale(swsContext, frame->data, frame->linesize, 0, height, frameRGB->data, frameRGB->linesize);
 
@@ -243,10 +243,11 @@ void FFMpegDemuxer::decode()
             if (ret != 0 && ret != AVERROR(EAGAIN)) {
                 qCritical() << "error decoding video frame in avcodec_receive_frame" << av_error_to_qt_string(ret) << ret;
                 emit imagesDecoded(decodedImages, getFrameRate());
-                return;
+                return false;
             }
         }
     }
 
     emit imagesDecoded(decodedImages, getFrameRate());
+    return true;
 }

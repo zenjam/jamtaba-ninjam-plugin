@@ -27,7 +27,7 @@ public:
 
     virtual ~FxPanel();
 
-    void addPlugin(Plugin *plugin, quint32 pluginSlotIndex);
+    void addPlugin(const QSharedPointer<Plugin> &plugin, quint32 pluginSlotIndex);
 
     qint32 getPluginFreeSlotIndex() const; // return -1 if no free slots are available
 

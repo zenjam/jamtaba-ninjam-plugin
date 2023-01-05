@@ -2,6 +2,7 @@
 #define _LOCAL_INPUT_GROUP_H_
 
 #include <QList>
+#include <QSharedPointer>
 
 namespace audio {
 
@@ -12,18 +13,18 @@ class LocalInputGroup
 {
 
 public:
-    LocalInputGroup(int groupIndex, audio::LocalInputNode *firstInput);
+    LocalInputGroup(int groupIndex, QSharedPointer<audio::LocalInputNode> firstInput);
     ~LocalInputGroup();
 
     bool isEmpty() const;
 
-    void addInputNode(audio::LocalInputNode *input);
+    void addInputNode(QSharedPointer<audio::LocalInputNode> input);
 
     int getIndex() const;
 
     void mixGroupedInputs(audio::SamplesBuffer &out);
 
-    void removeInput(audio::LocalInputNode *input);
+    void removeInput(QSharedPointer<audio::LocalInputNode> input);
 
     int getMaxInputChannelsForEncoding() const;
 
@@ -35,11 +36,11 @@ public:
 
     void setVoiceChatStatus(bool voiceChat);
 
-    audio::LocalInputNode *getInputNode(quint8 index) const;
+    QSharedPointer<audio::LocalInputNode> getInputNode(quint8 index) const;
 
 private:
     int groupIndex;
-    QList<audio::LocalInputNode *> groupedInputs;
+    QList<QSharedPointer<audio::LocalInputNode>> groupedInputs;
     bool transmiting;
     bool voiceChatActivated;
 };

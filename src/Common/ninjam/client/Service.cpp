@@ -27,7 +27,7 @@ class Service::Download
 {
 
 public:
-    Download(const QString &userFullName, quint8 channelIndex, const QByteArray &GUID, bool audio = true) :
+    Download(const QString &userFullName, quint8 channelIndex, const MessageGuid &GUID, bool audio = true) :
         channelIndex(channelIndex),
         userFullName(userFullName),
         GUID(GUID),
@@ -66,7 +66,7 @@ public:
         return userFullName;
     }
 
-    inline QByteArray getGUI() const
+    inline const MessageGuid& getGUI() const
     {
         return GUID;
     }
@@ -79,7 +79,7 @@ public:
 private:
     quint8 channelIndex;
     QString userFullName;
-    QByteArray GUID; // Global Unique ID
+    MessageGuid GUID; // Global Unique ID
     QByteArray vorbisData;
     bool containsAudio; // audio or video?
 };
@@ -87,11 +87,11 @@ private:
 // ++++++++++++++++++++++++++++++++++++++++
 
 Service::Service() :
-    lastSendTime(0),
-    initialized(false),
-    socket(nullptr),
     messagesHandler(new ServerMessagesHandler(this)),
-    serverKeepAlivePeriod(30)
+    socket(nullptr),
+    lastSendTime(0),
+    serverKeepAlivePeriod(30),
+    initialized(false)
 {
 
 }
@@ -123,7 +123,7 @@ void Service::setupSocketSignals()
     });
 }
 
-void Service::sendIntervalPart(const QByteArray &GUID, const QByteArray &encodedData, bool isLastPart)
+void Service::sendIntervalPart(const MessageGuid &GUID, const QByteArray &encodedData, bool isLastPart)
 {
     if (!initialized)
         return;
@@ -132,7 +132,7 @@ void Service::sendIntervalPart(const QByteArray &GUID, const QByteArray &encoded
     sendMessageToServer(msg);
 }
 
-void Service::sendIntervalBegin(const QByteArray &GUID, quint8 channelIndex, bool isAudioInterval)
+void Service::sendIntervalBegin(const MessageGuid &GUID, quint8 channelIndex, bool isAudioInterval)
 {
     if (!initialized)
         return;
@@ -150,7 +150,7 @@ void Service::handleAllReceivedMessages()
 
     messagesHandler->handleAllMessages();
     if (needSendKeepAlive()) {
-        sendMessageToServer(ClientKeepAlive());
+        sendMessageToServer(common::KeepAliveMessage());
     }
 
     qint64 bytesProcessed = bytesAvailable - (bytesAvailable - socket->bytesAvailable());
@@ -247,12 +247,33 @@ void Service::sendAdminCommand(const QString &message)
     sendMessageToServer(msg);
 }
 
+void Service::sendMessageToServer(const common::CommonMessage &message)
+{
+    if (!socket) {
+        return;
+    }
+
+    NinjamOutputDataStream stream(socket);
+    message.serializeTo(stream);
+
+    QDebug debug = qDebug();
+    message.printDebug(debug);
+
+    socket->flush();
+    lastSendTime = QDateTime::currentMSecsSinceEpoch();
+}
+
 void Service::sendMessageToServer(const ClientMessage &message)
 {
-    if (!socket)
+    if (!socket) {
         return;
+    }
 
-    message.serializeTo(socket);
+    NinjamOutputDataStream stream(socket);
+    message.serializeTo(stream);
+
+    QDebug debug = qDebug();
+    message.printDebug(debug);
 
     socket->flush();
     lastSendTime = QDateTime::currentMSecsSinceEpoch();
@@ -266,18 +287,17 @@ bool Service::needSendKeepAlive() const
 
 void Service::process(const UserInfoChangeNotifyMessage &msg)
 {
-    //msg.printDebug(qDebug());
+    QDebug debug = qDebug();
+    msg.printDebug(debug);
 
-    for (const User &user : msg.getUsers()) {
-        if (!currentServer->containsUser(user)) {
-            currentServer->addUser(user);
-        }
-
-        handleUserChannels(user);
-
+    for (auto iterator = msg.getUsers().keyBegin();
+         iterator != msg.getUsers().keyEnd(); ++iterator) {
+        const auto& userFullName = *iterator;
+        const auto& channels = msg.getUsers().values(userFullName);
+        handleUserChannels(userFullName, channels);
         // enable receive for all user channels
-        for (const UserChannel &channel : user.getChannels()) {
-            setChannelReceiveStatus(user.getFullName(), channel.getIndex(), true);
+        for (const UserChannel &channel : channels) {
+            setChannelReceiveStatus(userFullName, channel.getIndex(), true);
         }
     }
 }
@@ -289,7 +309,7 @@ void Service::setChannelReceiveStatus(const QString &userFullName, quint8 channe
 
         User user = currentServer->getUser(userFullName);
         quint32 channelsMask = 0;
-        for (const UserChannel &channel : user.getChannels()) {
+        for (const UserChannel &channel : qAsConst(user.getChannels())) {
             if (channel.isActive() || (channel.getIndex() == channelIndex && receiveChannel))
                 channelsMask |= 1 << channel.getIndex();
         }
@@ -302,7 +322,7 @@ void Service::process(const DownloadIntervalBegin &msg)
     if (!msg.shouldBeStopped() && (msg.isAudio() || msg.isVideo())) {
         quint8 channelIndex = msg.getChannelIndex();
         QString userFullName = msg.getUserName();
-        QByteArray GUID = msg.getGUID();
+        const MessageGuid& GUID = msg.getGUID();
         downloads.insert(GUID, Download(userFullName, channelIndex, GUID, msg.isAudio()));
     }
 }
@@ -323,15 +343,17 @@ void Service::process(const DownloadIntervalWrite &msg)
         User user = currentServer->getUser(download.getUserFullName());
 
         if (download.isAudio()) {
-            if (user.getChannel(download.getChannelIndex()).isActive()) {
-                if (msg.downloadIsComplete()) {
-                    emit audioIntervalDownloading(user, download.getChannelIndex(), msg.getEncodedData(), isFirstPart, true); // the last chunk
-                    emit audioIntervalCompleted(user, download.getChannelIndex(), download.getEncodedData()); // full interval
-                    downloads.remove(msg.getGUID());
+            user.visitChannel(download.getChannelIndex(), [&](const UserChannel& channel) {
+                if (channel.isActive()) {
+                    if (msg.downloadIsComplete()) {
+                        emit audioIntervalDownloading(user, download.getChannelIndex(), msg.getEncodedData(), isFirstPart, true); // the last chunk
+                        emit audioIntervalCompleted(user, download.getChannelIndex(), download.getEncodedData()); // full interval
+                        downloads.remove(msg.getGUID());
+                    } else {
+                        emit audioIntervalDownloading(user, download.getChannelIndex(), msg.getEncodedData(), isFirstPart, false);
+                    }
                 }
-                else
-                    emit audioIntervalDownloading(user, download.getChannelIndex(), msg.getEncodedData(), isFirstPart, false);
-             }
+            });
         }
         else if (msg.downloadIsComplete()) { // download is video
             emit videoIntervalCompleted(user, download.getEncodedData());
@@ -342,9 +364,11 @@ void Service::process(const DownloadIntervalWrite &msg)
     }
 }
 
-void Service::process(const ServerKeepAliveMessage &)
+void Service::process(const common::KeepAliveMessage &)
 {
-    sendMessageToServer(ClientKeepAlive());
+    if (needSendKeepAlive()) {
+        sendMessageToServer(common::KeepAliveMessage());
+    }
 }
 
 void Service::process(const AuthChallengeMessage &msg)
@@ -361,7 +385,7 @@ void Service::sendNewChannelsListToServer(const QList<ChannelMetadata> &channels
     this->channels = channels;
 
     ClientSetChannel msg;
-    for (auto channelMetadata : channels) {
+    for (const auto& channelMetadata : channels) {
         msg.addChannel(channelMetadata.name, ClientSetChannel::toFlags(channelMetadata.voiceChatActivated));
     }
 
@@ -462,25 +486,24 @@ void Service::setInitialBpmBpi(quint16 bpm, quint16 bpi)
 }
 
 // +++++++++++++ SERVER MESSAGE HANDLERS +++++++++++++=
-void Service::handleUserChannels(const User &remoteUser)
+void Service::handleUserChannels(const QString &userFullName, const QList<UserChannel> &remoteChannels)
 {
-    // check for new channels
-    const User &localUser = currentServer->getUser(remoteUser.getFullName());
-    for (const UserChannel &serverChannel : remoteUser.getChannels()) {
+    const User& localUser = currentServer->getOrCreateUser(userFullName);
+    for (const UserChannel &serverChannel : remoteChannels) {
         if (serverChannel.isActive()) {
             if (!localUser.hasChannel(serverChannel.getIndex())) {
-                currentServer->addUserChannel(remoteUser.getFullName(), serverChannel);
+                currentServer->addUserChannel(userFullName, serverChannel);
                 emit userChannelCreated(localUser, serverChannel);
             } else { // check for channel updates
                 if (localUser.hasChannels()) {
                     if (channelIsOutdate(localUser, serverChannel)) {
-                        currentServer->updateUserChannel(remoteUser.getFullName(), serverChannel);
+                        currentServer->updateUserChannel(userFullName, serverChannel);
                         emit userChannelUpdated(localUser, serverChannel);
                     }
                 }
             }
         } else {
-            currentServer->removeUserChannel(remoteUser.getFullName(), serverChannel);
+            currentServer->removeUserChannel(userFullName, serverChannel);
             emit userChannelRemoved(localUser, serverChannel);
         }
     }
@@ -490,13 +513,13 @@ void Service::handleUserChannels(const User &remoteUser)
 bool Service::channelIsOutdate(const User &user, const UserChannel &serverChannel)
 {
     //if (user.getFullName() == serverChannel.getUserFullName()) {
-        if (user.hasChannel(serverChannel.getIndex())) {
-            UserChannel userChannel = user.getChannel(serverChannel.getIndex());
-            return userChannel.getName() != serverChannel.getName()
-                    || userChannel.getFlags() != serverChannel.getFlags();
-        }
+    bool result = false;
+    user.visitChannel(serverChannel.getIndex(), [&](const UserChannel& userChannel) {
+        result = userChannel.getName() != serverChannel.getName() ||
+                userChannel.getFlags() != serverChannel.getFlags();
+    });
     //}
-    return false;
+    return result;
 }
 
 // +++++++++++++ CHAT MESSAGES ++++++++++++++++++++++

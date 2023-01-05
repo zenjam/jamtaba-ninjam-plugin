@@ -12,6 +12,7 @@
 #include <QSlider>
 #include <QPainter>
 #include <QDesktopWidget>
+#include <QPainterPath>
 
 LocalTrackViewStandalone::LocalTrackViewStandalone(controller::MainControllerStandalone *mainController, int channelIndex) :
     LocalTrackView(mainController, channelIndex),
@@ -50,8 +51,7 @@ LocalTrackViewStandalone::LocalTrackViewStandalone(controller::MainControllerSta
 
     inputSelectionButton->installEventFilter(this);
 
-    auto inputNode = getInputNode();
-    connect(inputNode, &audio::LocalInputNode::midiNoteLearned, this, &LocalTrackViewStandalone::useLearnedMidiNote);
+    connect(inputNode.data(), &audio::LocalInputNode::midiNoteLearned, this, &LocalTrackViewStandalone::useLearnedMidiNote);
 
     translateUI();
 }
@@ -298,7 +298,6 @@ void LocalTrackViewStandalone::openMidiToolsDialog()
 {
     if (!midiToolsDialog) {
         qCDebug(jtGUI) << "Creating a new MidiToolsDialog!";
-        auto inputNode = getInputNode();
         QString higherNote = getMidiNoteText(inputNode->getMidiHigherNote());
         QString lowerNote = getMidiNoteText(inputNode->getMidiLowerNote());
         qint8 transpose = inputNode->getTranspose();
@@ -339,7 +338,6 @@ void LocalTrackViewStandalone::toggleMidiNoteLearn(bool buttonClicked)
 
 void LocalTrackViewStandalone::startMidiNoteLearn()
 {
-    auto inputNode = getInputNode();
     if (inputNode) {
         inputNode->startMidiNoteLearn();
     }
@@ -347,7 +345,6 @@ void LocalTrackViewStandalone::startMidiNoteLearn()
 
 void LocalTrackViewStandalone::stopMidiNoteLearn()
 {
-    auto inputNode = getInputNode();
     if (inputNode) {
         inputNode->stopMidiNoteLearn();
     }
@@ -355,7 +352,6 @@ void LocalTrackViewStandalone::stopMidiNoteLearn()
 
 void LocalTrackViewStandalone::setTranspose(qint8 transposeValue)
 {
-     auto inputNode = getInputNode();
      if (inputNode) {
          inputNode->setTranspose(transposeValue);
      }
@@ -363,7 +359,6 @@ void LocalTrackViewStandalone::setTranspose(qint8 transposeValue)
 
 void LocalTrackViewStandalone::setMidiHigherNote(const QString &higherNote)
 {
-    auto inputNode = getInputNode();
     if (inputNode) {
         quint8 noteNumber = getMidiNoteNumber(higherNote);
         inputNode->setMidiHigherNote(noteNumber);
@@ -372,7 +367,6 @@ void LocalTrackViewStandalone::setMidiHigherNote(const QString &higherNote)
 
 void LocalTrackViewStandalone::setMidiLowerNote(const QString &lowerNote)
 {
-    auto inputNode = getInputNode();
     if (inputNode) {
         quint8 noteNumber = getMidiNoteNumber(lowerNote);
         inputNode->setMidiLowerNote(noteNumber);
@@ -438,7 +432,7 @@ void LocalTrackViewStandalone::onMidiToolsDialogClosed()
     qCDebug(jtGUI) << "MidiToolsDialog pointer cleared!";
 }
 
-void LocalTrackViewStandalone::addPlugin(audio::Plugin *plugin, quint32 slotIndex, bool bypassed)
+void LocalTrackViewStandalone::addPlugin(const QSharedPointer<audio::Plugin> &plugin, quint32 slotIndex, bool bypassed)
 {
     if (fxPanel) {
         plugin->setBypass(bypassed);
@@ -453,9 +447,9 @@ qint32 LocalTrackViewStandalone::getPluginFreeSlotIndex() const
     return fxPanel->getPluginFreeSlotIndex();
 }
 
-QList<const audio::Plugin *> LocalTrackViewStandalone::getInsertedPlugins() const
+QList<QSharedPointer<audio::Plugin>> LocalTrackViewStandalone::getInsertedPlugins() const
 {
-    QList<const audio::Plugin *> plugins;
+    QList<QSharedPointer<audio::Plugin>> plugins;
     if (fxPanel) { // can be nullptr in vst plugin
         for (auto item : fxPanel->getItems()) {
             if (item->containPlugin())
@@ -611,7 +605,6 @@ QMenu *LocalTrackViewStandalone::createMidiInputsMenu(QMenu *parent)
             allChannelsAction->setData(QString(QString::number(d) + ":" + QString::number(-1))); // use -1 to all channels
             allChannelsAction->setActionGroup(actionGroup);
             allChannelsAction->setCheckable(true);
-            auto inputNode = getInputNode();
             allChannelsAction->setChecked(
                 inputNode->isMidi() && inputNode->getMidiDeviceIndex() == d
                 && inputNode->isReceivingAllMidiChannels());

@@ -64,9 +64,7 @@ bool RoomInfo::hasPreferredUserCredentials() const
 }
 
 QString RoomInfo::getUniqueName() const {
-    return QString("%1:%2")
-            .arg(getName())
-            .arg(QString::number(getPort()));
+    return QString("%1:%2").arg(getName(), QString::number(getPort()));
 }
 
 int RoomInfo::getNonBotUsersCount() const
@@ -95,7 +93,7 @@ LoginService::LoginService(QObject *parent) :
         httpClient.get(QNetworkRequest(QUrl(LOGIN_SERVER_URL)));
     });
 
-    connect(&httpClient, &QNetworkAccessManager::finished, [=](QNetworkReply *reply){
+    connect(&httpClient, &QNetworkAccessManager::finished, this, [=](QNetworkReply *reply){
         handleJson(reply->readAll());
     });
 
@@ -122,9 +120,9 @@ void LoginService::handleServersJson(const QJsonObject &root)
 }
 void LoginService::handleVersionJson(const QJsonObject &root)
 {
-    auto versionTag = root.contains("version") ? root["version"].toString() : "error";
-    auto versionDetails = root.contains("details") ? root["details"].toString() : "error";
-    auto publicationDate = root.contains("published_at") ? root["published_at"].toString() : "";
+    auto versionTag = root.value("version").toString("error");
+    auto versionDetails = root.value("details").toString("error");
+    auto publicationDate = root.value("published_at").toString("");
 
     auto currentVersion = loginserver::Version::fromString(VERSION);
     auto latestVersion = loginserver::Version::fromString(versionTag);
@@ -153,7 +151,7 @@ int getServerPort(const QString &serverName) {
     auto index = serverName.lastIndexOf(":");
 
     if (index) {
-        return serverName.right(serverName.size() - (index + 1)).toInt();
+        return serverName.rightRef(serverName.size() - (index + 1)).toInt();
     }
 
     return port;
@@ -184,25 +182,27 @@ int getServerGuessedMaxUsers(const QString &serverName, int serverPort) {
 
 RoomInfo LoginService::buildRoomInfoFromJson(const QJsonObject &jsonObject)
 {
-    auto serverNameText = jsonObject.contains("name") ? jsonObject["name"].toString() : QString("Error");
+    auto serverNameText = jsonObject.value("name").toString("Error");
     auto name =  getServerName(serverNameText);
     int port = getServerPort(serverNameText);
     int maxUsers = jsonObject.contains("user_max") ? jsonObject["user_max"].toString().toInt() : getServerGuessedMaxUsers(name, port);
     if (name.contains(QRegExp("discordonlinejammingcentral|mutant"))) maxUsers--; // ugly hack to get bots subtracted from maxusers in jamroomview
-    auto streamLink = jsonObject.contains("stream") ? jsonObject["stream"].toString() : QString("");
+    auto streamLink = jsonObject.value("stream").toString("");
     int bpi = jsonObject.contains("bpi") ? jsonObject["bpi"].toString().toInt() : 16;
     int bpm = jsonObject.contains("bpm") ? jsonObject["bpm"].toString().toInt() : 120;
 
-    auto usersArray = jsonObject.contains("users") ? jsonObject["users"].toArray() : QJsonArray();
+    auto usersArray = jsonObject.value("users").toArray();
+
     QList<UserInfo> users;
+    users.reserve(usersArray.size());
     for (int i = 0; i < usersArray.size(); ++i) {
         auto userObject = usersArray[i].toObject();
-        auto userName = userObject.contains("name") ? userObject["name"].toString() : QString("Error");
-        auto userIp = userObject.contains("ip") ? userObject["ip"].toString() : QString("Error");
-        float latitude = userObject.contains("lat") ? userObject["lat"].toString().toFloat() : 0;
-        float longitude = userObject.contains("lon") ? userObject["lon"].toString().toFloat() : 0;
-        auto countryName = userObject.contains("country") ? userObject["country"].toString() : QString("");
-        auto countryCode = userObject.contains("co") ? userObject["co"].toString() : QString("");
+        auto userName = userObject.value("name").toString("Error");
+        auto userIp = userObject.value("ip").toString("Error");
+        float latitude = userObject.value("lat").toString("0").toFloat();
+        float longitude = userObject.value("lon").toString("0").toFloat();
+        auto countryName = userObject.value("country").toString("");
+        auto countryCode = userObject.value("co").toString("");
         users.append(login::UserInfo(userName, userIp, countryName, countryCode, latitude, longitude));
     }
     return RoomInfo(name, port, maxUsers, users, 0, bpi, bpm, streamLink);

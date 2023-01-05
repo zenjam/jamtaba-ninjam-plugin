@@ -5,6 +5,7 @@
 #include <QMutex>
 #include <QMap>
 #include <QScopedPointer>
+#include <QSharedPointer>
 #include "audio/SamplesBufferResampler.h"
 
 namespace midi {
@@ -27,15 +28,15 @@ public:
     explicit AudioMixer(int sampleRate);
     ~AudioMixer();
     void process(const SamplesBuffer &in, SamplesBuffer &out, int sampleRate, const std::vector<midi::MidiMessage> &midiBuffer, bool attenuateAfterSumming = false);
-    void addNode(AudioNode *node);
-    void removeNode(AudioNode *node);
+    void addNode(QSharedPointer<AudioNode> node);
+    void removeNode(QSharedPointer<AudioNode> node);
 
     void setSampleRate(int newSampleRate);
 
 private:
-    QList<AudioNode *> nodes;
+    QList<QSharedPointer<AudioNode>> nodes;
     int sampleRate;
-    QMap<AudioNode *, SamplesBufferResampler> resamplers;
+    QMap<QSharedPointer<AudioNode>, SamplesBufferResampler> resamplers;
 
 };
 

@@ -64,7 +64,7 @@ NinjamTrackView::NinjamTrackView(MainController *mainController, long trackID) :
 
     setupVerticalLayout();
 
-    setActivatedStatus(true); // disabled/grayed until receive the first bytes.
+    BaseTrackView::setActivatedStatus(true); // disabled/grayed until receive the first bytes.
 
     voiceChatIcon = IconFactory::createVoiceChatIcon();
 }
@@ -139,16 +139,11 @@ void NinjamTrackView::setReceiveState(bool receive)
 
     // send a message to ninjam server disabling channel receive status
     mainController->setChannelReceiveStatus(userFullName, channelIndex, receive);
-
-    // stop rendering downloaded audio
-    auto trackNode = getTrackNode();
-    if (trackNode)
-        trackNode->stopDecoding();
 }
 
-NinjamTrackNode *NinjamTrackView::getTrackNode() const
+QSharedPointer<NinjamTrackNode> NinjamTrackView::getTrackNode() const
 {
-    return dynamic_cast<NinjamTrackNode*>(mainController->getTrackNode(getTrackID()));
+    return mainController->getTrackNode(getTrackID()).dynamicCast<NinjamTrackNode>();
 }
 
 QPushButton *NinjamTrackView::createReceiveButton() const
@@ -299,8 +294,8 @@ void NinjamTrackView::updateGuiElements()
         auto trackNode = getTrackNode();
         if (trackNode) {
             toolTipText += QString(" (%1, %2 KHz)")
-                    .arg(trackNode->isStereo() ? tr("Stereo") : tr("Mono"))
-                    .arg(QString::number(trackNode->getSampleRate()/1000.0, 'f', 1));
+                    .arg(trackNode->isStereo() ? tr("Stereo") : tr("Mono"),
+                         QString::number(trackNode->getSampleRate()/1000.0, 'f', 1));
         }
 
         networkUsageLabel->setToolTip(toolTipText);
@@ -322,12 +317,15 @@ void NinjamTrackView::setActivatedStatus(bool deactivated)
     BaseTrackView::setActivatedStatus(deactivated);
 
     if (deactivated) { // remote user stop xmiting and the track is greyed/unlighted?
-        auto trackNode = getTrackNode();
-        if (trackNode)
-            trackNode->resetLastPeak(); // reset the internal node last peak to avoid getting the last peak calculated when the remote user was transmiting.
-
         downloadingFirstInterval = true; // waiting for the first interval
         chunksDisplay->reset();
+    }
+
+    // stop rendering downloaded audio
+    auto trackNode = getTrackNode();
+    if (trackNode) {
+        trackNode->setReceiveState(!deactivated);
+        trackNode->resetLastPeak(); // reset the internal node last peak to avoid getting the last peak calculated when the remote user was transmiting.
     }
 }
 

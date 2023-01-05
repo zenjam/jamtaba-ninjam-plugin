@@ -42,12 +42,12 @@ void PortAudioDriver::configureHostSpecificOutputParameters(PaStreamParameters& 
 void PortAudioDriver::releaseHostSpecificParameters(const PaStreamParameters &inputParameters, const PaStreamParameters &outputParameters){
     if(inputParameters.hostApiSpecificStreamInfo){
         PaAsioStreamInfo* asioInputStreamInfo = (PaAsioStreamInfo*)inputParameters.hostApiSpecificStreamInfo;
-        delete asioInputStreamInfo->channelSelectors;
+        delete[] asioInputStreamInfo->channelSelectors;
         delete asioInputStreamInfo;
     }
     if(outputParameters.hostApiSpecificStreamInfo){
         PaAsioStreamInfo* asioOutputStreamInfo = (PaAsioStreamInfo*)outputParameters.hostApiSpecificStreamInfo;
-        delete asioOutputStreamInfo->channelSelectors;
+        delete[] asioOutputStreamInfo->channelSelectors;
         delete asioOutputStreamInfo;
     }
 }
@@ -78,8 +78,13 @@ QString PortAudioDriver::getInputChannelName(const unsigned int index) const{
     */
 
     const char *channelName = nullptr;
-    PaAsio_GetInputChannelName(audioInputDeviceIndex, index, &channelName);
-    if(channelName){
+    PaError status = PaAsio_GetInputChannelName(audioInputDeviceIndex, index, &channelName);
+    if (status != paNoError) {
+        qCWarning(jtAudio) << "Failed get input channel name: " << index
+                           << " reason: " << Pa_GetErrorText(status);
+        return QString("Error: ") + Pa_GetErrorText(status);
+    }
+    if (channelName) {
         return QString(channelName);
     }
     return "Error";
@@ -88,8 +93,13 @@ QString PortAudioDriver::getInputChannelName(const unsigned int index) const{
 QString PortAudioDriver::getOutputChannelName(const unsigned int index) const
 {
     const char *channelName = nullptr;
-    PaAsio_GetOutputChannelName(audioOutputDeviceIndex, index, &channelName);
-    if(channelName){
+    PaError status = PaAsio_GetOutputChannelName(audioOutputDeviceIndex, index, &channelName);
+    if (status != paNoError) {
+        qCWarning(jtAudio) << "Failed get output channel name: " << index
+                           << " reason: " << Pa_GetErrorText(status);
+        return QString("Error: ") + Pa_GetErrorText(status);
+    }
+    if (channelName) {
         return QString(channelName);
     }
     return "Error";

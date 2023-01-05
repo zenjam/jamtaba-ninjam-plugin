@@ -17,7 +17,7 @@ public:
     FFMpegDemuxer(QObject *parent, const QByteArray &encodedData);
     ~FFMpegDemuxer();
 
-    void decode();
+    bool decode();
 
 signals:
     void imagesDecoded(QList<QImage> images, uint frameRate);

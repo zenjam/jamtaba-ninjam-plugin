@@ -4,6 +4,7 @@
 #include <QFrame>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QPainterPath>
 
 namespace Ui {
 class ChatMessagePanel;

@@ -8,6 +8,8 @@
 #include <QTimer>
 
 #include "ninjam/Ninjam.h"
+#include "ninjam/client/ClientMessages.h"
+#include "ninjam/client/ServerMessages.h"
 #include "ninjam/client/User.h"
 
 #include <functional>
@@ -23,7 +25,11 @@ namespace server {
 
 using ninjam::client::User;
 using ninjam::client::UserChannel;
+using ninjam::client::ClientAuthUserMessage;
 using ninjam::client::ClientToServerChatMessage;
+using ninjam::client::ClientSetChannel;
+using ninjam::client::UploadIntervalBegin;
+using ninjam::client::DownloadIntervalWrite;
 
 class RemoteUser : public User
 {
@@ -172,6 +178,9 @@ private:
     VotingMap bpmVotings;
     VotingMap bpiVotings;
 
+    void broadcastNetworkData(const QByteArray& messageData, QTcpSocket *excludeSocket = nullptr);
+    void broadcastNetworkMessage(const INetworkMessage& message, QTcpSocket *excludeSocket = nullptr);
+
     void broadcastUserChanges(const QString userFullName, const QList<UserChannel> &userChannels);
     void sendConnectedUsersTo(QTcpSocket *socket);
     void broadcastPublicChatMessage(const ClientToServerChatMessage &receivedMessage, const QString &userFullName);
@@ -184,12 +193,12 @@ private:
     Voting *createBpiVoting();
     Voting *createBpmVoting();
 
-    void processClientAuthUserMessage(QTcpSocket *socket, const MessageHeader &header);
-    void processClientSetChannel(QTcpSocket *socket, const MessageHeader &header);
-    void processUploadIntervalBegin(QTcpSocket *socket, const MessageHeader &header);
-    void processUploadIntervalWrite(QTcpSocket *socket, const MessageHeader &header);
-    void processChatMessage(QTcpSocket *socket, const MessageHeader &header);
-    void processKeepAlive(QTcpSocket *socket, const MessageHeader &header);
+    void processClientAuthUserMessage(QTcpSocket *socket, const ClientAuthUserMessage& msg);
+    void processClientSetChannel(QTcpSocket *socket, const ClientSetChannel& msg);
+    void processUploadIntervalBegin(QTcpSocket *socket, const UploadIntervalBegin &msg);
+    void processUploadIntervalWrite(QTcpSocket *socket, const DownloadIntervalWrite &msg);
+    void processChatMessage(QTcpSocket *socket, const ClientToServerChatMessage &msg);
+    void processKeepAlive(QTcpSocket *socket);
     void processClientSetUserMask(QTcpSocket *socket, const MessageHeader &header);
 
     void sendServerInitialInfosTo(QTcpSocket *socket);

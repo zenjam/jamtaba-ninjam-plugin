@@ -12,8 +12,8 @@ class UPnPManager : public QObject
 public:
     UPnPManager();
     ~UPnPManager();
-    void openPort(quint16 port);
-    void closePort(quint16 port);
+    bool openPort(quint16 port);
+    bool closePort(quint16 port);
     QString getExternalIp() const;
 
 signals:

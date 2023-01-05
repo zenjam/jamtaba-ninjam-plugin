@@ -22,31 +22,31 @@ public:
     ~JamTabaVSTPlugin();
 
     //void initialize();    // called first time editor is opened
-    VstInt32 canDo(char *text);
-    void processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames);
+    VstInt32 canDo(char *text) override;
+    void processReplacing(float **inputs, float **outputs, VstInt32 sampleFrames) override;
 
-    VstInt32 fxIdle();
-    bool needIdle();
+    VstInt32 fxIdle() override;
+    bool needIdle() override;
 
     QString getHostName() override;
 
-    bool getEffectName(char *name);
-    bool getVendorString(char *text);
-    bool getProductString(char *text);
-    VstInt32 getVendorVersion();
+    bool getEffectName(char *name) override;
+    bool getVendorString(char *text) override;
+    bool getProductString(char *text) override;
+    VstInt32 getVendorVersion() override;
 
-    VstInt32 getNumMidiInputChannels();
-    VstInt32 getNumMidiOutputChannels();
+    VstInt32 getNumMidiInputChannels() override;
+    VstInt32 getNumMidiOutputChannels() override;
 
-    void open();
+    void open() override;
     void close() override;
     void setSampleRate(float sampleRate) override;
     float getSampleRate() const override;
 
-    inline VstPlugCategory getPlugCategory();
+    inline VstPlugCategory getPlugCategory() override;
 
-    void suspend();
-    void resume();
+    void suspend() override;
+    void resume() override;
 
     int getHostBpm() const override;
 

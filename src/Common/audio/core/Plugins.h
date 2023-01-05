@@ -25,7 +25,7 @@ public:
     explicit Plugin(const PluginDescriptor &pluginDescriptor);
     virtual ~Plugin();
 
-    virtual QString getName() const;
+    const QString& getName() const;
 
     virtual void closeEditor();
     virtual void start() = 0;
@@ -49,7 +49,7 @@ inline PluginDescriptor Plugin::getDescriptor() const
     return descriptor;
 }
 
-inline QString Plugin::getName() const
+inline const QString& Plugin::getName() const
 {
     return name;
 }
@@ -86,7 +86,7 @@ public:
     void resume() override;
 
 private:
-    void setSampleRate(int newSampleRate) override;
+    void setSampleRate(int newSampleRate) override final;
 
     static const int MAX_DELAY_IN_SECONDS;
     int delayTimeInSamples;

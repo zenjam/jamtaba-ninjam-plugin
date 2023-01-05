@@ -1,4 +1,4 @@
-#include <Windows.h>
+#include <windows.h>
 #include "StackWalker.h"
 
 class WindowsStackWalker :public StackWalker

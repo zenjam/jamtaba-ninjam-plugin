@@ -6,7 +6,7 @@
 
 namespace audio {
 
-class PortAudioDriver : public AudioDriver
+class PortAudioDriver final : public AudioDriver
 {
 
 public:

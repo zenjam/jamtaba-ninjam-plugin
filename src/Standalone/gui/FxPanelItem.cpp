@@ -68,7 +68,7 @@ void FxPanelItem::updateStyleSheet()
     update();
 }
 
-void FxPanelItem::setPlugin(audio::Plugin *plugin)
+void FxPanelItem::setPlugin(const QSharedPointer<audio::Plugin> &plugin)
 {
     this->plugin = plugin;
     this->label->setText(plugin->getName());
@@ -100,7 +100,7 @@ void FxPanelItem::mousePressEvent(QMouseEvent *event)
             on_contextMenu(event->pos());
         } else {
             if (plugin)
-                showPluginGui(plugin);
+                showPluginGui(plugin.get());
         }
     }
 }
@@ -197,7 +197,7 @@ void FxPanelItem::loadSelectedPlugin()
         auto plugin = mainController->addPlugin(trackIndex, pluginSlotIndex, descriptor);
         if (plugin) {
             localTrackView->addPlugin(plugin, pluginSlotIndex);
-            showPluginGui(plugin);
+            showPluginGui(plugin.get());
 
             // if newProcessor is the first added processor, and is a virtual instrument (VSTi), and the subchannel is 'no input' then change the input selection to midi
             if (pluginSlotIndex == 0 && plugin->isVirtualInstrument()) {

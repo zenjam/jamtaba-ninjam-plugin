@@ -24,7 +24,7 @@ persistence::Preset MainControllerPlugin::loadPreset(const QString &name)
 }
 
 
-int MainControllerPlugin::addInputTrackNode(audio::LocalInputNode *inputTrackNode)
+int MainControllerPlugin::addInputTrackNode(QSharedPointer<audio::LocalInputNode> inputTrackNode)
 {
     int inputTrackID = MainController::addInputTrackNode(inputTrackNode);
 

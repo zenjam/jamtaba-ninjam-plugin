@@ -44,13 +44,14 @@ const int JamtabaDelay::MAX_DELAY_IN_SECONDS = 3;
 
 JamtabaDelay::JamtabaDelay(int sampleRate) :
     Plugin(PluginDescriptor("Delay", PluginDescriptor::Native_Plugin, "JamTaba")),
+    delayTimeInSamples(sampleRate / 2),
     delayTimeInMs(0),
-    internalBuffer(new SamplesBuffer(2)) // 2 channels, 3 seconds delay
+    feedbackGain(0.3f), // feedback start in this gain
+    level(1),
+    internalIndex(0),
+    sampleRate(sampleRate),
+    internalBuffer(new SamplesBuffer(2, delayTimeInSamples)) // 2 channels, 3 seconds delay
 {
-    internalIndex = 0;
-    feedbackGain = 0.3f;// feedback start in this gain
-    level = 1;
-    setSampleRate(sampleRate);
 }
 
 QByteArray JamtabaDelay::getSerializedData() const

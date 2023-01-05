@@ -117,7 +117,7 @@ public:
         return settings.getTheme();
     }
 
-    bool addTrack(long trackID, AudioNode *trackNode);
+    bool addTrack(long trackID, QSharedPointer<audio::AudioNode> trackNode);
     void removeTrack(long trackID);
 
     void playRoomStream(const RoomInfo &roomInfo);
@@ -177,18 +177,18 @@ public:
 
     void setMasterGain(float newGain);
 
-    AudioNode *getTrackNode(long ID);
+    QSharedPointer<audio::AudioNode> getTrackNode(long ID) const;
 
     bool isStarted() const;
 
     login::Location getGeoLocation(const QString &ip);
 
-    LocalInputNode *getInputTrack(int localInputIndex);
-    virtual int addInputTrackNode(LocalInputNode *inputTrackNode);
+    QSharedPointer<LocalInputNode> getInputTrack(int localInputIndex);
+    virtual int addInputTrackNode(QSharedPointer<LocalInputNode> inputTrackNode);
     void removeInputTrackNode(int inputTrackIndex);
     void removeAllInputTracks();
 
-    LocalInputNode *getInputTrackInGroup(quint8 groupIndex, quint8 trackIndex) const;
+    QSharedPointer<LocalInputNode> getInputTrackInGroup(quint8 groupIndex, quint8 trackIndex) const;
 
     int getInputTracksCount() const;
     int getInputTrackGroupsCount() const;
@@ -354,7 +354,7 @@ protected:
 
     Settings settings;
 
-    QMap<int, LocalInputNode *> inputTracks;
+    QMap<int, QSharedPointer<LocalInputNode>> inputTracks;
 
     virtual controller::NinjamController *createNinjamController() = 0;
 
@@ -364,7 +364,7 @@ protected:
     QMap<quint8, UploadIntervalData> audioIntervalsToUpload;
     QScopedPointer<UploadIntervalData> videoIntervalToUpload;
 
-    QMutex mutex;
+    mutable QMutex mutex;
 
     virtual void setupNinjamControllerSignals();
 
@@ -383,14 +383,14 @@ protected:
 private:
     void setAllTracksActivation(bool activated);
 
-    QScopedPointer<AbstractMp3Streamer> roomStreamer;
+    QSharedPointer<AbstractMp3Streamer> roomStreamer;
     QString currentStreamingRoomID;
 
-    QMap<int, LocalInputGroup *> trackGroups;
+    QMap<int, QSharedPointer<LocalInputGroup>> trackGroups;
 
     QMap<int, bool> getXmitChannelsFlags() const;
 
-    QMap<long, AudioNode *> tracksNodes;
+    QMap<long, QSharedPointer<AudioNode>> tracksNodes;
 
     bool started;
 

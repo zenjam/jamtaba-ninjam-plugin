@@ -127,8 +127,8 @@ void NinjamTrackGroupView::addVideoInterval(const QByteArray &encodedVideoData)
 
     // hide the video (2nd) channel
     if (trackViews.size() > 1) {
-        auto audioChannel = getTracks<NinjamTrackView *>().at(0);
-        auto videoChannel = getTracks<NinjamTrackView *>().at(1);
+        auto audioChannel = getTrack<NinjamTrackView>(0);
+        auto videoChannel = getTrack<NinjamTrackView>(1);
         if (videoChannel->isVideoChannel()) {
             videoChannel->setVisible(false);
 
@@ -259,9 +259,9 @@ void NinjamTrackGroupView::updateGeoLocation()
 
 void NinjamTrackGroupView::setEstimatedChunksPerInterval(int estimatedChunks)
 {
-    for (NinjamTrackView * track : getTracks<NinjamTrackView *>()) {
+    visitTracks<NinjamTrackView>([&](NinjamTrackView *track) {
         track->setEstimatedChunksPerInterval(estimatedChunks);
-    }
+    });
 }
 
 QString NinjamTrackGroupView::getRgbaColorString(const QColor &color, int alpha)
@@ -275,11 +275,10 @@ QString NinjamTrackGroupView::getRgbaColorString(const QColor &color, int alpha)
 void NinjamTrackGroupView::setTracksLayout(TracksLayout newLayout)
 {
     tracksLayoutEnum = newLayout;
-    auto tracks = getTracks<NinjamTrackView *>();
     Qt::Orientation orientation = getTracksOrientation();
-    for (NinjamTrackView *track : tracks) {
+    visitTracks<NinjamTrackView>([&](NinjamTrackView *track) {
         track->setOrientation(orientation);
-    }
+    });
 
     if (newLayout == TracksLayout::HorizontalLayout) {
         setupHorizontalLayout();
@@ -449,7 +448,7 @@ Qt::Orientation NinjamTrackGroupView::getTracksOrientation() const
 
 void NinjamTrackGroupView::setNarrowStatus(bool narrow)
 {
-    auto containsVideoChannel = trackViews.size() > 1 && getTracks<NinjamTrackView *>().at(1)->isVideoChannel();
+    auto containsVideoChannel = trackViews.size() > 1 && getTrack<NinjamTrackView>(1)->isVideoChannel();
     auto setToWide = (!narrow && trackViews.size() <= 1) || containsVideoChannel;
 
     for (auto trackView : trackViews) {

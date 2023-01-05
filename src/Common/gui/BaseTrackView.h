@@ -2,6 +2,7 @@
 #define TRACKVIEW_H
 
 #include "audio/core/AudioPeak.h"
+#include "audio/core/AudioNode.h"
 #include "widgets/Slider.h"
 
 #include <QFrame>
@@ -89,7 +90,7 @@ protected:
     virtual void setPeaks(float peakLeft, float peakRight, float rmsLeft, float rmsRight);
 
     // this is called in inherited classes [LocalTrackView, NinjamTrackView]
-    virtual void bindThisViewWithTrackNodeSignals();
+    void bindThisViewWithTrackNodeSignals(audio::AudioNode* inputNode);
 
     void createLayoutStructure();
 

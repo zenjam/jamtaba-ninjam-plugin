@@ -134,6 +134,7 @@ void FFMpegMuxer::encodeImage(const QImage &image, bool async)
 
         if (encodeVideo && !image.isNull())
             encodeVideo = !doEncodeVideoFrame(image);
+        return 0;
     };
 
     if (async)
@@ -184,19 +185,19 @@ bool FFMpegMuxer::prepareToEncodeNewInterval()
     return initialized;
 }
 
-void FFMpegMuxer::finishCurrentInterval()
+bool FFMpegMuxer::finishCurrentInterval()
 {
     if (!initialized)
-        return;
+        return false;
 
     if (!codecContext || (codecContext && !avcodec_is_open(codecContext))) {
-        return;
+        return false;
     }
 
     if (audioStream) {
         if (!audioStream->stream->codec || !avcodec_is_open(audioStream->stream->codec)) {
             qCritical() << "audio codec is null or not opened!";
-            return;
+            return false;
         }
     }
 
@@ -232,6 +233,7 @@ void FFMpegMuxer::finishCurrentInterval()
     }
 
     emit encodingFinished();
+    return true;
 }
 
 bool FFMpegMuxer::addVideoStream(AVCodecID codecID, AVDictionary **opts)

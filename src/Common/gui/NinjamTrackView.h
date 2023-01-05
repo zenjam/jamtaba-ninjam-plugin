@@ -90,7 +90,7 @@ private:
 
     QPushButton *createReceiveButton() const;
 
-    NinjamTrackNode *getTrackNode() const;
+    QSharedPointer<NinjamTrackNode> getTrackNode() const;
 
     InstrumentsButton *createInstrumentsButton();
 

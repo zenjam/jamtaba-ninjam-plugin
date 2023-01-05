@@ -14,7 +14,7 @@ Q_IMPORT_PLUGIN(DSServicePlugin) // necessary to use QCamera inside VST Plugin
 extern AudioEffect *createEffectInstance(audioMasterCallback audioMaster);
 
 extern "C" {
-#define VST_EXPORT _declspec(dllexport)
+#define VST_EXPORT __declspec(dllexport)
 // #define VST_EXPORT
 
 // ------------------------------------------------------------------------
