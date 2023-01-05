@@ -12,6 +12,15 @@
 
 using vst::VstHost;
 
+template<size_t MAX_SIZE, class T>
+static void CopyFixedSizeString(void* ptr, const T& stringValue)
+{
+    static_assert(std::is_array<T>::value && std::is_same<T, char[sizeof(T)]>::value,
+            "SafeCopyFixedString: wrong string type");
+    static_assert(sizeof(T) < MAX_SIZE, "SafeCopyFixedString: found too long string");
+    memcpy(ptr, &stringValue, sizeof(T));
+}
+
 QScopedPointer<VstHost> VstHost::hostInstance;
 
 VstHost *VstHost::getInstance()
@@ -178,11 +187,11 @@ VstIntPtr VSTCALLBACK VstHost::hostCallback(AEffect *effect, VstInt32 opcode, Vs
         return 2L;
 
     case audioMasterGetVendorString:  // 32
-        strcpy_s((char *)ptr, kVstMaxVendorStrLen, "www.jamtaba.com");
+        CopyFixedSizeString<kVstMaxVendorStrLen>(ptr, "www.jamtaba.com");
         return 1L;
 
     case audioMasterGetProductString:  // 33
-        strcpy_s((char *)ptr, kVstMaxProductStrLen, "Jamtaba II");
+        CopyFixedSizeString<kVstMaxProductStrLen>(ptr, "Jamtaba II");
         return 1L;
 
     case audioMasterGetVendorVersion:  // 34
