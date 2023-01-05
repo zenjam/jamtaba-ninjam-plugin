@@ -1,4 +1,4 @@
-name: Build ALL / Windows 32 bit (x86)
+name: Build everything for Windows 32 bit (x86)
 
 on:
   workflow_dispatch:
@@ -8,12 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: defter/jamtaba-win32:latest
+
     steps:
       - name: Chekout
-      - uses: actions/checkout@v3
-      
+        uses: actions/checkout@v3
+
       - name: Build
-      - shell: bash
+        shell: bash
         run: |
           cd ./PROJECTS
           qmake . CONFIG+=release
