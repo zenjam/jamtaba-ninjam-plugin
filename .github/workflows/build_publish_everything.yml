@@ -13,11 +13,14 @@ on:
         required: true
 
 jobs:
-  job_create_release:
-    name: Create release
+  job_create_release_draft:
+    name: Create release draft
     runs-on: ubuntu-latest
+    outputs: 
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
     steps:
-      - name: Create Release
+      - name: Create release draft
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -25,12 +28,12 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.version }}
           release_name: JamTaba v${{ github.event.inputs.version }}
-          draft: false
+          draft: true
           prerelease: ${{ github.event.inputs.preRelease }}
 
   job_build_upload_win:
     name: Build and upload for Windows
-    needs: job_create_release
+    needs: job_create_release_draft
     runs-on: ubuntu-latest
     container: 
       image: defter/jamtaba-${{ matrix.os }}:v5.15.7
@@ -69,7 +72,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.job_create_release.outputs.upload_url }}
+          upload_url: ${{ needs.job_create_release_draft.outputs.upload_url }}
           asset_path: Jamtaba.Standalone.${{ matrix.os }}.zip
           asset_name: Jamtaba.Standalone.${{ matrix.os }}.zip
           asset_content_type: application/zip
@@ -79,14 +82,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.job_create_release.outputs.upload_url }}
+          upload_url: ${{ needs.job_create_release_draft.outputs.upload_url }}
           asset_path: Jamtaba.VST.${{ matrix.os }}.zip
           asset_name: Jamtaba.VST.${{ matrix.os }}.zip
           asset_content_type: application/zip
 
   job_build_upload_linux:
     name: Build and upload for Linux
-    needs: job_create_release
+    needs: job_create_release_draft
     runs-on: ubuntu-latest
     container: 
       image: defter/jamtaba-linux:v5.15.7
@@ -113,7 +116,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.job_create_release.outputs.upload_url }}
+          upload_url: ${{ needs.job_create_release_draft.outputs.upload_url }}
           asset_path: Jamtaba.Standalone.linux.tar.gz
           asset_name: Jamtaba.Standalone.linux.tar.gz
           asset_content_type: application/gzip
+
+  job_remove_draft_flag:
+    name: Remove release draft flag
+    needs: [job_build_upload_win, job_build_upload_linux]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Remove release draft flag
+        shell: bash
+        run: |
+            echo "Done"
