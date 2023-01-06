@@ -108,9 +108,9 @@ jobs:
       - name: Create applications archive
         shell: bash
         run: |
-          cd ./PROJECTS/Standalone/release
+          cd ./PROJECTS/Standalone
           tar -cvzf Jamtaba.Standalone.linux.tar.gz Jamtaba2 VstScanner
-          mv Jamtaba.Standalone.linux.tar.gz ../../../
+          mv Jamtaba.Standalone.linux.tar.gz ../../
 
       - name: Upload applications archive
         uses: actions/upload-release-asset@v1
