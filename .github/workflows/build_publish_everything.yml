@@ -56,14 +56,14 @@ jobs:
       - name: Create applications archive
         uses: vimtor/action-zip@v1
         with:
-          files: ./PROJECTS/Standalone/release/Jamtaba2.exe ./PROJECTS/Standalone/release/VstScanner.exe
+          files: PROJECTS/Standalone/release/Jamtaba2.exe PROJECTS/Standalone/release/VstScanner.exe
           recursive: false
           dest: Jamtaba.Standalone.${{ matrix.os }}.zip
       
       - name: Create plugin archive
         uses: vimtor/action-zip@v1
         with:
-          files: ./PROJECTS/VstPlugin/release/JamtabaVST2.dll
+          files: PROJECTS/VstPlugin/release/JamtabaVST2.dll
           recursive: false
           dest: Jamtaba.VST.${{ matrix.os }}.zip
 
