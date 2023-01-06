@@ -65,7 +65,6 @@ jobs:
           dest: Jamtaba.VST.${{ matrix.os }}.zip
 
       - name: Upload applications archive
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,7 +75,6 @@ jobs:
           asset_content_type: application/zip
 
       - name: Upload plugin archive
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,7 +109,6 @@ jobs:
           tar -cvzf Jamtaba.Standalone.linux.tar.gz Jamtaba2 VstScanner
 
       - name: Upload applications archive
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
