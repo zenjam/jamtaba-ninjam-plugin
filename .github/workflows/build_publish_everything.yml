@@ -13,24 +13,23 @@ on:
         required: true
 
 jobs:
-  job_create_release_draft:
-    name: Create release draft
+  job_create_release:
+    name: Create release
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create release draft
+      - name: Create release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.event.inputs.version }}
           name: JamTaba v${{ github.event.inputs.version }}
-          prerelease: ${{ github.event.inputs.preRelease }}
-          draft: true
+          prerelease: true
 
   job_build_upload_win:
-    name: Build and upload for Windows
-    needs: job_create_release_draft
+    name: Build and upload
+    needs: job_create_release
     runs-on: ubuntu-latest
     container: 
       image: defter/jamtaba-${{ matrix.os }}:v5.15.7
@@ -74,12 +73,15 @@ jobs:
             Jamtaba.VST.${{ matrix.os }}.zip
 
   job_build_upload_linux:
-    name: Build and upload for Linux
-    needs: job_create_release_draft
+    name: Build and upload
+    needs: job_create_release
     runs-on: ubuntu-latest
     container: 
-      image: defter/jamtaba-linux:v5.15.7
-
+      image: defter/jamtaba-${{ matrix.os }}:v5.15.7
+    strategy:
+      matrix:
+        os:
+          - linux
     steps:
       - name: Chekout
         uses: actions/checkout@v3
@@ -95,25 +97,27 @@ jobs:
         shell: bash
         run: |
           cd ./PROJECTS/Standalone
-          tar -cvzf Jamtaba.Standalone.linux.tar.gz Jamtaba2 VstScanner
-          mv Jamtaba.Standalone.linux.tar.gz ../../
+          tar -cvzf Jamtaba.Standalone.${{ matrix.os }}.tar.gz Jamtaba2 VstScanner
+          mv Jamtaba.Standalone.${{ matrix.os }}.tar.gz ../../
 
       - name: Upload applications archive
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.event.inputs.version }}
-          files: Jamtaba.Standalone.linux.tar.gz
+          files: Jamtaba.Standalone.${{ matrix.os }}.tar.gz
 
-  job_remove_draft_flag:
-    name: Remove release draft flag
+  job_finalize_release:
+    name: Finalize release
+    if: always()
     needs: [job_build_upload_win, job_build_upload_linux]
     runs-on: ubuntu-latest
 
     steps:
-      - name: Remove release draft flag
+      - name: Complete release
+        if: success()
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ github.event.inputs.version }}
-          draft: false
+          prerelease: ${{ github.event.inputs.preRelease }}
