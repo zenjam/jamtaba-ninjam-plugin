@@ -267,6 +267,10 @@
         <source>That zone displays the waveform actually played</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Private Server</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LocalTrackGroupView</name>
@@ -968,28 +972,9 @@
         <source>Chords</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>MainWindowPlugin</name>
     <message>
-        <source>Window Size</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Increase</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Decrease</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation></translation>
+        <source>Public chat error - service is temporarily unavailable</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1180,6 +1165,18 @@
         <source>Accent pattern</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Send MIDI clock sync to devices selected in Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI Sync</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>NinjamRoomWindow</name>
@@ -1234,34 +1231,6 @@
     <message>
         <source>User chors</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>NinjamRoomWindowPlugin</name>
-    <message>
-        <source>Host sync</source>
-        <extracomment>This is the title of MessageDialot showed when user click in &quot;Sync with host&quot; button</extracomment>
-        <translation></translation>
-    </message>
-    <message>
-        <source>The BPM has changed! Please stop %1 and change BPM to %2!</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Synchronizing...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Press play/start in %1 to sync with Jamtaba!</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Trying to sync ...</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Change %1 BPM to %2 and try sync again!</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -1797,6 +1766,14 @@
         <source>Confirm audio IO changes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable/disable sending MIDI clock sync:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialogStandalone</name>
@@ -1819,6 +1796,10 @@
     <message>
         <source>No midi input device detected!</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>No midi output device detected!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

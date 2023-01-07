@@ -267,6 +267,10 @@
         <source>This is the status of this room</source>
         <translation>das ist der status dieses raums</translation>
     </message>
+    <message>
+        <source>Private Server</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LocalTrackGroupView</name>
@@ -968,28 +972,32 @@
         <source>Chords</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Public chat error - service is temporarily unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPlugin</name>
     <message>
         <source>Window Size</source>
-        <translation>Fenstergrösse</translation>
+        <translation type="vanished">Fenstergrösse</translation>
     </message>
     <message>
         <source>Increase</source>
-        <translation>vergrössern</translation>
+        <translation type="vanished">vergrössern</translation>
     </message>
     <message>
         <source>Decrease</source>
-        <translation>verkleinern</translation>
+        <translation type="vanished">verkleinern</translation>
     </message>
     <message>
         <source>Width</source>
-        <translation>breite</translation>
+        <translation type="vanished">breite</translation>
     </message>
     <message>
         <source>Height</source>
-        <translation>höhe</translation>
+        <translation type="vanished">höhe</translation>
     </message>
 </context>
 <context>
@@ -1188,6 +1196,18 @@
         <source>Accent pattern</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Send MIDI clock sync to devices selected in Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation type="unfinished">voreinstellungen</translation>
+    </message>
+    <message>
+        <source>MIDI Sync</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>NinjamRoomWindow</name>
@@ -1249,27 +1269,27 @@
     <message>
         <source>Host sync</source>
         <extracomment>This is the title of MessageDialot showed when user click in &quot;Sync with host&quot; button</extracomment>
-        <translation>Host sync</translation>
+        <translation type="vanished">Host sync</translation>
     </message>
     <message>
         <source>The BPM has changed! Please stop %1 and change BPM to %2!</source>
-        <translation>BPM verändert! Bitte stop %1 und ändere BPM zu %2!</translation>
+        <translation type="vanished">BPM verändert! Bitte stop %1 und ändere BPM zu %2!</translation>
     </message>
     <message>
         <source>Synchronizing...</source>
-        <translation>Syncronisiere...</translation>
+        <translation type="vanished">Syncronisiere...</translation>
     </message>
     <message>
         <source>Press play/start in %1 to sync with Jamtaba!</source>
-        <translation>drücke play/start in %1 zum syncen mit Jamtaba!</translation>
+        <translation type="vanished">drücke play/start in %1 zum syncen mit Jamtaba!</translation>
     </message>
     <message>
         <source>Trying to sync ...</source>
-        <translation>versuche zu syncen ...</translation>
+        <translation type="vanished">versuche zu syncen ...</translation>
     </message>
     <message>
         <source>Change %1 BPM to %2 and try sync again!</source>
-        <translation>ändere %1 BPM zu %2 und versuch nochmal zu syncen!</translation>
+        <translation type="vanished">ändere %1 BPM zu %2 und versuch nochmal zu syncen!</translation>
     </message>
 </context>
 <context>
@@ -1805,6 +1825,14 @@
         <source>Confirm audio IO changes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable/disable sending MIDI clock sync:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialogStandalone</name>
@@ -1827,6 +1855,10 @@
     <message>
         <source>No midi input device detected!</source>
         <translation>Kein midi input gerät erkannt!</translation>
+    </message>
+    <message>
+        <source>No midi output device detected!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -2,8 +2,12 @@ TARGET = Jamtaba2
 TEMPLATE = app
 
 include(../Jamtaba-common.pri)
+include(../Jamtaba-translations.pri)
 
+JAMTABA_VERSION = $$(JAMTABA_VERSION)
 JAMTABA_BUILDER = $$(JAMTABA_BUILDER)
+
+DEFINES += APP_VERSION=\"\\\"$${JAMTABA_VERSION}\\\"\"
 
 VPATH += $$SOURCE_PATH
 VPATH += $$SOURCE_PATH/Standalone

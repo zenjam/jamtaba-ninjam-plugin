@@ -122,22 +122,22 @@
         <translation>채팅폰트 사이즈 감소</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/chat/ChatPanel.cpp" line="143"/>
+        <location filename="../src/Common/gui/chat/ChatPanel.cpp" line="148"/>
         <source>type here ...</source>
         <translation>입력하세요...</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/chat/ChatPanel.cpp" line="145"/>
+        <location filename="../src/Common/gui/chat/ChatPanel.cpp" line="150"/>
         <source>chat is off</source>
         <translation>채팅종료</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/chat/ChatPanel.cpp" line="270"/>
+        <location filename="../src/Common/gui/chat/ChatPanel.cpp" line="275"/>
         <source>Connected Users (%1)</source>
         <translation type="unfinished">접속중인 사용자 (%1)</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/chat/ChatPanel.cpp" line="452"/>
+        <location filename="../src/Common/gui/chat/ChatPanel.cpp" line="457"/>
         <source>Use/load the chords above</source>
         <translation>사용/코드진행 오픈</translation>
     </message>
@@ -298,7 +298,7 @@
     </message>
     <message>
         <location filename="../src/Common/gui/JamRoomViewPanel.ui" line="74"/>
-        <location filename="../src/Common/gui/JamRoomViewPanel.cpp" line="142"/>
+        <location filename="../src/Common/gui/JamRoomViewPanel.cpp" line="164"/>
         <source>enter</source>
         <translation type="unfinished">입장</translation>
     </message>
@@ -314,7 +314,7 @@
     </message>
     <message>
         <location filename="../src/Common/gui/JamRoomViewPanel.ui" line="115"/>
-        <location filename="../src/Common/gui/JamRoomViewPanel.cpp" line="143"/>
+        <location filename="../src/Common/gui/JamRoomViewPanel.cpp" line="165"/>
         <source>listen</source>
         <translation>듣기</translation>
     </message>
@@ -329,9 +329,14 @@
         <translation>이곳에서 연주되는 음악의 웨이브폼을 표시합니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/JamRoomViewPanel.cpp" line="153"/>
+        <location filename="../src/Common/gui/JamRoomViewPanel.cpp" line="175"/>
         <source>%1 / %2 players </source>
         <translation type="unfinished">%1 / %2 연주자</translation>
+    </message>
+    <message>
+        <location filename="../src/Common/gui/JamRoomViewPanel.cpp" line="227"/>
+        <source>Private Server</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -362,52 +367,52 @@
         <translation>전송</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="218"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="219"/>
         <source>Delete preset</source>
         <translation>프리셋 삭제</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="239"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="240"/>
         <source>Load preset</source>
         <translation>프리셋 로드</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="262"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="263"/>
         <source>Save preset</source>
         <translation>프리셋 저장</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="268"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="269"/>
         <source>Reset Track Controls</source>
         <translation>트랙 리셋</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="274"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="275"/>
         <source>Add channel</source>
         <translation>채널추가</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="282"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="283"/>
         <source>Remove channel &quot;%1&quot;</source>
         <translation>채널삭제</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="421"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="423"/>
         <source>Save the preset ...</source>
         <translation>프리셋저장</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="422"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="424"/>
         <source>Preset name:</source>
         <translation>프리셋이름</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="448"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="450"/>
         <source>Deleting preset ...</source>
         <translation>프리셋삭제</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="449"/>
+        <location filename="../src/Common/gui/LocalTrackGroupView.cpp" line="451"/>
         <source>You want to delete the preset &apos;%1&apos;</source>
         <translation>프리셋을 삭제 하시겠습니까?</translation>
     </message>
@@ -428,12 +433,12 @@
 <context>
     <name>LocalTrackView</name>
     <message>
-        <location filename="../src/Common/gui/LocalTrackView.cpp" line="319"/>
+        <location filename="../src/Common/gui/LocalTrackView.cpp" line="322"/>
         <source>Invert stereo</source>
         <translation>스테레오위치변환</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/LocalTrackView.cpp" line="320"/>
+        <location filename="../src/Common/gui/LocalTrackView.cpp" line="323"/>
         <source>Looper (Available when jamming)</source>
         <translation>Looper (연주중 사용가능)</translation>
     </message>
@@ -455,42 +460,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="519"/>
+        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="513"/>
         <source>Mono</source>
         <translation type="unfinished">모노</translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="556"/>
+        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="550"/>
         <source>no input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="561"/>
+        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="555"/>
         <source>Stereo</source>
         <translation type="unfinished">스테레오</translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="578"/>
+        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="572"/>
         <source>%1  (not enough available inputs to make stereo)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="599"/>
+        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="593"/>
         <source>MIDI</source>
         <translation type="unfinished">미디</translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="610"/>
+        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="604"/>
         <source>All channels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="621"/>
+        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="614"/>
         <source>Channel %1</source>
         <translation type="unfinished">채널 %1</translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="641"/>
+        <location filename="../src/Standalone/gui/LocalTrackViewStandalone.cpp" line="634"/>
         <source>%1  (no MIDI devices detected or enabled in &apos;Preferences&apos; menu&apos;)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -983,237 +988,242 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="237"/>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="508"/>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="827"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="238"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="507"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="825"/>
         <source>Error!</source>
         <translation>에러!</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="507"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="506"/>
         <source>Error loading the theme %1</source>
         <translation>디자인 %1 로딩 실패</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="589"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="588"/>
         <source>Black</source>
         <translation type="unfinished">검정</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="590"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="589"/>
         <source>Flat</source>
         <translation type="unfinished">플렛</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="591"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="590"/>
         <source>Rounded</source>
         <translation type="unfinished">라운드</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="592"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="591"/>
         <source>Volcano</source>
         <translation>볼케이노</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="593"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="592"/>
         <source>Ice</source>
         <translation type="unfinished">아이스</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="594"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="593"/>
         <source>Game</source>
         <translation type="unfinished">게임</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="595"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="594"/>
         <source>Navy</source>
         <translation type="unfinished">네이비</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="672"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="671"/>
         <source>Loading rooms list ...</source>
         <translation type="unfinished">연주방 리스트 표시중...</translation>
     </message>
     <message>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="998"/>
         <location filename="../src/Common/gui/MainWindow.cpp" line="1000"/>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1002"/>
         <source>Channel %1</source>
         <translation type="unfinished">채널 %1</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1066"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1064"/>
         <source>disconnecting ...</source>
         <translation type="unfinished">접속 중단중...</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1157"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1158"/>
         <source>A new Jamtaba version is available for download! Please use the &lt;a href=&apos;http://www.jamtaba.com&apos;&gt;new version&lt;/a&gt;!</source>
         <translation>JamTaba의 새로운 버젼이 나왔습니다. 이곳에서 다운로드하세요! &lt;a href=&apos;http://www.jamtaba.com&apos;&gt;new version&lt;/a&gt;!</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1169"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1170"/>
         <source>New Jamtaba version available!</source>
         <translation>새로운 JamTaba가 나왔습니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1283"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1341"/>
         <source>Warning!</source>
         <translation type="unfinished">경고!</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1283"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1341"/>
         <source>Empty name is not allowed!</source>
         <translation type="unfinished">이름을 입력하세요!</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1298"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1356"/>
         <source>Connecting with %1 ... </source>
         <translation type="unfinished">%1 과(와) 접속중</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1459"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1517"/>
         <source>%1 has left the room.</source>
         <translation type="unfinished">%1 께서 방을 나갔습니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1481"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1539"/>
         <source>%1 has joined the room.</source>
         <translation type="unfinished">%1 께서 방에 들어왔습니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1633"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1691"/>
         <source>Let&apos;s play in %1 : %2 ?</source>
         <translation type="unfinished">%1 : %2로 연주</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1635"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1693"/>
         <source>Let&apos;s play in my private server?</source>
         <translation type="unfinished">개인서버에서 연주 하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1694"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1752"/>
         <source>Connected with public chat!</source>
         <translation type="unfinished">공용채팅방에 연결되었습니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1706"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1764"/>
         <source>Public chat disconnected!</source>
         <translation type="unfinished">공용채팅방 접속 중단되었습니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1744"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1774"/>
+        <source>Public chat error - service is temporarily unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1808"/>
         <source>Connecting ...</source>
         <translation type="unfinished">연결중...</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1773"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1837"/>
         <source>Invite %1 to play in %2 [%3]</source>
         <translation type="unfinished">%1을 %2 방으로 초대</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1796"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1859"/>
         <source>Block %1 in chat</source>
         <translation type="unfinished">%1을 블록하기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1801"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1864"/>
         <source>Unblock %1 in chat</source>
         <translation type="unfinished">%1을 블록해제하기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1869"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1932"/>
         <source>Private chat with %1</source>
         <translation type="unfinished">%1과 개인채팅하기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1936"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="1997"/>
         <source>%1 is blocked in the chat</source>
         <translation type="unfinished">%1이 채팅 블록되었습니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1947"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2008"/>
         <source>%1 is unblocked in the chat</source>
         <translation type="unfinished">%1 채팅 블록해제되었습니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1964"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2024"/>
         <source>Your name cannot be edited while jamming!</source>
         <translation type="unfinished">연주중에는 사용자이름을 수정 불가합니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="1964"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2024"/>
         <source>Only Letters, numbers, hyphen and underscore allowed! Spaces will be replaced by an underscore.</source>
         <translation>문자, 숫자, 하이픈(-), 언더스코어(_)만 가능합니다. 모든 빈공간은 언더스퀘어로 채워집니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2034"/>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2036"/>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2328"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2094"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2096"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2384"/>
         <source>Error</source>
         <translation>에러</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2036"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2096"/>
         <source>Disconnected from ninjam server</source>
         <translation type="unfinished">닌잼서버 점속 중단되었습니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2039"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2099"/>
         <source>Connecting with %1</source>
         <translation type="unfinished">%1와 연결중입니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2181"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2240"/>
         <source>Uploading</source>
         <translation type="unfinished">업로딩</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2189"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2246"/>
         <source>Downloading</source>
         <translation type="unfinished">다운로딩</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2251"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2307"/>
         <source>Collapse bottom area</source>
         <translation type="unfinished">아래부분 축소</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2252"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2308"/>
         <source>Collapse chat</source>
         <translation type="unfinished">채팅방축소</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2253"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2309"/>
         <source>Collapse local channels</source>
         <translation type="unfinished">로컬채널축소</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2328"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2384"/>
         <source>Can&apos;t open the link!</source>
         <translation type="unfinished">링크를 열 수 없습니다!</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2643"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2701"/>
         <source>About Jamtaba</source>
         <translation type="unfinished">JamTaba에 대하여</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2644"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2702"/>
         <source>Jamtaba version is %1</source>
         <translation type="unfinished">JamTaba 버전 %1</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2712"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2770"/>
         <source>These chords (%1 measures) can&apos;t be used in a %2 bpi interval!</source>
         <translation>이 코드진행은 (1% 마디) %2 bpi에서 연주 불가합니다.</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2715"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2772"/>
         <source>Problem...</source>
         <translation type="unfinished">문제점...</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/MainWindow.cpp" line="2726"/>
+        <location filename="../src/Common/gui/MainWindow.cpp" line="2783"/>
         <source>Chords</source>
         <translation type="unfinished">코드</translation>
     </message>
@@ -1221,31 +1231,24 @@
 <context>
     <name>MainWindowPlugin</name>
     <message>
-        <location filename="../src/Plugins/MainWindowPlugin.cpp" line="61"/>
         <source>Window Size</source>
-        <translation type="unfinished">윈도우사이즈</translation>
+        <translation type="obsolete">윈도우사이즈</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/MainWindowPlugin.cpp" line="63"/>
         <source>Width</source>
-        <translation type="unfinished">폭</translation>
+        <translation type="obsolete">폭</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/MainWindowPlugin.cpp" line="64"/>
-        <location filename="../src/Plugins/MainWindowPlugin.cpp" line="68"/>
         <source>Increase</source>
-        <translation type="unfinished">증가</translation>
+        <translation type="obsolete">증가</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/MainWindowPlugin.cpp" line="65"/>
-        <location filename="../src/Plugins/MainWindowPlugin.cpp" line="69"/>
         <source>Decrease</source>
-        <translation type="unfinished">감소</translation>
+        <translation type="obsolete">감소</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/MainWindowPlugin.cpp" line="67"/>
         <source>Height</source>
-        <translation type="unfinished">높이</translation>
+        <translation type="obsolete">높이</translation>
     </message>
 </context>
 <context>
@@ -1261,12 +1264,12 @@
         <translation type="unfinished">플러그인 에러!</translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/MainWindowStandalone.cpp" line="489"/>
+        <location filename="../src/Standalone/gui/MainWindowStandalone.cpp" line="488"/>
         <source>Audio error!</source>
         <translation type="unfinished">오디오 에러!</translation>
     </message>
     <message>
-        <location filename="../src/Standalone/gui/MainWindowStandalone.cpp" line="490"/>
+        <location filename="../src/Standalone/gui/MainWindowStandalone.cpp" line="489"/>
         <source>The audio device can&apos;t be started! Please check your audio device and try restart Jamtaba!</source>
         <translation type="unfinished">오디오장치를 시작 할 수 없습니다. 오디오 장비 점검후 JamTaba를 다시 시작 해 주세요!</translation>
     </message>
@@ -1390,23 +1393,38 @@
 <context>
     <name>NinjamPanel</name>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="56"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="73"/>
         <source>Change the accent here</source>
         <translation type="unfinished">액센트바꾸기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="66"/>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="126"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="63"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="90"/>
         <source>Beats per minute</source>
         <translation type="unfinished">분당 비트수</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="69"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="66"/>
         <source>BPM</source>
         <translation type="unfinished">BPM</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="76"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="170"/>
+        <source>Send MIDI clock sync to devices selected in Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="176"/>
+        <source>Preferences</source>
+        <translation type="unfinished">사용자환경설정</translation>
+    </message>
+    <message>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="179"/>
+        <source>MIDI Sync</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="56"/>
         <source>Shape</source>
         <translation type="unfinished">모양</translation>
     </message>
@@ -1415,80 +1433,80 @@
         <translation type="obsolete">모양바꾸기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="83"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="151"/>
         <source>Change the visual interval shape here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="93"/>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="113"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="125"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="138"/>
         <source>Beats per interval</source>
         <translation type="unfinished">인터벌당 비트수</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="96"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="128"/>
         <source>BPI</source>
         <translation type="unfinished">BPI</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="106"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="83"/>
         <source>Accent</source>
         <translation type="unfinished">액센트</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="116"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="141"/>
         <source>Change the BPI here</source>
         <translation type="unfinished">BPI 바꾸기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="129"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="93"/>
         <source>Change the BPM here</source>
         <translation type="unfinished">BPM 바꾸기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.ui" line="154"/>
+        <location filename="../src/Common/gui/NinjamPanel.ui" line="118"/>
         <source>Accent pattern</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="121"/>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="181"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="126"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="187"/>
         <source>Sync with %1</source>
         <extracomment>The &apos;%1&apos; marker will be replaced by the host name when Jamtaba is running.</extracomment>
         <translation type="unfinished">%1 과(와) 싱크하기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="367"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="373"/>
         <source>Circle</source>
         <translation type="unfinished">원형</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="368"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="374"/>
         <source>Ellipse</source>
         <translation type="unfinished">타원형</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="369"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="375"/>
         <source>Line</source>
         <translation type="unfinished">선형</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="370"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="376"/>
         <source>Pie</source>
         <translation type="unfinished">파이형</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="378"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="384"/>
         <source>off</source>
         <translation type="unfinished">끄기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="382"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="388"/>
         <source>%1 beats</source>
         <translation type="unfinished">%1 비트</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamPanel.cpp" line="384"/>
+        <location filename="../src/Common/gui/NinjamPanel.cpp" line="390"/>
         <source>Custom...</source>
         <translation type="unfinished">사용자지정</translation>
     </message>
@@ -1556,7 +1574,7 @@
         <translation type="unfinished">%1로 접속</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamRoomWindow.cpp" line="667"/>
+        <location filename="../src/Common/gui/NinjamRoomWindow.cpp" line="678"/>
         <source>Server Licence</source>
         <translation type="unfinished">서버라이센스</translation>
     </message>
@@ -1564,35 +1582,29 @@
 <context>
     <name>NinjamRoomWindowPlugin</name>
     <message>
-        <location filename="../src/Plugins/NinjamRoomWindowPlugin.cpp" line="36"/>
         <source>Host sync</source>
         <extracomment>This is the title of MessageDialot showed when user click in &quot;Sync with host&quot; button</extracomment>
-        <translation>호스트싱크</translation>
+        <translation type="vanished">호스트싱크</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/NinjamRoomWindowPlugin.cpp" line="38"/>
         <source>The BPM has changed! Please stop %1 and change BPM to %2!</source>
-        <translation>BPM 이 변경되었습니다. %1 (을)를 중지하시고 %2로 다시 설정하세요.</translation>
+        <translation type="vanished">BPM 이 변경되었습니다. %1 (을)를 중지하시고 %2로 다시 설정하세요.</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/NinjamRoomWindowPlugin.cpp" line="55"/>
         <source>Synchronizing...</source>
-        <translation>싱크중...</translation>
+        <translation type="vanished">싱크중...</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/NinjamRoomWindowPlugin.cpp" line="56"/>
         <source>Press play/start in %1 to sync with Jamtaba!</source>
-        <translation>JamTaba 와 sync 하기 위하여 %1 의 재생버튼을 누르세요!</translation>
+        <translation type="vanished">JamTaba 와 sync 하기 위하여 %1 의 재생버튼을 누르세요!</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/NinjamRoomWindowPlugin.cpp" line="59"/>
         <source>Trying to sync ...</source>
-        <translation>싱크시도중...</translation>
+        <translation type="vanished">싱크시도중...</translation>
     </message>
     <message>
-        <location filename="../src/Plugins/NinjamRoomWindowPlugin.cpp" line="60"/>
         <source>Change %1 BPM to %2 and try sync again!</source>
-        <translation>%1 BPM 을 %2 로 바꾸시고 다시 싱크 하세요!</translation>
+        <translation type="vanished">%1 BPM 을 %2 로 바꾸시고 다시 싱크 하세요!</translation>
     </message>
 </context>
 <context>
@@ -1606,43 +1618,43 @@
 <context>
     <name>NinjamTrackView</name>
     <message>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="158"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="153"/>
         <source>Receive</source>
         <translation>받기</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="182"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="177"/>
         <source>Low cut</source>
         <translation>로우컷</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="195"/>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="201"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="190"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="196"/>
         <source>Off</source>
         <translation>오프</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="196"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="191"/>
         <source>Normal</source>
         <translation>정상</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="197"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="192"/>
         <source>Drastic</source>
         <translation>급변</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="298"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="293"/>
         <source>Downloading</source>
         <translation>다운로딩</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="302"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="297"/>
         <source>Stereo</source>
         <translation>스테레오</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="302"/>
+        <location filename="../src/Common/gui/NinjamTrackView.cpp" line="297"/>
         <source>Mono</source>
         <translation>모노</translation>
     </message>
@@ -1650,7 +1662,7 @@
 <context>
     <name>NinjamVoteButton</name>
     <message>
-        <location filename="../src/Common/gui/chat/ChatPanel.h" line="215"/>
+        <location filename="../src/Common/gui/chat/ChatPanel.h" line="217"/>
         <source>Vote - change %1 to %2 </source>
         <translation>%1 를(을) %2 로 변경 요청</translation>
     </message>
@@ -1719,498 +1731,508 @@
         <translation>사용자환경설정...</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="24"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="27"/>
         <source>Audio</source>
         <translation>오디오</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="39"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="42"/>
         <source>Audio Device</source>
         <translation>오디오장치</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="48"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="51"/>
         <source>Input</source>
         <translation>입력</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="61"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="64"/>
         <source>Select audio input device here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="68"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="71"/>
         <source>Output</source>
         <translation>출력</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="81"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="84"/>
         <source>select audio ouput device here</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="94"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="97"/>
         <source>open ASIO configuration window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="97"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="100"/>
         <source>ASIO panel ...</source>
         <translation>ASIO패널</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="113"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="116"/>
         <source>Inputs</source>
         <translation>입력</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="124"/>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="171"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="127"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="174"/>
         <source>First</source>
         <translation>첫번째</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="131"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="134"/>
         <source>Select first audio input channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="138"/>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="185"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="141"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="188"/>
         <source>Last</source>
         <translation>마지막</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="145"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="148"/>
         <source>Select last audio input channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="163"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="166"/>
         <source>Outputs</source>
         <translation>출력</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="178"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="181"/>
         <source>Select first audio output channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="192"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="195"/>
         <source>Select last audio output channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="221"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="224"/>
         <source>Buffer size:</source>
         <translation>버퍼사이즈:</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="234"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="237"/>
         <source>Select audio buffer size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="247"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="250"/>
         <source>Sample rate:</source>
         <translation>샘플 Rate</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="260"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="263"/>
         <source>Select audio sample rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="273"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="276"/>
         <source>Encoder quality:</source>
         <translation>인코더 음질</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="286"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="289"/>
         <source>Select audio encoder quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="312"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="315"/>
         <source>MIDI</source>
         <translation>미디</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="324"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="327"/>
         <source>Enable/disable your midi input devices:</source>
         <translation>오디오입력장치 제어</translation>
     </message>
     <message>
         <location filename="../src/Common/gui/PreferencesDialog.ui" line="369"/>
+        <source>Sync</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="381"/>
+        <source>Enable/disable sending MIDI clock sync:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="413"/>
         <source>VST</source>
         <translation>VST</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="375"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="419"/>
         <source>Vst(i)s loaded</source>
         <translation>VST(i)로드완료</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="381"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="425"/>
         <source>VSTs loaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="399"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="443"/>
         <source>Scan only new plugins</source>
         <translation>오직 새 플러그인만 검색</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="402"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="446"/>
         <source>Refresh VSTs list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="405"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="449"/>
         <source>Refresh</source>
         <translation>리프레쉬</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="412"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="456"/>
         <source>Clear plugins cache and scan all plugin folders</source>
         <translation>플러그인캐쉬를 초기화하고 모든폴더 플러그인 검색</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="415"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="459"/>
         <source>Clear and Scan your VSTs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="418"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="462"/>
         <source>Clear and Scan</source>
         <translation>초기화/검색</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="425"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="469"/>
         <source>Add a VST plugin to the blacklist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="428"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="472"/>
         <source>Add to black List</source>
         <translation>블랙리스트에 첨부</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="435"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="479"/>
         <source>Remove a plugin from the blacklist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="438"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="482"/>
         <source>Remove from blackList</source>
         <translation>블랙리스트로부터 삭제</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="481"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="525"/>
         <source>Plugin Paths:</source>
         <translation>플러그인 경로</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="508"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="552"/>
         <source>Add a new folder to scan ...</source>
         <translation>검색할 새로운 폴더 추가</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="511"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="555"/>
         <source>Add VST scan folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="533"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="577"/>
         <source>Your VST folders</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="586"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="630"/>
         <source>Multi Track Recording</source>
         <translation>멀티트랙 녹음</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="595"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="639"/>
         <source>Save multitrack audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="598"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="642"/>
         <source>Save multi tracks </source>
         <translation>멀티트랙저장</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="612"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="656"/>
         <source>Record path:</source>
         <translation>녹음경로:</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="626"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="670"/>
         <source>Select a folder to save the multitrack audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="629"/>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="952"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="673"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="996"/>
         <source>browse ...</source>
         <translation>검색...</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="636"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="680"/>
         <source>Directory name format:</source>
         <translation>디렉토리이름 유형</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="664"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="708"/>
         <source>Metronome</source>
         <translation>메트로놈</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="673"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="717"/>
         <source>Use built-in metronome sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="676"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="720"/>
         <source>Metronome Sound:</source>
         <translation>메트로놈소리</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="685"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="729"/>
         <source>Select a built-in metronome sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="701"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="745"/>
         <source>Use custom metronome sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="704"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="748"/>
         <source>Custom Metronome Sounds</source>
         <translation>메트로놈 소리변경</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="722"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="766"/>
         <source>Choose a metronome primary beat sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="725"/>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="741"/>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="803"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="769"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="785"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="847"/>
         <source>Browse ...</source>
         <translation>검색...</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="738"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="782"/>
         <source>Choose a metronome off beat sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="751"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="795"/>
         <source>Off Beat:</source>
         <translation>오프비트:</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="761"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="805"/>
         <source>Use 16 bit audio files as metronome sounds!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="764"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="808"/>
         <source>Use 16 bit audio files!</source>
         <translation>16비트 오디오파일 사용</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="777"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="821"/>
         <source>Primary Beat:</source>
         <translation>프라이머리 비트</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="790"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="834"/>
         <source>Accent Beat:</source>
         <translation>액센트비트</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="800"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="844"/>
         <source>Choose a metronome accent beat sound</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="830"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="874"/>
         <source>Looper</source>
         <translation>루퍼</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="839"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="883"/>
         <source>Save loop layers as ...</source>
         <translation>루퍼레이어저장</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="845"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="889"/>
         <source>Save looper layer as Ogg files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="848"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="892"/>
         <source>Ogg files (use less disk space)</source>
         <translation>Ogg파일 (저용량)</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="860"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="904"/>
         <source>Save looper layer as wav files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="863"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="907"/>
         <source>Wave files</source>
         <translation>웨이브파일</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="889"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="933"/>
         <source>Bit depth:</source>
         <translation>Bit depth:</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="902"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="946"/>
         <source>Looper layer wave file bit depth</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="927"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="971"/>
         <source>Loops folder</source>
         <translation>루프폴더</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="949"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="993"/>
         <source>Choose a folder to save your loops</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="976"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1020"/>
         <source>Remember</source>
         <translation>기억</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="998"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1042"/>
         <source>Remember these options when a musician enters the jam:</source>
         <translation>사용자가 연주방에 입장할 때 아래 조건들을 기억</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1007"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1051"/>
         <source>The user channel level</source>
         <translation>사용자채널레벨</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1010"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1054"/>
         <source>Remember user level settings when enter in a server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1013"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1057"/>
         <source>Level</source>
         <translation>레벨</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1020"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1064"/>
         <source>The user channel mute status</source>
         <translation>사용자채널 음소거 상태</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1023"/>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1036"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1067"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1080"/>
         <source>Remember user mute settings when enter in a server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1026"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1070"/>
         <source>Mute</source>
         <translation>음소거</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1033"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1077"/>
         <source>The user channel pan</source>
         <translation>사용자 채널 팬</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1039"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1083"/>
         <source>Pan</source>
         <translation>팬</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1046"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1090"/>
         <source>The user channel boost</source>
         <translation>사용자채널 부스트</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1049"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1093"/>
         <source>Remember user Boost settings when enter in a server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1052"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1096"/>
         <source>Boost</source>
         <translation>부스트</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1059"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1103"/>
         <source>The user channel low cut button status</source>
         <translation type="unfinished">사용자채널 저음삭감버튼 상태</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1062"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1106"/>
         <source>Remember user Low cut settings when enter in a server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1065"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1109"/>
         <source>Low cut</source>
         <translation>저음삭감</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1075"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1119"/>
         <source>Remember collapsible sections when starting JamTaba:</source>
         <translation>JamTaba 시작 시 축소영역 기억</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1084"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1128"/>
         <source>Remember is local channel is collapsed or not</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1087"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1131"/>
         <source>Local Channels (left side)</source>
         <translation>로컬채널(좌)</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1094"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1138"/>
         <source>Remember if bottom section is collapsed or not</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1097"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1141"/>
         <source>Bottom Section (master fader and ninjam controls)</source>
         <translation>아래부분(마스터페이더와 닌잼 콘트롤)</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1104"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1148"/>
         <source>Remember if chat session is collapsed or not</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1107"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1151"/>
         <source>Chat section (right side)</source>
         <translation type="unfinished">채팅부분(우)</translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1161"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1205"/>
         <source>Confirm audio IO changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1170"/>
+        <location filename="../src/Common/gui/PreferencesDialog.ui" line="1214"/>
         <source>ok</source>
         <translation type="unfinished">ok</translation>
     </message>
@@ -2292,6 +2314,11 @@
         <location filename="../src/Standalone/gui/PreferencesDialogStandalone.cpp" line="261"/>
         <source>No midi input device detected!</source>
         <translation>미디 입력장치가 없습니다!</translation>
+    </message>
+    <message>
+        <location filename="../src/Standalone/gui/PreferencesDialogStandalone.cpp" line="286"/>
+        <source>No midi output device detected!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2541,7 +2568,7 @@
 <context>
     <name>ServerInviteButton</name>
     <message>
-        <location filename="../src/Common/gui/chat/ChatPanel.h" line="179"/>
+        <location filename="../src/Common/gui/chat/ChatPanel.h" line="181"/>
         <source>Accept!</source>
         <translation>수락!</translation>
     </message>

@@ -124,7 +124,7 @@ void LoginService::handleVersionJson(const QJsonObject &root)
     auto versionDetails = root.value("details").toString("error");
     auto publicationDate = root.value("published_at").toString("");
 
-    auto currentVersion = loginserver::Version::fromString(VERSION);
+    auto currentVersion = loginserver::Version::fromString(APP_VERSION);
     auto latestVersion = loginserver::Version::fromString(versionTag);
 
     if (latestVersion.isNewerThan(currentVersion))

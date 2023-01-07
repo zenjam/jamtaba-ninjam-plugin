@@ -1,9 +1,14 @@
 include(../Jamtaba-common.pri)
+include(../Jamtaba-translations.pri)
 
 #CONFIG += qtwinmigrate-uselib
 include(../qtwinmigrate/src/qtwinmigrate.pri)
 
 QTPLUGIN += dsengine # necessary to use QCamera inside VST plugin
+
+JAMTABA_VERSION = $$(JAMTABA_VERSION)
+
+DEFINES += APP_VERSION=\"\\\"$${JAMTABA_VERSION}\\\"\"
 
 TARGET = "JamtabaVST2"  #using this name (with a '2' suffix) to match the previons JTBA versions and avoid duplicated plugin in user machines
 TEMPLATE = lib

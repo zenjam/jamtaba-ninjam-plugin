@@ -274,6 +274,10 @@
         <source>That zone displays the waveform actually played</source>
         <translation>波形表示</translation>
     </message>
+    <message>
+        <source>Private Server</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LocalTrackGroupView</name>
@@ -976,28 +980,32 @@
         <source>Chords</source>
         <translation type="unfinished">和音</translation>
     </message>
+    <message>
+        <source>Public chat error - service is temporarily unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainWindowPlugin</name>
     <message>
         <source>Window Size</source>
-        <translation>ウィンドウサイズ</translation>
+        <translation type="vanished">ウィンドウサイズ</translation>
     </message>
     <message>
         <source>Increase</source>
-        <translation>増加</translation>
+        <translation type="vanished">増加</translation>
     </message>
     <message>
         <source>Decrease</source>
-        <translation>減少</translation>
+        <translation type="vanished">減少</translation>
     </message>
     <message>
         <source>Width</source>
-        <translation type="unfinished">幅</translation>
+        <translation type="obsolete">幅</translation>
     </message>
     <message>
         <source>Height</source>
-        <translation type="unfinished">高さ</translation>
+        <translation type="obsolete">高さ</translation>
     </message>
 </context>
 <context>
@@ -1196,6 +1204,18 @@
         <source>Accent pattern</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Send MIDI clock sync to devices selected in Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation type="unfinished">設定</translation>
+    </message>
+    <message>
+        <source>MIDI Sync</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>NinjamRoomWindow</name>
@@ -1259,27 +1279,27 @@
     <message>
         <source>Host sync</source>
         <extracomment>This is the title of MessageDialot showed when user click in &quot;Sync with host&quot; button</extracomment>
-        <translation>ホスト同期</translation>
+        <translation type="vanished">ホスト同期</translation>
     </message>
     <message>
         <source>The BPM has changed! Please stop %1 and change BPM to %2!</source>
-        <translation>BPMが変更されました！%1を停止してBPMを%2に変更してください!</translation>
+        <translation type="vanished">BPMが変更されました！%1を停止してBPMを%2に変更してください!</translation>
     </message>
     <message>
         <source>Synchronizing...</source>
-        <translation>同期中...</translation>
+        <translation type="vanished">同期中...</translation>
     </message>
     <message>
         <source>Press play/start in %1 to sync with Jamtaba!</source>
-        <translation>Jamtabaと同期するには%1で再生/開始を押してください!</translation>
+        <translation type="vanished">Jamtabaと同期するには%1で再生/開始を押してください!</translation>
     </message>
     <message>
         <source>Trying to sync ...</source>
-        <translation>同期を試みています ...</translation>
+        <translation type="vanished">同期を試みています ...</translation>
     </message>
     <message>
         <source>Change %1 BPM to %2 and try sync again!</source>
-        <translation>%1のBPMを%2に変更して、もう一度同期を試みてください!</translation>
+        <translation type="vanished">%1のBPMを%2に変更して、もう一度同期を試みてください!</translation>
     </message>
 </context>
 <context>
@@ -1815,6 +1835,14 @@
         <source>Confirm audio IO changes</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Sync</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable/disable sending MIDI clock sync:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialogStandalone</name>
@@ -1837,6 +1865,10 @@
     <message>
         <source>No midi input device detected!</source>
         <translation>MIDIデバイスが検出されませんでした!</translation>
+    </message>
+    <message>
+        <source>No midi output device detected!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

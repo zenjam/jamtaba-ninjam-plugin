@@ -605,8 +605,8 @@ void MainWindow::loadTranslationFile(const QString &locale)
         qWarning() << "Can't load the Jamtaba translation for " << locale;
 
     if (locale != "en") { // avoid load en Qt translation (this file is obviously missing)
-        QString fileName = "qtbase_" + locale;
-        if (!qtTranslator.load(fileName, ":/qt_tr"))
+        QString fileName = "qt_" + locale;
+        if (!qtTranslator.load(fileName))
             qWarning() << "Can't load Qt translation for " << locale;
     }
 }

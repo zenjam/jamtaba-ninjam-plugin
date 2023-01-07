@@ -44,6 +44,8 @@ jobs:
 
       - name: Build everything
         shell: bash
+        env:
+          JAMTABA_VERSION: ${{ github.event.inputs.version }}
         run: |
           cd ./PROJECTS
           qmake . CONFIG+=release
@@ -88,6 +90,8 @@ jobs:
 
       - name: Build everything
         shell: bash
+        env:
+          JAMTABA_VERSION: ${{ github.event.inputs.version }}
         run: |
           cd ./PROJECTS
           qmake . CONFIG+=release

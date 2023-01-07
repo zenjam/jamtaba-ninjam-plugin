@@ -105,30 +105,6 @@
         <file>css/themes/Ice/PublicRooms.css</file>
         <file>css/themes/Ice/images/bg.png</file>
     </qresource>
-    <qresource prefix="/tr">
-        <file alias="en.qm">../../translations/en.qm</file>
-        <file alias="ja_JP.qm">../../translations/ja_JP.qm</file>
-        <file alias="pt_BR.qm">../../translations/pt_BR.qm</file>
-        <file alias="es_CL.qm">../../translations/es_CL.qm</file>
-        <file alias="fr_FR.qm">../../translations/fr_FR.qm</file>
-        <file alias="de_DE.qm">../../translations/de_DE.qm</file>
-        <file alias="da_DK.qm">../../translations/da_DK.qm</file>
-        <file alias="pl_PL.qm">../../translations/pl_PL.qm</file>
-        <file alias="it_IT.qm">../../translations/it_IT.qm</file>
-        <file alias="ko_KR.qm">../../translations/ko_KR.qm</file>
-    </qresource>
-    <qresource prefix="/qt_tr">
-        <file alias="qtbase_de.qm">../../translations/Qt/qtbase_de.qm</file>
-        <file alias="qtbase_en.qm">../../translations/Qt/qtbase_en.qm</file>
-        <file alias="qtbase_fr.qm">../../translations/Qt/qtbase_fr.qm</file>
-        <file alias="qtbase_ja.qm">../../translations/Qt/qtbase_ja.qm</file>
-        <file alias="qtbase_pl.qm">../../translations/Qt/qtbase_pl.qm</file>
-        <file alias="qtbase_es.qm">../../translations/Qt/qtbase_es.qm</file>
-        <file alias="qtbase_pt.qm">../../translations/Qt/qtbase_pt.qm</file>
-        <file alias="qtbase_da.qm">../../translations/Qt/qtbase_da.qm</file>
-        <file alias="qtbase_it.qm">../../translations/Qt/qtbase_it.qm</file>
-        <file alias="qtbase_ko.qm">../../translations/Qt/qtbase_ko.qm</file>
-    </qresource>
     <qresource prefix="/images">
         <file>mic.png</file>
         <file>small_plus.png</file>
