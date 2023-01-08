@@ -1,3 +1,8 @@
+JamTaba 2
+
+[![Latest Release Version](https://img.shields.io/github/release/defterai/JamTaba?sort=date)](https://github.com/defterai/JamTaba/releases/latest)
+[![Latest Release Downloads](https://img.shields.io/github/downloads/defterai/JamTaba/latest/total)](https://github.com/defterai/JamTaba/releases/latest)
+[![Total Downloads](https://img.shields.io/github/downloads/defterai/JamTaba/total.svg)](https://github.com/defterai/JamTaba/releases)
 
 **JamTaba 2** is a software to play online music jam sessions. At moment you can use JamTaba to play with musicians around the world using [ninjam ](http://www.cockos.com/ninjam/) servers.
 
