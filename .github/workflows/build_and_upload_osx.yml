@@ -1,29 +1,40 @@
-name: BuildmacOS
-  runs-on: macos-latest
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+name: Build and Upload for macOS
 
-    - name: Install Qt
-      run: |
-        brew install qt
-        echo "/usr/local/opt/qt/bin" >> $GITHUB_PATH
+on:  
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
 
-    - name: Build everything
-      shell: bash
-      env:
-        JAMTABA_VERSION: 1.0.0
-      run: |
-        cd ./PROJECTS
-        qmake . CONFIG+=release
-        make -j$(sysctl -n hw.ncpu)
+jobs:
+  build_upload_osx:
+    name: Build and Upload for macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Archive build artifacts
-      run: |
-        zip -r jamtaba-macos-${{ env.JAMTABA_VERSION }}.zip ./PROJECTS/build
+      - name: Install Qt
+        run: |
+          brew install qt
+          echo "/usr/local/opt/qt/bin" >> $GITHUB_PATH
 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: jamtaba-macos-${{ env.JAMTABA_VERSION }}
-        path: jamtaba-macos-${{ env.JAMTABA_VERSION }}.zip
+      - name: Build everything
+        shell: bash
+        env:
+          JAMTABA_VERSION: 1.0.0
+        run: |
+          cd ./PROJECTS
+          qmake . CONFIG+=release
+          make -j$(sysctl -n hw.ncpu)
+
+      - name: Archive build artifacts
+        run: |
+          zip -r jamtaba-macos-${{ env.JAMTABA_VERSION }}.zip ./PROJECTS/build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: jamtaba-macos-${{ env.JAMTABA_VERSION }}
+          path: jamtaba-macos-${{ env.JAMTABA_VERSION }}.zip
+          
