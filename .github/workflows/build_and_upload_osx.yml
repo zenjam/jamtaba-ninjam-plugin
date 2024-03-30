@@ -1,4 +1,4 @@
- name: Build and Upload for macOS
+name: Build and Upload for macOS
   runs-on: macos-latest
   steps:
     - name: Checkout
