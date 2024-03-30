@@ -1,4 +1,4 @@
-name: Build and Upload for macOS
+name: BuildmacOS
   runs-on: macos-latest
   steps:
     - name: Checkout
