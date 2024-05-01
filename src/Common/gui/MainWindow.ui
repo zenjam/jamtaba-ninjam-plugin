@@ -433,6 +433,7 @@
     <addaction name="separator"/>
     <addaction name="actionNinjam_community_forum"/>
     <addaction name="actionNinjam_Official_Site"/>
+    <addaction name="actionVDONinja"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="cursor">
@@ -516,6 +517,11 @@
   <action name="actionConnectWithPrivateServer">
    <property name="text">
     <string>Connect with private server ...</string>
+   </property>
+  </action>
+  <action name="actionVDONinja">
+   <property name="text">
+    <string>VDO Ninja...</string>
    </property>
   </action>
   <action name="actionNinjam_community_forum">

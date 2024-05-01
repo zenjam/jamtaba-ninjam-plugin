@@ -118,6 +118,7 @@ MainWindow::MainWindow(MainController *mainController, QWidget *parent) :
     initializeCameraWidget();
     setupWidgets();
     setupSignals();
+    initializeNinjamPlugin();
 
     setNetworkUsageUpdatePeriod(MainWindow::DEFAULT_NETWORK_USAGE_UPDATE_PERIOD);
 
@@ -2999,3 +3000,139 @@ QString MainWindow::getChannelGroupName(int index) const
 
     return QString();
 }
+
+/*
+class NinjamPlugin {
+    void open () { 
+    }
+};
+class VDONinjaPlugin:NinjamPlugin {
+    
+
+};
+*/
+
+#include <QtWebEngineWidgets/QWebEngineView>
+
+#include <QUrl>
+#include <QWebEnginePage>
+//#include "NinjamPlugin/NinjamPluginPage.h"
+//#include "NinjamPlugin/NinjamPluginWebBridge.h"
+//#include <QtWebEngineWidgets/QWebEnginePermissionRequest>
+//#include <QWebEnginePermissionRequest>
+/*
+class WebEnginePage: public QWebEnginePage{
+    Q_OBJECT
+public:
+	virtual ~WebEnginePage() {};
+    WebEnginePage(QObject *parent = Q_NULLPTR):QWebEnginePage(parent){
+        connect(this, &WebEnginePage::featurePermissionRequested, this, &WebEnginePage::onFeaturePermissionRequested);
+    }
+private Q_SLOTS:
+    void onFeaturePermissionRequested(const QUrl &securityOrigin, QWebEnginePage::Feature feature){
+
+        if(feature  == QWebEnginePage::MediaAudioCapture
+                || feature == QWebEnginePage::MediaVideoCapture
+                || feature == QWebEnginePage::MediaAudioVideoCapture)
+            setFeaturePermission(securityOrigin, feature, QWebEnginePage::PermissionGrantedByUser);
+        else
+            setFeaturePermission(securityOrigin, feature, QWebEnginePage::PermissionDeniedByUser);
+    }
+};
+
+QUrl commandLineUrlArgument()
+{
+    const QStringList args = QCoreApplication::arguments();
+    for (const QString &arg : args.mid(1)) {
+        if (!arg.startsWith(QLatin1Char('-')))
+            return QUrl::fromUserInput(arg);
+    }
+    return QUrl(QStringLiteral("https://www.qt.io"));
+}
+*/
+/*
+
+class CustomWebEnginePage : public QWebEnginePage {
+    Q_OBJECT
+public:
+    using QWebEnginePage::QWebEnginePage;  // Inherit constructors
+
+protected:
+    // Correct the signature by using a reference
+    void permissionRequested(QWebEnginePermissionRequest &request) override {
+        if (request.feature() == QWebEnginePage::MediaAudioCapture ||
+            request.feature() == QWebEnginePage::MediaVideoCapture ||
+            request.feature() == QWebEnginePage::MediaAudioVideoCapture) {
+            // Grant permission for camera and microphone access
+            request.accept();
+        } else {
+            request.reject();
+        }
+    }
+};
+*/
+#include "NinjamPlugin/NinjamPlugin.h"
+
+void MainWindow::openNinjamPlugin(const QString &actionName)
+{
+    printf("Its open ");
+    qDebug() << actionName;
+
+       QWebEngineView* view = new QWebEngineView();
+        // view->setPage(new NinjamPluginPage);
+         //NinjamPluginPage *page = NinjamPlugin.getPage(actionName);
+	 
+         NinjamPluginPage *page = new NinjamPluginPage;
+         view->setPage(page);
+	 NinjamPlugin::getInstance().addView(actionName, view, page);
+	 //NinjamPlugin::addView(actionName, view, page);
+         //view->setPage(new NinjamPluginWebBridge);
+
+    view->setAttribute(Qt::WA_DeleteOnClose); // Ensure the view is deleted when closed
+    view->setUrl(QUrl("https://ninbot.com:3108"));
+    view->resize(1024, 750);
+    view->show();
+    /*
+        QWebEngineView view;
+    view.setUrl(QUrl("https://www.example.com"));
+    view.resize(1024, 750);
+    view.show();
+    */
+
+    //printf(actionName);
+    
+}
+
+void MainWindow::initializeNinjamPlugin()
+{
+    //VDONinjaPlugin *plugin = new VDONinjaPlugin();
+    QMenu *menu = menuBar()->addMenu("Plugins");
+    QAction *action = menu->addAction("VDO Ninja");
+    connect(action, &QAction::triggered, this, [this, action]() {
+        this->openNinjamPlugin(action->text());
+    });
+    //connect(action, &QAction::triggered, this, &MainWindow::openNinjamPlugin);
+
+    // Add a submenu to the new menu
+    //
+    //
+    //QMenu *subMenu = menu->addMenu("someSubmenu");
+
+    // Add an action to the submenu
+    //QAction *action = subMenu->addAction("someAction");
+/*
+    QMainWindow wnd;
+    QAction *act = wnd.menuBar()->addMenu("SomeMenu")->addMenu("someSubmenu")->addAction("someAction");
+QObject::connect(act,SIGNAL(triggered()),
+                 this ,SLOT(actionReaction()));
+		 */
+
+   printf("We Have Liftoff");
+
+}
+int ninjam_plugin_init() {
+    
+}
+
+
+

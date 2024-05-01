@@ -23,6 +23,7 @@
 #include "MetronomeUtils.h"
 #include "persistence/Settings.h"
 #include "Utils.h"
+#include "NinjamPlugin.h"
 
 #include "gui/chat/NinjamChatMessageParser.h"
 
@@ -342,7 +343,20 @@ void NinjamController::process(const audio::SamplesBuffer &in, audio::SamplesBuf
         {
             lastBeat = currentBeat;
             emit intervalBeatChanged(currentBeat);
+
+	
+	    NinjamPluginMetroEvent *ev = new NinjamPluginMetroEvent();
+	    ev->bpm = currentBpm;
+	    ev->bpi = currentBpi;
+	   // ev->time = (float)intervalPosition / (float)samplesInInterval;
+	    ev->time = (float)currentBeat;
+	//intervalPosition / (float)samplesInInterval;
+	    NinjamPlugin& plugin = NinjamPlugin::getInstance();
+            plugin.sendMetronomeEvent(ev);
+	    delete ev;
         }
+
+		
 
         // +++++++++++ MAIN AUDIO OUTPUT PROCESS +++++++++++++++
         bool isLastPart = intervalPosition + samplesToProcessInThisStep >= samplesInInterval;

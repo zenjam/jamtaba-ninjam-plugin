@@ -429,6 +429,8 @@ private:
     void initializeGuiRefreshTimer();
 
     void initializeCameraWidget();
+    void initializeNinjamPlugin();
+    void openNinjamPlugin(const QString &actionName);
 
     QCamera::FrameRateRange getBestSupportedFrameRate() const;
     QSize getBestCameraResolution(const QList<QSize> resolutions) const;
