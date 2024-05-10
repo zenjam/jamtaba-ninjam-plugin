@@ -13,7 +13,6 @@
 #include "miniwget.h"
 #include "upnpcommands.h"
 #include "upnperrors.h"
-#include "miniupnpcstrings.h"
 
 UPnPManager::UPnPManager() :
     QObject(nullptr),
