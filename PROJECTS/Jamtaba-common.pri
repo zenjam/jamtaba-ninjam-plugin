@@ -10,7 +10,7 @@ JAMTABA_BUILDER = $$(JAMTABA_BUILDER)
 
 INCLUDEPATH += $$SOURCE_PATH/Common
 
-
+INCLUDEPATH += /usr/include/miniupnpc
 INCLUDEPATH += $$ROOT_PATH/libs/includes/ogg
 INCLUDEPATH += $$ROOT_PATH/libs/includes/vorbis
 INCLUDEPATH += $$ROOT_PATH/libs/includes/ffmpeg

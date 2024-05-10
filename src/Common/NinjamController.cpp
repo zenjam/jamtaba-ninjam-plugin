@@ -23,7 +23,7 @@
 #include "MetronomeUtils.h"
 #include "persistence/Settings.h"
 #include "Utils.h"
-#include "NinjamPlugin.h"
+#include "NinjamPlugin/NinjamPlugin.h"
 
 #include "gui/chat/NinjamChatMessageParser.h"
 

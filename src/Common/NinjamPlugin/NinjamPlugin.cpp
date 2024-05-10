@@ -1,6 +1,6 @@
 #include "stdio.h"
-#include "NinjamPlugin.h"
-#include "NinjamPluginPage.h"
+#include "NinjamPlugin/NinjamPlugin.h"
+#include "NinjamPlugin/NinjamPluginPage.h"
 #include <iostream>
     struct ninjam_plugin {
 	    QString action;
