@@ -36,6 +36,7 @@
 #include "TextEditorModifier.h"
 #include "widgets/InstrumentsMenu.h"
 #include "ninjam/client/Types.h"
+#include "NinjamPlugin/NinjamPlugin.h"
 
 // to get versions
 #include "libavutil/avutil.h"
@@ -118,7 +119,10 @@ MainWindow::MainWindow(MainController *mainController, QWidget *parent) :
     initializeCameraWidget();
     setupWidgets();
     setupSignals();
-    initializeNinjamPlugin();
+
+    NinjamPlugin::getInstance().setMainWindow(this);
+
+    //initializeNinjamPlugin();
 
     setNetworkUsageUpdatePeriod(MainWindow::DEFAULT_NETWORK_USAGE_UPDATE_PERIOD);
 
@@ -2431,7 +2435,7 @@ void MainWindow::centerDialog(QWidget *dialog)
 
 void MainWindow::showNinjamCommunityWebPage()
 {
-    QDesktopServices::openUrl(QUrl("http://www.ninbot.com"));
+    QDesktopServices::openUrl(QUrl("https://ninbot.com"));
 }
 
 void MainWindow::showNinjamOfficialWebPage()
@@ -3001,82 +3005,17 @@ QString MainWindow::getChannelGroupName(int index) const
     return QString();
 }
 
-/*
-class NinjamPlugin {
-    void open () { 
-    }
-};
-class VDONinjaPlugin:NinjamPlugin {
-    
 
-};
-*/
-
-#include <QtWebEngineWidgets/QWebEngineView>
 
 #include <QUrl>
-#include <QWebEnginePage>
-//#include "NinjamPlugin/NinjamPluginPage.h"
-//#include "NinjamPlugin/NinjamPluginWebBridge.h"
-//#include <QtWebEngineWidgets/QWebEnginePermissionRequest>
-//#include <QWebEnginePermissionRequest>
-/*
-class WebEnginePage: public QWebEnginePage{
-    Q_OBJECT
-public:
-	virtual ~WebEnginePage() {};
-    WebEnginePage(QObject *parent = Q_NULLPTR):QWebEnginePage(parent){
-        connect(this, &WebEnginePage::featurePermissionRequested, this, &WebEnginePage::onFeaturePermissionRequested);
-    }
-private Q_SLOTS:
-    void onFeaturePermissionRequested(const QUrl &securityOrigin, QWebEnginePage::Feature feature){
 
-        if(feature  == QWebEnginePage::MediaAudioCapture
-                || feature == QWebEnginePage::MediaVideoCapture
-                || feature == QWebEnginePage::MediaAudioVideoCapture)
-            setFeaturePermission(securityOrigin, feature, QWebEnginePage::PermissionGrantedByUser);
-        else
-            setFeaturePermission(securityOrigin, feature, QWebEnginePage::PermissionDeniedByUser);
-    }
-};
-
-QUrl commandLineUrlArgument()
-{
-    const QStringList args = QCoreApplication::arguments();
-    for (const QString &arg : args.mid(1)) {
-        if (!arg.startsWith(QLatin1Char('-')))
-            return QUrl::fromUserInput(arg);
-    }
-    return QUrl(QStringLiteral("https://www.qt.io"));
-}
-*/
-/*
-
-class CustomWebEnginePage : public QWebEnginePage {
-    Q_OBJECT
-public:
-    using QWebEnginePage::QWebEnginePage;  // Inherit constructors
-
-protected:
-    // Correct the signature by using a reference
-    void permissionRequested(QWebEnginePermissionRequest &request) override {
-        if (request.feature() == QWebEnginePage::MediaAudioCapture ||
-            request.feature() == QWebEnginePage::MediaVideoCapture ||
-            request.feature() == QWebEnginePage::MediaAudioVideoCapture) {
-            // Grant permission for camera and microphone access
-            request.accept();
-        } else {
-            request.reject();
-        }
-    }
-};
-*/
-#include "NinjamPlugin/NinjamPlugin.h"
+#ifdef WEBENGINE_WORKS
 
 void MainWindow::openNinjamPlugin(const QString &actionName)
 {
     printf("Its open ");
     qDebug() << actionName;
+
 
        QWebEngineView* view = new QWebEngineView();
         // view->setPage(new NinjamPluginPage);
@@ -3130,6 +3069,8 @@ QObject::connect(act,SIGNAL(triggered()),
    printf("We Have Liftoff");
 
 }
+#endif
+
 int ninjam_plugin_init() {
     
 }

@@ -1,5 +1,4 @@
 QT += core gui network websockets widgets concurrent multimedia multimediawidgets
-QT += webenginewidgets
 
 mac:LIBS += -dead_strip
 
@@ -333,7 +332,4 @@ RESOURCES += ../resources/jamtaba.qrc
 #this is the file used by the Beautifier QtCreator plugin (using the Uncrustify tool)
 DISTFILES += $$PWD/uncrustify.cfg
 HEADERS += NinjamPlugin/NinjamPlugin.h
-HEADERS += NinjamPlugin/NinjamPluginPage.h
-HEADERS += NinjamPlugin/NinjamPluginWebBridge.h
-SOURCES += NinjamPlugin/NinjamPluginPage.cpp
 SOURCES += NinjamPlugin/NinjamPlugin.cpp
