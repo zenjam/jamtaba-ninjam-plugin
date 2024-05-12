@@ -21,7 +21,7 @@ jobs:
 
       - name: Archive build artifacts
         run: |
-          zip -r jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip ./PROJECTS/build
+          zip -r jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip ./PROJECTS/Standalone/
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
