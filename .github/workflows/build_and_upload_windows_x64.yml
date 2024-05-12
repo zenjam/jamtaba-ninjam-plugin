@@ -1,0 +1,32 @@
+name: Build everything for Windows 64 bit (x64)
+
+on: workflow_dispatch
+
+jobs:
+  build_all:
+    runs-on: ubuntu-latest
+    container: 
+      image: defter/jamtaba-win64:v5.15.7
+
+    steps:
+      - name: Chekout
+        uses: actions/checkout@v3
+
+      - name: Build
+        shell: bash
+        run: |
+          cd ./PROJECTS
+          qmake . CONFIG+=release
+          make -j$(nproc)
+
+      - name: Archive build artifacts
+        run: |
+          zip -r jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip ./PROJECTS/build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: jamtaba-win64-${{ env.JAMTABA_VERSION }}
+          path: jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip
+
+
