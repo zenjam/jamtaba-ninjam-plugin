@@ -120,9 +120,8 @@ MainWindow::MainWindow(MainController *mainController, QWidget *parent) :
     setupWidgets();
     setupSignals();
 
-    NinjamPlugin::getInstance().setMainWindow(this);
+    NinjamPlugin::getInstance().setMainWindow(this, mainController);
 
-    //initializeNinjamPlugin();
 
     setNetworkUsageUpdatePeriod(MainWindow::DEFAULT_NETWORK_USAGE_UPDATE_PERIOD);
 
@@ -3006,74 +3005,6 @@ QString MainWindow::getChannelGroupName(int index) const
 }
 
 
-
-#include <QUrl>
-
-#ifdef WEBENGINE_WORKS
-
-void MainWindow::openNinjamPlugin(const QString &actionName)
-{
-    printf("Its open ");
-    qDebug() << actionName;
-
-
-       QWebEngineView* view = new QWebEngineView();
-        // view->setPage(new NinjamPluginPage);
-         //NinjamPluginPage *page = NinjamPlugin.getPage(actionName);
-	 
-         NinjamPluginPage *page = new NinjamPluginPage;
-         view->setPage(page);
-	 NinjamPlugin::getInstance().addView(actionName, view, page);
-	 //NinjamPlugin::addView(actionName, view, page);
-         //view->setPage(new NinjamPluginWebBridge);
-
-    view->setAttribute(Qt::WA_DeleteOnClose); // Ensure the view is deleted when closed
-    view->setUrl(QUrl("https://ninbot.com:3108"));
-    view->resize(1024, 750);
-    view->show();
-    /*
-        QWebEngineView view;
-    view.setUrl(QUrl("https://www.example.com"));
-    view.resize(1024, 750);
-    view.show();
-    */
-
-    //printf(actionName);
-    
-}
-
-void MainWindow::initializeNinjamPlugin()
-{
-    //VDONinjaPlugin *plugin = new VDONinjaPlugin();
-    QMenu *menu = menuBar()->addMenu("Plugins");
-    QAction *action = menu->addAction("VDO Ninja");
-    connect(action, &QAction::triggered, this, [this, action]() {
-        this->openNinjamPlugin(action->text());
-    });
-    //connect(action, &QAction::triggered, this, &MainWindow::openNinjamPlugin);
-
-    // Add a submenu to the new menu
-    //
-    //
-    //QMenu *subMenu = menu->addMenu("someSubmenu");
-
-    // Add an action to the submenu
-    //QAction *action = subMenu->addAction("someAction");
-/*
-    QMainWindow wnd;
-    QAction *act = wnd.menuBar()->addMenu("SomeMenu")->addMenu("someSubmenu")->addAction("someAction");
-QObject::connect(act,SIGNAL(triggered()),
-                 this ,SLOT(actionReaction()));
-		 */
-
-   printf("We Have Liftoff");
-
-}
-#endif
-
-int ninjam_plugin_init() {
-    
-}
 
 
 
