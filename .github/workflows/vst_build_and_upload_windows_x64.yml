@@ -24,7 +24,7 @@ jobs:
         run: |
           cd ./PROJECTS/Standalone/release
           zip jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip Jamtaba2.exe VstScanner.exe
-          mv jamtaba.win64-${{ env.JAMTABA_VERSION }}.zip  ../../../
+          mv jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip  ../../../
 
       - name: Create plugin archive
         shell: bash
