@@ -31,7 +31,7 @@ jobs:
         run: |
           cd ./PROJECTS/VstPlugin/release
           zip jamtaba-win64-VST-${{ env.JAMTABA_VERSION }}.zip JamtabaVST2.dll
-          mv jamtaba-win64-VST.${{ env.JAMTABA_VERSION }}.zip ../../../
+          mv jamtaba-win64-VST-${{ env.JAMTABA_VERSION }}.zip ../../../
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
