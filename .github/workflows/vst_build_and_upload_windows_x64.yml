@@ -1,4 +1,4 @@
-name: Build/Upload everything for Windows 64 bit (x64)
+name: VST Build/Upload everything for Windows 64 bit (x64)
 
 on: workflow_dispatch
 
