@@ -19,7 +19,7 @@ jobs:
           qmake . CONFIG+=release
           make -j$(nproc)
 
-             - name: Create applications archive
+      - name: Create applications archive
         shell: bash
         run: |
           cd ./PROJECTS/Standalone/release
