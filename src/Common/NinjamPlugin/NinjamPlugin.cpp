@@ -90,36 +90,8 @@ void NinjamPlugin::sendMetronomeEvent(NinjamPluginMetroEvent *metro) {
 	pipe_thread->sendStr(ev);
 		
 	sendServerInfo();
-
-/*
-	QString evstr;
- 	evstr.sprintf("{ \"event\":\"metro\", \"bpi\":%d, \"bpm\":%d, \"beat\":%g }", metro->bpi, metro->bpm, metro->time);
-	QByteArray ev = evstr.toUtf8();
-	*/
-/*
-	char ev[100];
-		sprintf(ev, "{ \"event\":\"metro\", \"bpi\":%d, \"bpm\":%d, \"beat\":%g }", metro->bpi, metro->bpm, metro->time);
-		QByteArray data = "Metro test";
-		*/
-		pipe_thread->sendStr(ev);
-		QString str = "Metro Test";
-		//test_socket->socket->write("Metro Test");
-		//test_socket->socket->write(ev);
-		//test_socket->socket->write(str);
+	pipe_thread->sendStr(ev);
 	return;
-#
-	foreach (const ninjam_plugin &plugin, plugins) {
-		std::cout << "Got a plugin";
-		
-	//	plugin.page.bridge.sendToJavaScript("Metro:" + metro->bpm + ":" + metro->bpi +":" + metro.time;
-	        char ev[100];
-		sprintf(ev, "{ \"event\":\"metro\", \"bpi\":%d, \"bpm\":%d, \"beat\":%g }", metro->bpi, metro->bpm, metro->time);
-//		plugin.page->bridge->sendToJavaScript(ev );
-	}
-
-        std::cout << "Metronome event: BPM = " << metro->bpm
-                  << ", BPI = " << metro->bpi
-                  << ", Time = " << metro->time << std::endl;
     } else {
         std::cout << "Error: Null metronome event received." << std::endl;
     }

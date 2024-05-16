@@ -38,7 +38,6 @@ public:
 //    void  addView(QString,  QWebEngineView* view, NinjamPluginPage *page);
     MainWindow *mainWindow;
     controller::MainController *mainController;
-    NpSocket *test_socket;
     NpWebSocketServer *socket_server;
     NpPipe *pipe_thread;
     void pluginLoadAll();
@@ -49,14 +48,10 @@ public:
     void setMainWindow(MainWindow *win, controller::MainController *ctrl) {
 	    mainWindow = win;
 	    mainController = ctrl;
-	    test_socket = new NpSocket();
 	    NpWebSocketServer *socket_server = new NpWebSocketServer(3003);
-	    //socket_server->startServer(3003);
             pipe_thread = new NpPipe();
-	    connect(pipe_thread, &NpPipe::sendData, test_socket, &NpSocket::write);
 	    connect(pipe_thread, &NpPipe::sendData, socket_server, &NpWebSocketServer::broadcast);
 
-	    test_socket->connectToServer();
 	    QMenu *menu = win->menuBar()->addMenu("Plugins");
             QAction *action = menu->addAction("Video Sync");
      	    connect(action, &QAction::triggered, this, [this, action]() {
