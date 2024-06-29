@@ -5,6 +5,8 @@
 #include "QUrl"
 #include <QDesktopServices>
 #include <QLibrary>
+#include <QProcess>
+#include <QDebug>
 #include "gui/MainWindow.h"
 #include "MainController.h"
 #include "NinjamPlugin/NpSocket.h"
@@ -55,7 +57,29 @@ public:
 	    QMenu *menu = win->menuBar()->addMenu("Plugins");
             QAction *action = menu->addAction("Video Sync");
      	    connect(action, &QAction::triggered, this, [this, action]() {
-		QDesktopServices::openUrl(QUrl("https://ninbot.com:3108"));
+
+		// QDesktopServices::openUrl(QUrl("https://ninbot.com:3108"));
+
+ 		QString program = "./plugins/ninbot-video-ninja/ninbot-video-ninja";
+		qDebug() << "Running " + program;
+		QFileInfo checkFile(program);
+    		if (!checkFile.exists() || !checkFile.isFile()) {
+        	     qCritical() << "Executable" << program << "not found or is not a file.";
+        	     return 1; // Return an error code
+     		}
+    		QStringList arguments;
+    		arguments << "-arg1" << "value1" << "-arg2" << "value2";
+
+    		QProcess *myProcess = new QProcess();
+		if (!myProcess->waitForStarted()) {
+		    qCritical() << "Failed to start process:" << myProcess->errorString();
+        	    return 1; // Return an error code
+		}
+
+		qDebug() << "Process started successfully.";
+
+
+
         //	this->openNinjamPlugin(action->text());
     	    });
 	    

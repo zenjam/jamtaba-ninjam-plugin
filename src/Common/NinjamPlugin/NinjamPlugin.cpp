@@ -90,7 +90,7 @@ void NinjamPlugin::sendMetronomeEvent(NinjamPluginMetroEvent *metro) {
 	pipe_thread->sendStr(ev);
 		
 	sendServerInfo();
-	pipe_thread->sendStr(ev);
+	//pipe_thread->sendStr(ev);
 	return;
     } else {
         std::cout << "Error: Null metronome event received." << std::endl;
