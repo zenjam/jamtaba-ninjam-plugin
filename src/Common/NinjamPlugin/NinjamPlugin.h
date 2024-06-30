@@ -60,7 +60,7 @@ public:
 
 		// QDesktopServices::openUrl(QUrl("https://ninbot.com:3108"));
 
- 		QString program = "./plugins/ninbot-video-ninja/ninbot-video-ninja";
+ 		QString program = "./plugins/ninbot-video-ninja/ninbot-video-ninja.exe";
 		qDebug() << "Running " + program;
 		QFileInfo checkFile(program);
     		if (!checkFile.exists() || !checkFile.isFile()) {
