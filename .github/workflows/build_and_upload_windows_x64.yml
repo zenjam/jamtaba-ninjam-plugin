@@ -24,7 +24,7 @@ jobs:
           zip -r jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip ./PROJECTS/Standalone/
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jamtaba-win64-${{ env.JAMTABA_VERSION }}
           path: jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip

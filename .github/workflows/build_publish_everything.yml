@@ -40,7 +40,7 @@ jobs:
           - win64
     steps:
       - name: Chekout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build everything
         shell: bash
@@ -86,7 +86,7 @@ jobs:
           - linux
     steps:
       - name: Chekout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build everything
         shell: bash

@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Chekout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build
         shell: bash
@@ -34,13 +34,13 @@ jobs:
           mv jamtaba-win64-VST-${{ env.JAMTABA_VERSION }}.zip ../../../
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jamtaba-win64-${{ env.JAMTABA_VERSION }}
           path: jamtaba-win64-${{ env.JAMTABA_VERSION }}.zip
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jamtaba-win64-VST-${{ env.JAMTABA_VERSION }}
           path: jamtaba-win64-VST-${{ env.JAMTABA_VERSION }}.zip
