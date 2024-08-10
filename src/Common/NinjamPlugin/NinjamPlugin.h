@@ -7,6 +7,7 @@
 #include <QLibrary>
 #include <QProcess>
 #include <QDebug>
+#include <QCoreApplication>
 #include "gui/MainWindow.h"
 #include "MainController.h"
 #include "NinjamPlugin/NpSocket.h"
@@ -59,8 +60,11 @@ public:
      	    connect(action, &QAction::triggered, this, [this, action]() {
 
 		// QDesktopServices::openUrl(QUrl("https://ninbot.com:3108"));
+    QString executablePath = QCoreApplication::applicationFilePath();
+    QString appDir = QFileInfo(executablePath).absoluteDir().path();
 
- 		QString program = "./plugins/ninbot-video-ninja/ninbot-video-ninja.exe";
+ 		QString rel = "./plugins/ninbot-video-ninja/ninbot-video-ninja.exe";
+		QString program = QDir(appDir).absoluteFilePath(rel);
 		qDebug() << "Running " + program;
 		QFileInfo checkFile(program);
     		if (!checkFile.exists() || !checkFile.isFile()) {
