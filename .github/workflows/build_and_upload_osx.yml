@@ -9,7 +9,7 @@ on:
 jobs:
   build_upload_osx:
     name: Build and Upload for macOS
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - name: Checkout
         uses: actions/checkout@v4
