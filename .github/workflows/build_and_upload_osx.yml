@@ -16,7 +16,7 @@ jobs:
 
       - name: Install Qt
         run: |
-          brew install qt
+          brew install qt@5
           echo "/usr/local/opt/qt/bin" >> $GITHUB_PATH
 
       - name: Build everything
