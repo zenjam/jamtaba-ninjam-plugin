@@ -9,14 +9,14 @@ on:
 jobs:
   build_upload_osx:
     name: Build and Upload for macOS
-    runs-on: macos-latest
+    runs-on: macos-12
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Qt
         run: |
-          brew install qt
+          brew install qt@5
           echo "/usr/local/opt/qt/bin" >> $GITHUB_PATH
 
       - name: Build everything
