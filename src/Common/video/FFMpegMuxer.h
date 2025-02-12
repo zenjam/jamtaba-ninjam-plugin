@@ -35,11 +35,19 @@ public:
     enum VideoQuality
     {
         VideoQualityLow    = 64000,     // 64 kbps
+        VideoQualityMedium = 40000000,     // 4000 kbps
+        VideoQualityHigh   = 128000,    // 128 kbps
+        VideoQualityBest   = 4000000     // 400 kbps (default value in ffmpeg examples)
+    };
+/*
+    enum VideoQuality
+    {
+        VideoQualityLow    = 64000,     // 64 kbps
         VideoQualityMedium = 96000,     // 96 kbps
         VideoQualityHigh   = 128000,    // 128 kbps
-        VideoQualityBest   = 400000     // 400 kbps (default value in ffmpeg examples)
+        VideoQualityBest   = 4000000     // 400 kbps (default value in ffmpeg examples)
     };
-
+    */
 
     /**
      * @brief Set video bitrate
