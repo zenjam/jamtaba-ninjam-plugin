@@ -89,7 +89,7 @@ FFMpegMuxer::FFMpegMuxer(QObject *parent) :
       //videoResolution(QSize(320, 240)),
       //videoFrameRate(25),
       videoResolution(QSize(1280, 720)),
-      videoFrameRate(30),
+      videoFrameRate(24),
       videoBitRate(static_cast<uint>(FFMpegMuxer::VideoQualityMedium)),
       initialized(false),
       startNewIntervalRequested(false)
