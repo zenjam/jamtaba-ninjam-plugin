@@ -35,7 +35,7 @@ public:
     enum VideoQuality
     {
         VideoQualityLow    = 64000,     // 64 kbps
-        VideoQualityMedium = 40000000,     // 4000 kbps
+        VideoQualityMedium = 4000000,     // 4000 kbps
         VideoQualityHigh   = 128000,    // 128 kbps
         VideoQualityBest   = 4000000     // 400 kbps (default value in ffmpeg examples)
     };
